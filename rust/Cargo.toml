@@ -1,0 +1,17 @@
+[package]
+name = "rust_lib_muse_stream"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+flutter_rust_bridge = "=2.11.1"
+brainflow = { path = "../packages/brainflow" }
+anyhow = "1.0.101"
+log = "0.4.29"
+env_logger = "0.11.6"
+
+[build-dependencies]
+# build.rs uses std and env, no extra crates needed for now

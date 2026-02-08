@@ -1,0 +1,25 @@
+name: muse_stream
+description: A minimal, focused EEG biofeedback app for Muse S.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.1.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_rust_bridge: ^2.11.1
+  flutter_riverpod: ^2.4.9
+  fl_chart: ^0.66.0
+  permission_handler: ^11.1.0
+  logger: ^2.0.2
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
