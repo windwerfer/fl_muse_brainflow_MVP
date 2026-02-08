@@ -31,6 +31,12 @@ MuseStream is a minimal EEG biofeedback application designed to connect to the M
 - **Regenerate Bridge:** `flutter_rust_bridge_codegen generate` (Uses `flutter_rust_bridge.yaml`)
 - **Build Rust Only:** `cd rust && cargo build`
 - **Run App (Linux):** `flutter run -d linux`
+- **Build Android:** `flutter build apk` (Ensure permissions are granted)
+
+## Android Permissions
+- **Bluetooth:** `BLUETOOTH_SCAN` and `BLUETOOTH_CONNECT` (Android 12+)
+- **Location:** `ACCESS_FINE_LOCATION` (Android 6-11, and 12+ if scanning)
+- Permissions are requested at runtime in `MuseStateNotifier.connect()`.
 
 ## Current API Surface (Rust)
 - `connect_to_muse(mac_address: Option<String>)`: Initializes `BoardShim` (Board ID 39), prepares session, and starts stream.

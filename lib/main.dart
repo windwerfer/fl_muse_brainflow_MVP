@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:muse_stream/src/rust/api.dart' as api;
 import 'package:muse_stream/src/rust/frb_generated.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 Future<void> main() async {
   debugPrint("Starting app...");
@@ -80,7 +81,40 @@ class MuseStateNotifier extends StateNotifier<MuseState> {
 
   Future<void> connect() async {
     state = state.copyWith(status: api.ConnectionStatus.connecting, errorMessage: null);
+    
     try {
+      // Request permissions
+      final statuses = await [
+        Permission.bluetoothScan,
+        Permission.bluetoothConnect,
+        Permission.location,
+      ].request();
+
+      final scanStatus = statuses[Permission.bluetoothScan];
+      final connectStatus = statuses[Permission.bluetoothConnect];
+      final locationStatus = statuses[Permission.location];
+
+      if (scanStatus?.isDenied == true || 
+          connectStatus?.isDenied == true || 
+          locationStatus?.isDenied == true) {
+        state = state.copyWith(
+          status: api.ConnectionStatus.error, 
+          errorMessage: "Permissions denied. Please grant Bluetooth and Location permissions."
+        );
+        return;
+      }
+
+      if (scanStatus?.isPermanentlyDenied == true || 
+          connectStatus?.isPermanentlyDenied == true || 
+          locationStatus?.isPermanentlyDenied == true) {
+        state = state.copyWith(
+          status: api.ConnectionStatus.error, 
+          errorMessage: "Permissions permanently denied. Please enable them in settings."
+        );
+        openAppSettings();
+        return;
+      }
+
       await api.connectToMuse();
       state = state.copyWith(status: api.ConnectionStatus.connected);
       _startDataPolling();
