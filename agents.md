@@ -5,7 +5,7 @@ MuseStream is a minimal EEG biofeedback application designed to connect to the M
 
 ## Technical Stack
 - **Framework:** Flutter (Material 3)
-- **Native Logic:** Rust with `flutter_rust_bridge` v2
+- **Native Logic:** Rust with `flutter_rust_bridge` v2 (v2.11.1)
 - **EEG Engine:** BrainFlow v5.20.1 (Prebuilt shared libraries)
 - **State Management:** Riverpod
 
@@ -14,7 +14,7 @@ MuseStream is a minimal EEG biofeedback application designed to connect to the M
   - `src/rust/`: Generated Dart bindings for Rust logic.
 - `rust/`: Application-specific Rust logic and BrainFlow bridging.
 - `packages/brainflow/`: Master source for the BrainFlow SDK.
-  - `lib/`: Platform-specific shared libraries (`linux/`, `windows/`, `android/`). **This is the single source of truth for binaries.**
+  - `lib/`: Platform-specific shared libraries (`linux/`, `windows/`, `android/`). **Single source of truth for binaries.**
   - `src/`: Rust bindings for BrainFlow.
 - `linux/`, `windows/`, `android/`: Platform-specific build scripts (CMake/Gradle) configured to source binaries directly from `packages/brainflow/lib/`.
 
@@ -26,6 +26,18 @@ MuseStream is a minimal EEG biofeedback application designed to connect to the M
    - **Fair:** 50.0 - 100.0 μV
    - **Poor:** < 1.0 or > 200.0 μV
 4. **Polling:** 10Hz polling for UI updates (256 samples per request).
+
+## Development & Build Commands
+- **Regenerate Bridge:** `flutter_rust_bridge_codegen generate` (Uses `flutter_rust_bridge.yaml`)
+- **Build Rust Only:** `cd rust && cargo build`
+- **Run App (Linux):** `flutter run -d linux`
+
+## Current API Surface (Rust)
+- `connect_to_muse(mac_address: Option<String>)`: Initializes `BoardShim` (Board ID 39), prepares session, and starts stream.
+- `disconnect_muse()`: Stops stream and releases session.
+- `get_connection_status()`: Returns `ConnectionStatus` enum.
+- `get_latest_data(num_samples: i32)`: Returns `EegData` (channels and raw samples).
+- `init_logger()`: Initializes `env_logger` using `try_init()` for safety.
 
 ## Maintenance
 **CRITICAL:** Update this file regularly after making significant design choices or architectural changes to ensure project alignment and help the agent remember context across sessions.
