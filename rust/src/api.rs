@@ -109,5 +109,5 @@ pub fn get_latest_data(num_samples: i32) -> Result<EegData> {
 
 // Initialize logger
 pub fn init_logger() {
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
+    let _ = env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).try_init();
 }

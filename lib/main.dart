@@ -7,9 +7,13 @@ import 'package:muse_stream/src/rust/frb_generated.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 Future<void> main() async {
+  debugPrint("Starting app...");
   WidgetsFlutterBinding.ensureInitialized();
+  debugPrint("Initializing RustLib...");
   await RustLib.init();
+  debugPrint("Initializing Logger...");
   await api.initLogger();
+  debugPrint("Running App...");
   runApp(const ProviderScope(child: MuseStreamApp()));
 }
 
