@@ -244,7 +244,7 @@ impl BoardShim {
     pub fn config_board_with_bytes(&self, bytes: Vec<i8>) -> Result<()> {
         let res = unsafe {
             board_controller::config_board_with_bytes(
-                bytes.as_ptr(),
+                bytes.as_ptr() as *const c_char,
                 bytes.len() as c_int,
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),

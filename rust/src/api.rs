@@ -1,9 +1,9 @@
-use std::sync::Mutex;
-use anyhow::{Result, Context};
-use brainflow::board_shim::{BoardShim, get_eeg_channels};
+use anyhow::{Context, Result};
+use brainflow::board_shim::{get_eeg_channels, BoardShim};
 use brainflow::brainflow_input_params::BrainFlowInputParamsBuilder;
 use brainflow::{BoardIds, BrainFlowPresets};
 use log::info;
+use std::sync::Mutex;
 
 // Use a static Mutex to hold the BoardShim instance
 static BOARD: Mutex<Option<BoardShim>> = Mutex::new(None);
@@ -18,8 +18,10 @@ pub enum ConnectionStatus {
 
 pub fn connect_to_muse(mac_address: Option<String>) -> Result<()> {
     info!("Connecting to Muse...");
-    let mut board_guard = BOARD.lock().map_err(|_| anyhow::anyhow!("Failed to lock BOARD mutex"))?;
-    
+    let mut board_guard = BOARD
+        .lock()
+        .map_err(|_| anyhow::anyhow!("Failed to lock BOARD mutex"))?;
+
     if board_guard.is_some() {
         return Ok(()); // Already connected or initialized
     }
@@ -33,14 +35,16 @@ pub fn connect_to_muse(mac_address: Option<String>) -> Result<()> {
 
     let params = builder.build();
     let board_id = BoardIds::MuseSBoard;
-    
+
     let board = BoardShim::new(board_id, params)
         .map_err(|e| anyhow::anyhow!("Failed to create BoardShim: {:?}", e))?;
 
-    board.prepare_session()
+    board
+        .prepare_session()
         .map_err(|e| anyhow::anyhow!("Failed to prepare session: {:?}", e))?;
 
-    board.start_stream(45000, "")
+    board
+        .start_stream(45000, "")
         .map_err(|e| anyhow::anyhow!("Failed to start stream: {:?}", e))?;
 
     *board_guard = Some(board);
@@ -49,7 +53,9 @@ pub fn connect_to_muse(mac_address: Option<String>) -> Result<()> {
 }
 
 pub fn disconnect_muse() -> Result<()> {
-    let mut board_guard = BOARD.lock().map_err(|_| anyhow::anyhow!("Failed to lock BOARD mutex"))?;
+    let mut board_guard = BOARD
+        .lock()
+        .map_err(|_| anyhow::anyhow!("Failed to lock BOARD mutex"))?;
     if let Some(board) = board_guard.take() {
         if board.is_prepared().unwrap_or(false) {
             board.stop_stream().ok();
@@ -83,13 +89,16 @@ pub struct EegData {
 }
 
 pub fn get_latest_data(num_samples: i32) -> Result<EegData> {
-    let board_guard = BOARD.lock().map_err(|_| anyhow::anyhow!("Failed to lock BOARD mutex"))?;
+    let board_guard = BOARD
+        .lock()
+        .map_err(|_| anyhow::anyhow!("Failed to lock BOARD mutex"))?;
     let board = board_guard.as_ref().context("Board not initialized")?;
 
     let eeg_channels = get_eeg_channels(BoardIds::MuseSBoard, BrainFlowPresets::DefaultPreset)
         .map_err(|e| anyhow::anyhow!("Failed to get EEG channels: {:?}", e))?;
 
-    let data = board.get_current_board_data(num_samples as usize, BrainFlowPresets::DefaultPreset)
+    let data = board
+        .get_current_board_data(num_samples as usize, BrainFlowPresets::DefaultPreset)
         .map_err(|e| anyhow::anyhow!("Failed to get board data: {:?}", e))?;
 
     // data is Array2<f64> [channels, samples]
@@ -109,5 +118,6 @@ pub fn get_latest_data(num_samples: i32) -> Result<EegData> {
 
 // Initialize logger
 pub fn init_logger() {
-    let _ = env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).try_init();
+    let _ = env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
+        .try_init();
 }

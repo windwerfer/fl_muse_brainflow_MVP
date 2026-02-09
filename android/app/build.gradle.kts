@@ -40,7 +40,7 @@ android {
 
     sourceSets {
         getByName("main") {
-            jniLibs.srcDirs("../../packages/brainflow/lib/android")
+            jniLibs.srcDirs("src/main/jniLibs", "../../packages/brainflow/lib/android")
         }
     }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as Math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,36 +84,38 @@ class MuseStateNotifier extends StateNotifier<MuseState> {
     state = state.copyWith(status: api.ConnectionStatus.connecting, errorMessage: null);
     
     try {
-      // Request permissions
-      final statuses = await [
-        Permission.bluetoothScan,
-        Permission.bluetoothConnect,
-        Permission.location,
-      ].request();
+      if (Platform.isAndroid) {
+        // Request permissions
+        final statuses = await [
+          Permission.bluetoothScan,
+          Permission.bluetoothConnect,
+          Permission.location,
+        ].request();
 
-      final scanStatus = statuses[Permission.bluetoothScan];
-      final connectStatus = statuses[Permission.bluetoothConnect];
-      final locationStatus = statuses[Permission.location];
+        final scanStatus = statuses[Permission.bluetoothScan];
+        final connectStatus = statuses[Permission.bluetoothConnect];
+        final locationStatus = statuses[Permission.location];
 
-      if (scanStatus?.isDenied == true || 
-          connectStatus?.isDenied == true || 
-          locationStatus?.isDenied == true) {
-        state = state.copyWith(
-          status: api.ConnectionStatus.error, 
-          errorMessage: "Permissions denied. Please grant Bluetooth and Location permissions."
-        );
-        return;
-      }
+        if (scanStatus?.isDenied == true || 
+            connectStatus?.isDenied == true || 
+            locationStatus?.isDenied == true) {
+          state = state.copyWith(
+            status: api.ConnectionStatus.error, 
+            errorMessage: "Permissions denied. Please grant Bluetooth and Location permissions."
+          );
+          return;
+        }
 
-      if (scanStatus?.isPermanentlyDenied == true || 
-          connectStatus?.isPermanentlyDenied == true || 
-          locationStatus?.isPermanentlyDenied == true) {
-        state = state.copyWith(
-          status: api.ConnectionStatus.error, 
-          errorMessage: "Permissions permanently denied. Please enable them in settings."
-        );
-        openAppSettings();
-        return;
+        if (scanStatus?.isPermanentlyDenied == true || 
+            connectStatus?.isPermanentlyDenied == true || 
+            locationStatus?.isPermanentlyDenied == true) {
+          state = state.copyWith(
+            status: api.ConnectionStatus.error, 
+            errorMessage: "Permissions permanently denied. Please enable them in settings."
+          );
+          openAppSettings();
+          return;
+        }
       }
 
       await api.connectToMuse();

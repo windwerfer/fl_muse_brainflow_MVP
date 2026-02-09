@@ -36,6 +36,10 @@ rust/target/
 /build/
 /coverage/
 
+
+# cargo/rust
+android/app/src/main/jniLibs/**/*.so
+
 # Symbolication related
 app.*.symbols
 
