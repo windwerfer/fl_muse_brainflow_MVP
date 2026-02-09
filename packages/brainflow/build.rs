@@ -155,7 +155,13 @@ fn main() {
     }
     fs_extra::dir::copy(&lib_path, lib_out_path, &options).unwrap();
 
-    println!("cargo:rustc-link-search=native={}/{}", out_path.display(), platform_subfolder);
+    let link_path = if target_os == "android" {
+        lib_path.join("arm64-v8a")
+    } else {
+        lib_path
+    };
+
+    println!("cargo:rustc-link-search=native={}", link_path.display());
     println!("cargo:rustc-link-lib=dylib=BoardController");
     println!("cargo:rustc-link-lib=dylib=DataHandler");
     println!("cargo:rustc-link-lib=dylib=MLModule");
