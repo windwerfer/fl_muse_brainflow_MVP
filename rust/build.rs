@@ -11,7 +11,6 @@ fn main() {
         "linux" => project_root.join("packages").join("brainflow").join("lib").join("linux"),
         "windows" => project_root.join("packages").join("brainflow").join("lib").join("windows"),
         "android" => {
-            // Force the linker to look in the arm64-v8a directory for BrainFlow libs
             project_root.join("packages").join("brainflow").join("lib").join("android").join("arm64-v8a")
         }
         _ => panic!("Unsupported target OS: {}", target_os),
@@ -24,7 +23,6 @@ fn main() {
     println!("cargo:rustc-link-lib=dylib=DataHandler");
     println!("cargo:rustc-link-lib=dylib=MLModule");
 
-    // For Android, we also need to link against ftdi and usb since BoardController depends on them
     if target_os == "android" {
         println!("cargo:rustc-link-lib=dylib=ftdi1");
         println!("cargo:rustc-link-lib=dylib=usb1.0");

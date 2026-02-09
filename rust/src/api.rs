@@ -34,7 +34,7 @@ pub fn connect_to_muse(mac_address: Option<String>) -> Result<()> {
     }
 
     let params = builder.build();
-    let board_id = BoardIds::SyntheticBoard;
+    let board_id = BoardIds::MuseSBoard;
 
     let board = BoardShim::new(board_id, params)
         .map_err(|e| anyhow::anyhow!("Failed to create BoardShim: {:?}", e))?;
@@ -94,7 +94,7 @@ pub fn get_latest_data(num_samples: i32) -> Result<EegData> {
         .map_err(|_| anyhow::anyhow!("Failed to lock BOARD mutex"))?;
     let board = board_guard.as_ref().context("Board not initialized")?;
 
-    let eeg_channels = get_eeg_channels(BoardIds::SyntheticBoard, BrainFlowPresets::DefaultPreset)
+    let eeg_channels = get_eeg_channels(BoardIds::MuseSBoard, BrainFlowPresets::DefaultPreset)
         .map_err(|e| anyhow::anyhow!("Failed to get EEG channels: {:?}", e))?;
 
     let data = board
