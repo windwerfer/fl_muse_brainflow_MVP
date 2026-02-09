@@ -5,21 +5,17 @@ fn main() {
     let project_root = env::var("CARGO_MANIFEST_DIR").unwrap();
     let project_root = PathBuf::from(project_root).parent().unwrap().to_path_buf();
     
+    let target = env::var("TARGET").unwrap();
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
     
+    if target.contains("android") {
+        println!("cargo:warning=Android target - using runtime symbol lookup (skipping compile-time linking)");
+        return;
+    }
+
     let lib_dir = match target_os.as_str() {
         "linux" => project_root.join("packages").join("brainflow").join("lib").join("linux"),
         "windows" => project_root.join("packages").join("brainflow").join("lib").join("windows"),
-        "android" => {
-            let abi = match env::var("CARGO_CFG_TARGET_ARCH").unwrap().as_str() {
-                "aarch64" => "arm64-v8a",
-                "arm" => "armeabi-v7a",
-                "x86_64" => "x86_64",
-                "x86" => "x86",
-                _ => panic!("Unsupported Android arch"),
-            };
-            project_root.join("packages").join("brainflow").join("lib").join("android").join(abi)
-        }
         _ => panic!("Unsupported target OS: {}", target_os),
     };
 

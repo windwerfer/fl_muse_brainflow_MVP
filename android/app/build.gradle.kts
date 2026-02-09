@@ -28,6 +28,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        ndk {
+            abiFilters.add("arm64-v8a")
+        }
     }
 
     buildTypes {
@@ -40,8 +44,43 @@ android {
 
     sourceSets {
         getByName("main") {
-            jniLibs.srcDirs("src/main/jniLibs", "../../packages/brainflow/lib/android")
+            jniLibs.srcDirs(
+                "../../packages/brainflow/lib/android",
+                "$buildDir/rust_output"
+            )
         }
+    }
+}
+
+val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
+    val isRelease = project.gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
+    val buildMode = if (isRelease) "release" else "debug"
+    val cargoFlags = if (isRelease) listOf("--release") else emptyList()
+
+    workingDir("../../rust")
+    commandLine(listOf("cargo", "ndk", "-t", "arm64-v8a", "build") + cargoFlags)
+    
+    // Performance: Only rebuild if files changed
+    inputs.dir("../../rust/src")
+    inputs.file("../../rust/Cargo.toml")
+    outputs.dir("../../rust/target/aarch64-linux-android/$buildMode")
+}
+
+val syncRustLib = tasks.register<Copy>("syncRustLib") {
+    dependsOn(buildRustAndroid)
+    val isRelease = project.gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
+    val buildMode = if (isRelease) "release" else "debug"
+    
+    from("../../rust/target/aarch64-linux-android/$buildMode/librust_lib_muse_stream.so")
+    into("$buildDir/rust_output/arm64-v8a")
+}
+
+tasks.whenTaskAdded {
+    if (name.contains("merge") && name.contains("JniLibFolders")) {
+        dependsOn(syncRustLib)
+    }
+    if (name.contains("merge") && name.contains("NativeLibs")) {
+        dependsOn(syncRustLib)
     }
 }
 

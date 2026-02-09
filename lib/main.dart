@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:math' as Math;
 import 'package:flutter/material.dart';
@@ -9,13 +10,27 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 Future<void> main() async {
-  debugPrint("Starting app...");
+  debugPrint("--- APP STARTING ---");
   WidgetsFlutterBinding.ensureInitialized();
-  debugPrint("Initializing RustLib...");
-  await RustLib.init();
-  debugPrint("Initializing Logger...");
-  await api.initLogger();
-  debugPrint("Running App...");
+  
+  try {
+    debugPrint("Step 1: Initializing RustLib (FFI)...");
+    await RustLib.init();
+    debugPrint("Step 1 Success: RustLib initialized.");
+  } catch (e, stack) {
+    debugPrint("CRITICAL ERROR during RustLib.init(): $e");
+    debugPrint("Stack trace: $stack");
+  }
+
+  try {
+    debugPrint("Step 2: Initializing Logger...");
+    await api.initLogger();
+    debugPrint("Step 2 Success: Logger initialized.");
+  } catch (e) {
+    debugPrint("Error during api.initLogger(): $e");
+  }
+
+  debugPrint("Step 3: Running App UI...");
   runApp(const ProviderScope(child: MuseStreamApp()));
 }
 
