@@ -108,10 +108,36 @@ foreach(brainflow_lib ${BRAINFLOW_LIBS})
     COMPONENT Runtime)
 endforeach(brainflow_lib)
 
-# --- Bundle App Rust Library ---
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../rust/target/debug/librust_lib_muse_stream.so"
+# --- Build & Bundle App Rust Library ---
+
+# 1. Determine the Cargo profile based on the CMake build type
+if(CMAKE_BUILD_TYPE MATCHES "Release" OR CMAKE_BUILD_TYPE MATCHES "Profile")
+  set(CARGO_PROFILE "release")
+  set(CARGO_FLAGS "--release")
+else()
+  set(CARGO_PROFILE "debug")
+  set(CARGO_FLAGS "")
+endif()
+
+# 2. Add a custom target to build the Rust code automatically
+add_custom_target(cargo_build ALL
+  COMMAND cargo build ${CARGO_FLAGS}
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../rust"
+  COMMENT "Building Rust library (${CARGO_PROFILE})..."
+  VERBATIM
+)
+
+# 3. Define the path to the compiled library
+set(RUST_LIB_NAME "librust_lib_muse_stream.so")
+set(RUST_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../rust/target/${CARGO_PROFILE}/${RUST_LIB_NAME}")
+
+# 4. Install the library (copy it to the build bundle)
+install(FILES "${RUST_LIB_PATH}"
   DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
   COMPONENT Runtime)
+
+# Ensure the copy happens after the build
+add_dependencies(${BINARY_NAME} cargo_build)
 # ---------------------------------
 
 foreach(bundled_library ${PLUGIN_BUNDLED_LIBRARIES})
