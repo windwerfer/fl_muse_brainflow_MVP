@@ -121,3 +121,7 @@ pub fn init_logger() {
     let _ = env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
         .try_init();
 }
+
+pub fn verify_brainflow_version() -> Result<String> {
+    brainflow::board_shim::get_version().map_err(|e| anyhow::anyhow!("BrainFlow error: {:?}", e))
+}

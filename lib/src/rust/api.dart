@@ -21,6 +21,9 @@ Future<EegData> getLatestData({required int numSamples}) =>
 
 Future<void> initLogger() => RustLib.instance.api.crateApiInitLogger();
 
+Future<String> verifyBrainflowVersion() =>
+    RustLib.instance.api.crateApiVerifyBrainflowVersion();
+
 enum ConnectionStatus {
   disconnected,
   connecting,

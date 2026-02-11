@@ -68,7 +68,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => 948920623;
+  int get rustContentHash => 1080421729;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -88,6 +88,8 @@ abstract class RustLibApi extends BaseApi {
   Future<EegData> crateApiGetLatestData({required int numSamples});
 
   Future<void> crateApiInitLogger();
+
+  Future<String> crateApiVerifyBrainflowVersion();
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -213,6 +215,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiInitLoggerConstMeta => const TaskConstMeta(
         debugName: "init_logger",
+        argNames: [],
+      );
+
+  @override
+  Future<String> crateApiVerifyBrainflowVersion() {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 6, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiVerifyBrainflowVersionConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiVerifyBrainflowVersionConstMeta =>
+      const TaskConstMeta(
+        debugName: "verify_brainflow_version",
         argNames: [],
       );
 

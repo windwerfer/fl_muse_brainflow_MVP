@@ -12,7 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 Future<void> main() async {
   debugPrint("--- APP STARTING ---");
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   try {
     debugPrint("Step 1: Initializing RustLib (FFI)...");
     await RustLib.init();
@@ -30,7 +30,18 @@ Future<void> main() async {
     debugPrint("Error during api.initLogger(): $e");
   }
 
-  debugPrint("Step 3: Running App UI...");
+  try {
+    debugPrint("Step 3: Verifying BrainFlow...");
+    final version = await api.verifyBrainflowVersion();
+    debugPrint("Step 3 Success: BrainFlow version $version is ready. ");
+    debugPrint(
+        "   (brainflow lib + librust_lib_muse_stream.so loaded successfully)");
+  } catch (e) {
+    debugPrint("CRITICAL WARNING: BrainFlow verification failed: $e");
+    debugPrint("Note: Connection might fail if native libs are missing.");
+  }
+
+  debugPrint("Step 4: Running App UI...");
   runApp(const ProviderScope(child: MuseStreamApp()));
 }
 
@@ -58,7 +69,8 @@ enum SignalQuality { good, fair, poor, none }
 double calculateStdDev(List<double> data) {
   if (data.isEmpty) return 0;
   double mean = data.reduce((a, b) => a + b) / data.length;
-  double sumSqDiff = data.map((x) => (x - mean) * (x - mean)).reduce((a, b) => a + b);
+  double sumSqDiff =
+      data.map((x) => (x - mean) * (x - mean)).reduce((a, b) => a + b);
   return Math.sqrt(sumSqDiff / data.length);
 }
 
@@ -93,11 +105,13 @@ class MuseState {
 class MuseStateNotifier extends StateNotifier<MuseState> {
   Timer? _timer;
 
-  MuseStateNotifier() : super(MuseState(status: api.ConnectionStatus.disconnected));
+  MuseStateNotifier()
+      : super(MuseState(status: api.ConnectionStatus.disconnected));
 
   Future<void> connect() async {
-    state = state.copyWith(status: api.ConnectionStatus.connecting, errorMessage: null);
-    
+    state = state.copyWith(
+        status: api.ConnectionStatus.connecting, errorMessage: null);
+
     try {
       if (Platform.isAndroid) {
         // Request permissions
@@ -111,23 +125,23 @@ class MuseStateNotifier extends StateNotifier<MuseState> {
         final connectStatus = statuses[Permission.bluetoothConnect];
         final locationStatus = statuses[Permission.location];
 
-        if (scanStatus?.isDenied == true || 
-            connectStatus?.isDenied == true || 
+        if (scanStatus?.isDenied == true ||
+            connectStatus?.isDenied == true ||
             locationStatus?.isDenied == true) {
           state = state.copyWith(
-            status: api.ConnectionStatus.error, 
-            errorMessage: "Permissions denied. Please grant Bluetooth and Location permissions."
-          );
+              status: api.ConnectionStatus.error,
+              errorMessage:
+                  "Permissions denied. Please grant Bluetooth and Location permissions.");
           return;
         }
 
-        if (scanStatus?.isPermanentlyDenied == true || 
-            connectStatus?.isPermanentlyDenied == true || 
+        if (scanStatus?.isPermanentlyDenied == true ||
+            connectStatus?.isPermanentlyDenied == true ||
             locationStatus?.isPermanentlyDenied == true) {
           state = state.copyWith(
-            status: api.ConnectionStatus.error, 
-            errorMessage: "Permissions permanently denied. Please enable them in settings."
-          );
+              status: api.ConnectionStatus.error,
+              errorMessage:
+                  "Permissions permanently denied. Please enable them in settings.");
           openAppSettings();
           return;
         }
@@ -137,7 +151,8 @@ class MuseStateNotifier extends StateNotifier<MuseState> {
       state = state.copyWith(status: api.ConnectionStatus.connected);
       _startDataPolling();
     } catch (e) {
-      state = state.copyWith(status: api.ConnectionStatus.error, errorMessage: e.toString());
+      state = state.copyWith(
+          status: api.ConnectionStatus.error, errorMessage: e.toString());
     }
   }
 
@@ -147,7 +162,8 @@ class MuseStateNotifier extends StateNotifier<MuseState> {
       await api.disconnectMuse();
       state = state.copyWith(status: api.ConnectionStatus.disconnected);
     } catch (e) {
-      state = state.copyWith(status: api.ConnectionStatus.error, errorMessage: e.toString());
+      state = state.copyWith(
+          status: api.ConnectionStatus.error, errorMessage: e.toString());
     }
   }
 
@@ -160,7 +176,7 @@ class MuseStateNotifier extends StateNotifier<MuseState> {
       }
       try {
         final data = await api.getLatestData(numSamples: 256);
-        
+
         SignalQuality quality = SignalQuality.none;
         if (data.data.isNotEmpty && data.data[0].isNotEmpty) {
           double stdDev = calculateStdDev(data.data[0]);
@@ -211,7 +227,8 @@ class MuseConnectionScreen extends ConsumerWidget {
           children: [
             _StatusCard(muse: muse),
             const SizedBox(height: 20),
-            if (muse.status == api.ConnectionStatus.connected && muse.eegData.isNotEmpty)
+            if (muse.status == api.ConnectionStatus.connected &&
+                muse.eegData.isNotEmpty)
               Expanded(
                 child: _EegChart(data: muse.eegData[0]), // Show first channel
               )
@@ -232,7 +249,9 @@ class MuseConnectionScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               child: Text(
-                muse.status == api.ConnectionStatus.connected ? "Disconnect" : "Connect Muse S",
+                muse.status == api.ConnectionStatus.connected
+                    ? "Disconnect"
+                    : "Connect Muse S",
                 style: const TextStyle(fontSize: 18),
               ),
             ),
@@ -329,10 +348,14 @@ class _StatusCard extends StatelessWidget {
 
   Color _getSignalColor(SignalQuality quality) {
     switch (quality) {
-      case SignalQuality.good: return Colors.green;
-      case SignalQuality.fair: return Colors.orange;
-      case SignalQuality.poor: return Colors.red;
-      case SignalQuality.none: return Colors.grey;
+      case SignalQuality.good:
+        return Colors.green;
+      case SignalQuality.fair:
+        return Colors.orange;
+      case SignalQuality.poor:
+        return Colors.red;
+      case SignalQuality.none:
+        return Colors.grey;
     }
   }
 }
@@ -352,12 +375,17 @@ class _EegChart extends StatelessWidget {
         borderData: FlBorderData(show: false),
         lineBarsData: [
           LineChartBarData(
-            spots: data.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value)).toList(),
+            spots: data
+                .asMap()
+                .entries
+                .map((e) => FlSpot(e.key.toDouble(), e.value))
+                .toList(),
             isCurved: true,
             color: Colors.deepPurpleAccent,
             barWidth: 2,
             dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(show: true, color: Colors.deepPurpleAccent.withOpacity(0.1)),
+            belowBarData: BarAreaData(
+                show: true, color: Colors.deepPurpleAccent.withOpacity(0.1)),
           ),
         ],
       ),
