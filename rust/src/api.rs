@@ -18,6 +18,7 @@ pub enum ConnectionStatus {
 
 pub fn connect_to_muse(mac_address: Option<String>) -> Result<()> {
     info!("Connecting to Muse...");
+    println!("Target OS: {}", std::env::consts::OS);
     let mut board_guard = BOARD
         .lock()
         .map_err(|_| anyhow::anyhow!("Failed to lock BOARD mutex"))?;
@@ -124,4 +125,10 @@ pub fn init_logger() {
 
 pub fn verify_brainflow_version() -> Result<String> {
     brainflow::board_shim::get_version().map_err(|e| anyhow::anyhow!("BrainFlow error: {:?}", e))
+}
+
+pub fn test_logging() -> String {
+    println!("Plain println! from Rust");
+    info!("Log crate info from Rust");
+    "Test output".to_string()
 }
