@@ -17,7 +17,11 @@ pub enum ConnectionStatus {
 }
 
 pub fn connect_to_muse(mac_address: Option<String>) -> Result<()> {
-    info!("Connecting to Muse...");
+    info!(
+        "Connecting to Muse...  mac:{:?}, board_id: {:?}",
+        mac_address,
+        BoardIds::MuseSBoard
+    );
     info!("Target OS: {}", std::env::consts::OS);
     let mut board_guard = BOARD
         .lock()
