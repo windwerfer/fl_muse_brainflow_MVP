@@ -24,6 +24,8 @@ Future<void> initLogger() => RustLib.instance.api.crateApiInitLogger();
 Future<String> verifyBrainflowVersion() =>
     RustLib.instance.api.crateApiVerifyBrainflowVersion();
 
+Future<String> testLogging() => RustLib.instance.api.crateApiTestLogging();
+
 enum ConnectionStatus {
   disconnected,
   connecting,
