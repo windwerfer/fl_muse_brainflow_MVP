@@ -16,7 +16,7 @@ pub extern "system" fn JNI_OnLoad(vm: JavaVM, _reserved: *mut c_void) -> jni::sy
         std::env::consts::OS
     );
 
-    let mut env = match vm.get_env() {
+    let env = match vm.get_env() {
         Ok(env) => env,
         Err(e) => {
             log::error!("[JNI_OnLoad] Failed to get JNIEnv: {:?}", e);
