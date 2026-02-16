@@ -31,6 +31,7 @@ android {
 
         ndk {
             abiFilters.add("arm64-v8a")
+            abiFilters.add("armeabi-v7a")
         }
     }
 
@@ -58,11 +59,13 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
     val cargoFlags = if (isRelease) listOf("--release") else emptyList()
 
     workingDir("../../rust")
-    commandLine(listOf("cargo", "ndk", "-t", "arm64-v8a", "build") + cargoFlags)
-    
+    commandLine(listOf("cargo", "ndk", "-t", "arm64-v8a", "-t", "armeabi-v7a", "build") + cargoFlags)
+
     // Performance: Only rebuild if files changed
     inputs.dir("../../rust/src")
     inputs.file("../../rust/Cargo.toml")
+    outputs.dir("../../rust/target/aarch64-linux-android/$buildMode")
+    outputs.dir("../../rust/target/armeabi-v7a-linux-androideabi/$buildMode")
     outputs.dir("../../rust/target/aarch64-linux-android/$buildMode")
 }
 
@@ -70,9 +73,14 @@ val syncRustLib = tasks.register<Copy>("syncRustLib") {
     dependsOn(buildRustAndroid)
     val isRelease = project.gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
     val buildMode = if (isRelease) "release" else "debug"
-    
+
+    // arm64-v8a
     from("../../rust/target/aarch64-linux-android/$buildMode/librust_lib_muse_stream.so")
     into("$buildDir/rust_output/arm64-v8a")
+
+    // armeabi-v7a
+    from("../../rust/target/armeabi-v7a-linux-androideabi/$buildMode/librust_lib_muse_stream.so")
+    into("$buildDir/rust_output/armeabi-v7a")
 }
 
 tasks.whenTaskAdded {

@@ -135,6 +135,9 @@ fn main() {
     let lib_out_path = Path::new(&out_path);
 
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
+    if target_os == "android" {
+        return;
+    }
     let platform_subfolder = match target_os.as_str() {
         "linux" => "linux",
         "windows" => "windows",
@@ -148,10 +151,13 @@ fn main() {
     let mut options = fs_extra::dir::CopyOptions::new();
     options.overwrite = true;
     options.copy_inside = true;
-    
+
     // Copy the specific platform libs to out_dir
     if !lib_path.exists() {
-        panic!("BrainFlow library path does not exist: {}", lib_path.display());
+        panic!(
+            "BrainFlow library path does not exist: {}",
+            lib_path.display()
+        );
     }
     fs_extra::dir::copy(&lib_path, lib_out_path, &options).unwrap();
 
