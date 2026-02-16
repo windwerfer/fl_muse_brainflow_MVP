@@ -11,7 +11,13 @@ fn main() {
         "linux" => project_root.join("packages").join("brainflow").join("lib").join("linux"),
         "windows" => project_root.join("packages").join("brainflow").join("lib").join("windows"),
         "android" => {
-            project_root.join("packages").join("brainflow").join("lib").join("android").join("arm64-v8a")
+            let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
+            let arch_dir = match target_arch.as_str() {
+                "aarch64" => "arm64-v8a",
+                "arm" => "armeabi-v7a",
+                _ => panic!("Unsupported Android architecture: {}", target_arch),
+            };
+            project_root.join("packages").join("brainflow").join("lib").join("android").join(arch_dir)
         }
         _ => panic!("Unsupported target OS: {}", target_os),
     };

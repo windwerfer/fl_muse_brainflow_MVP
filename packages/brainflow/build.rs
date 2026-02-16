@@ -162,7 +162,12 @@ fn main() {
     fs_extra::dir::copy(&lib_path, lib_out_path, &options).unwrap();
 
     let link_path = if target_os == "android" {
-        lib_path.join("arm64-v8a")
+        let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
+        match target_arch.as_str() {
+            "aarch64" => lib_path.join("arm64-v8a"),
+            "arm" => lib_path.join("armeabi-v7a"),
+            _ => panic!("Unsupported Android architecture: {}", target_arch),
+        }
     } else {
         lib_path
     };
