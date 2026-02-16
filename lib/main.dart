@@ -23,9 +23,6 @@ Future<void> main() async {
     return;
   }
 
-  final result = await api.testLogging();
-  debugPrint("Rust said: $result");
-
   try {
     debugPrint("Step 2: Initializing Logger...");
     await api.initLogger();
