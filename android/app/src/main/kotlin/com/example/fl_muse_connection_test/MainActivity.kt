@@ -22,18 +22,4 @@ class MainActivity : FlutterActivity() {
             }
         }
     }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        try {
-            Log.i("MuseStream", "Calling Rust initBrainFlow(context)...")
-            initBrainFlow(this.applicationContext)
-            Log.i("MuseStream", "Rust initBrainFlow returned.")
-        } catch (e: Exception) {
-            Log.e("MuseStream", "Failed to call initBrainFlow: ${e.message}")
-            e.printStackTrace()
-        }
-    }
-
-    external fun initBrainFlow(context: Context)
 }

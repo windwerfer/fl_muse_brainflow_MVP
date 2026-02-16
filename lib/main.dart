@@ -13,6 +13,9 @@ Future<void> main() async {
   debugPrint("--- APP STARTING ---");
   WidgetsFlutterBinding.ensureInitialized();
 
+  final result = await api.testLogging();
+  debugPrint("Rust said: $result");
+
   try {
     debugPrint("Step 1: Initializing RustLib (FFI)...");
     await RustLib.init();
