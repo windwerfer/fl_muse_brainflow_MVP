@@ -30,8 +30,8 @@ android {
         versionName = flutter.versionName
 
         ndk {
-            abiFilters.add("arm64-v8a")
-            abiFilters.add("armeabi-v7a")
+            abiFilters.clear()
+            abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
         }
     }
 
@@ -65,8 +65,7 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
     inputs.dir("../../rust/src")
     inputs.file("../../rust/Cargo.toml")
     outputs.dir("../../rust/target/aarch64-linux-android/$buildMode")
-    outputs.dir("../../rust/target/armeabi-v7a-linux-androideabi/$buildMode")
-    outputs.dir("../../rust/target/aarch64-linux-android/$buildMode")
+    outputs.dir("../../rust/target/armv7-linux-androideabi/$buildMode")
 }
 
 val syncRustLib = tasks.register<Copy>("syncRustLib") {
@@ -74,13 +73,17 @@ val syncRustLib = tasks.register<Copy>("syncRustLib") {
     val isRelease = project.gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
     val buildMode = if (isRelease) "release" else "debug"
 
-    // arm64-v8a
-    from("../../rust/target/aarch64-linux-android/$buildMode/librust_lib_muse_stream.so")
-    into("$buildDir/rust_output/arm64-v8a")
+    into("$buildDir/rust_output")
 
-    // armeabi-v7a
-    from("../../rust/target/armeabi-v7a-linux-androideabi/$buildMode/librust_lib_muse_stream.so")
-    into("$buildDir/rust_output/armeabi-v7a")
+    from("../../rust/target/aarch64-linux-android/$buildMode") {
+        include("librust_lib_muse_stream.so")
+        into("arm64-v8a")
+    }
+
+    from("../../rust/target/armv7-linux-androideabi/$buildMode") {
+        include("librust_lib_muse_stream.so")
+        into("armeabi-v7a")
+    }
 }
 
 tasks.whenTaskAdded {
