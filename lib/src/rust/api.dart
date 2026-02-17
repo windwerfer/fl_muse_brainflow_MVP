@@ -8,10 +8,11 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `eq`, `fmt`
 
-Future<void> connectToMuse({String? macAddress}) =>
+Future<String> connectToMuse({String? macAddress}) =>
     RustLib.instance.api.crateApiConnectToMuse(macAddress: macAddress);
 
-Future<void> disconnectMuse() => RustLib.instance.api.crateApiDisconnectMuse();
+Future<String> disconnectMuse() =>
+    RustLib.instance.api.crateApiDisconnectMuse();
 
 Future<ConnectionStatus> getConnectionStatus() =>
     RustLib.instance.api.crateApiGetConnectionStatus();
@@ -19,12 +20,12 @@ Future<ConnectionStatus> getConnectionStatus() =>
 Future<EegData> getLatestData({required int numSamples}) =>
     RustLib.instance.api.crateApiGetLatestData(numSamples: numSamples);
 
-Future<void> initLogger() => RustLib.instance.api.crateApiInitLogger();
-
 Future<String> verifyBrainflowVersion() =>
     RustLib.instance.api.crateApiVerifyBrainflowVersion();
 
-Future<String> testLogging() => RustLib.instance.api.crateApiTestLogging();
+Future<String> testOutput() => RustLib.instance.api.crateApiTestOutput();
+
+Future<void> initLogger() => RustLib.instance.api.crateApiInitLogger();
 
 enum ConnectionStatus {
   disconnected,

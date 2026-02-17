@@ -68,7 +68,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -2052637277;
+  int get rustContentHash => -1741989334;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -79,9 +79,9 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
-  Future<void> crateApiConnectToMuse({String? macAddress});
+  Future<String> crateApiConnectToMuse({String? macAddress});
 
-  Future<void> crateApiDisconnectMuse();
+  Future<String> crateApiDisconnectMuse();
 
   Future<ConnectionStatus> crateApiGetConnectionStatus();
 
@@ -89,7 +89,7 @@ abstract class RustLibApi extends BaseApi {
 
   Future<void> crateApiInitLogger();
 
-  Future<String> crateApiTestLogging();
+  Future<String> crateApiTestOutput();
 
   Future<String> crateApiVerifyBrainflowVersion();
 }
@@ -103,7 +103,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Future<void> crateApiConnectToMuse({String? macAddress}) {
+  Future<String> crateApiConnectToMuse({String? macAddress}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
@@ -112,7 +112,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             funcId: 1, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
+        decodeSuccessData: sse_decode_String,
         decodeErrorData: sse_decode_AnyhowException,
       ),
       constMeta: kCrateApiConnectToMuseConstMeta,
@@ -127,7 +127,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<void> crateApiDisconnectMuse() {
+  Future<String> crateApiDisconnectMuse() {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
@@ -135,7 +135,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             funcId: 2, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
+        decodeSuccessData: sse_decode_String,
         decodeErrorData: sse_decode_AnyhowException,
       ),
       constMeta: kCrateApiDisconnectMuseConstMeta,
@@ -221,7 +221,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<String> crateApiTestLogging() {
+  Future<String> crateApiTestOutput() {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
@@ -232,14 +232,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         decodeSuccessData: sse_decode_String,
         decodeErrorData: null,
       ),
-      constMeta: kCrateApiTestLoggingConstMeta,
+      constMeta: kCrateApiTestOutputConstMeta,
       argValues: [],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateApiTestLoggingConstMeta => const TaskConstMeta(
-        debugName: "test_logging",
+  TaskConstMeta get kCrateApiTestOutputConstMeta => const TaskConstMeta(
+        debugName: "test_output",
         argNames: [],
       );
 

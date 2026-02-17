@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -2052637277;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1741989334;
 
 // Section: executor
 
@@ -51,7 +51,7 @@ fn wire__crate__api__connect_to_muse_impl(
     rust_vec_len_: i32,
     data_len_: i32,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "connect_to_muse",
             port: Some(port_),
@@ -69,12 +69,13 @@ fn wire__crate__api__connect_to_muse_impl(
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_mac_address = <Option<String>>::sse_decode(&mut deserializer);
             deserializer.end();
-            move |context| {
+            move |context| async move {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
-                    (move || {
-                        let output_ok = crate::api::connect_to_muse(api_mac_address)?;
+                    (move || async move {
+                        let output_ok = crate::api::connect_to_muse(api_mac_address).await?;
                         Ok(output_ok)
-                    })(),
+                    })()
+                    .await,
                 )
             }
         },
@@ -86,7 +87,7 @@ fn wire__crate__api__disconnect_muse_impl(
     rust_vec_len_: i32,
     data_len_: i32,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "disconnect_muse",
             port: Some(port_),
@@ -103,12 +104,13 @@ fn wire__crate__api__disconnect_muse_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             deserializer.end();
-            move |context| {
+            move |context| async move {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
-                    (move || {
-                        let output_ok = crate::api::disconnect_muse()?;
+                    (move || async move {
+                        let output_ok = crate::api::disconnect_muse().await?;
                         Ok(output_ok)
-                    })(),
+                    })()
+                    .await,
                 )
             }
         },
@@ -152,7 +154,7 @@ fn wire__crate__api__get_latest_data_impl(
     rust_vec_len_: i32,
     data_len_: i32,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "get_latest_data",
             port: Some(port_),
@@ -170,12 +172,13 @@ fn wire__crate__api__get_latest_data_impl(
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_num_samples = <i32>::sse_decode(&mut deserializer);
             deserializer.end();
-            move |context| {
+            move |context| async move {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
-                    (move || {
-                        let output_ok = crate::api::get_latest_data(api_num_samples)?;
+                    (move || async move {
+                        let output_ok = crate::api::get_latest_data(api_num_samples).await?;
                         Ok(output_ok)
-                    })(),
+                    })()
+                    .await,
                 )
             }
         },
@@ -215,7 +218,7 @@ fn wire__crate__api__init_logger_impl(
         },
     )
 }
-fn wire__crate__api__test_logging_impl(
+fn wire__crate__api__test_output_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -223,7 +226,7 @@ fn wire__crate__api__test_logging_impl(
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "test_logging",
+            debug_name: "test_output",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
@@ -240,7 +243,7 @@ fn wire__crate__api__test_logging_impl(
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, ()>((move || {
-                    let output_ok = Result::<_, ()>::Ok(crate::api::test_logging())?;
+                    let output_ok = Result::<_, ()>::Ok(crate::api::test_output())?;
                     Ok(output_ok)
                 })())
             }
@@ -439,7 +442,7 @@ fn pde_ffi_dispatcher_primary_impl(
         3 => wire__crate__api__get_connection_status_impl(port, ptr, rust_vec_len, data_len),
         4 => wire__crate__api__get_latest_data_impl(port, ptr, rust_vec_len, data_len),
         5 => wire__crate__api__init_logger_impl(port, ptr, rust_vec_len, data_len),
-        6 => wire__crate__api__test_logging_impl(port, ptr, rust_vec_len, data_len),
+        6 => wire__crate__api__test_output_impl(port, ptr, rust_vec_len, data_len),
         7 => wire__crate__api__verify_brainflow_version_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
