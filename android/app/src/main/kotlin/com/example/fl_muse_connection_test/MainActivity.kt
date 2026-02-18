@@ -30,8 +30,8 @@ class MainActivity : FlutterActivity() {
                 System.loadLibrary("DataHandler")
 
                 // --- maybe not needed
-                System.loadLibrary("usb1.0")
-                System.loadLibrary("ftdi1")
+                // System.loadLibrary("usb1.0")
+                // System.loadLibrary("ftdi1")
                 System.loadLibrary("MLModule")
 
 
