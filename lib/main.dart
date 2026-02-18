@@ -1,7 +1,6 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:io';
-import 'dart:math' as Math;
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:muse_stream/src/rust/api.dart' as api;
@@ -72,7 +71,7 @@ double calculateStdDev(List<double> data) {
   double mean = data.reduce((a, b) => a + b) / data.length;
   double sumSqDiff =
       data.map((x) => (x - mean) * (x - mean)).reduce((a, b) => a + b);
-  return Math.sqrt(sumSqDiff / data.length);
+  return math.sqrt(sumSqDiff / data.length);
 }
 
 class MuseState {
@@ -103,11 +102,16 @@ class MuseState {
   }
 }
 
-class MuseStateNotifier extends StateNotifier<MuseState> {
+class MuseNotifier extends Notifier<MuseState> {
   Timer? _timer;
 
-  MuseStateNotifier()
-      : super(MuseState(status: api.ConnectionStatus.disconnected));
+  @override
+  MuseState build() {
+    ref.onDispose(() {
+      _timer?.cancel();
+    });
+    return MuseState(status: api.ConnectionStatus.disconnected);
+  }
 
   Future<void> connect() async {
     state = state.copyWith(
@@ -197,17 +201,10 @@ class MuseStateNotifier extends StateNotifier<MuseState> {
       }
     });
   }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
 }
 
-final museProvider = StateNotifierProvider<MuseStateNotifier, MuseState>((ref) {
-  return MuseStateNotifier();
-});
+final museProvider =
+    NotifierProvider<MuseNotifier, MuseState>(MuseNotifier.new);
 
 class MuseConnectionScreen extends ConsumerWidget {
   const MuseConnectionScreen({super.key});
@@ -386,7 +383,8 @@ class _EegChart extends StatelessWidget {
             barWidth: 2,
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
-                show: true, color: Colors.deepPurpleAccent.withOpacity(0.1)),
+                show: true,
+                color: Colors.deepPurpleAccent.withValues(alpha: 0.1)),
           ),
         ],
       ),
