@@ -21,5 +21,10 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
 
+dependency_overrides:
+  meta: 1.18.1
+  analyzer: 10.1.0
+  _fe_analyzer_shared: 95.0.0
+
 flutter:
   uses-material-design: true
