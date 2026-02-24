@@ -1,4 +1,4 @@
-package com.example.fl_muse_brainflow_MVP
+package com.windwerfer.fl_muse_brainflow_mvp
 
 import io.flutter.embedding.android.FlutterActivity
 import android.content.Context
@@ -36,7 +36,7 @@ class MainActivity : FlutterActivity() {
 
 
                 // ML optional: System.loadLibrary("MLModule")
-                System.loadLibrary("rust_lib_muse_stream") // Your Rust bridge
+                System.loadLibrary("rust_lib_fl_muse_brainflow_mvp") // Your Rust bridge
                 Log.i("MuseStream", "All native libraries loaded successfully.")
             } catch (e: Exception) {
                 Log.e("MuseStream", "Error loading native libraries: ${e.message}")

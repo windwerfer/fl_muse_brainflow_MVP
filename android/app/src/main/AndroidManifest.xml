@@ -27,7 +27,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:label="fl_muse_brainflow_MVP"
+        android:label="FL Muse Brainflow MVP"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
     >

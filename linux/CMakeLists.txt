@@ -4,10 +4,10 @@ project(runner LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "flutter_muse_brainflow_MVP")
+set(BINARY_NAME "fl_muse_brainflow_mvp")
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
-set(APPLICATION_ID "com.example.flutter_muse_brainflow_MVP")
+set(APPLICATION_ID "com.windwerfer.fl_muse_brainflow_mvp")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -18,19 +18,19 @@ set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
 
 # Root filesystem for cross-building.
 if(FLUTTER_TARGET_PLATFORM_SYSROOT)
-  set(CMAKE_SYSROOT ${FLUTTER_TARGET_PLATFORM_SYSROOT})
-  set(CMAKE_FIND_ROOT_PATH ${CMAKE_SYSROOT})
-  set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-  set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
-  set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-  set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+    set(CMAKE_SYSROOT ${FLUTTER_TARGET_PLATFORM_SYSROOT})
+    set(CMAKE_FIND_ROOT_PATH ${CMAKE_SYSROOT})
+    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+    set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 endif()
 
 # Define build configuration options.
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE "Debug" CACHE
+    set(CMAKE_BUILD_TYPE "Debug" CACHE
     STRING "Flutter build mode" FORCE)
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
     "Debug" "Profile" "Release")
 endif()
 
@@ -40,10 +40,10 @@ endif()
 # default. In most cases, you should add new options to specific targets instead
 # of modifying this function.
 function(APPLY_STANDARD_SETTINGS TARGET)
-  target_compile_features(${TARGET} PUBLIC cxx_std_14)
-  target_compile_options(${TARGET} PRIVATE -Wall -Werror)
-  target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
-  target_compile_definitions(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
+    target_compile_features(${TARGET} PUBLIC cxx_std_14)
+    target_compile_options(${TARGET} PRIVATE -Wall -Werror)
+    target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
+    target_compile_definitions(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
 endfunction()
 
 # Flutter library and tool build rules.
@@ -80,7 +80,7 @@ include(flutter/generated_plugins.cmake)
 # directory.
 set(BUILD_BUNDLE_DIR "${PROJECT_BINARY_DIR}/bundle")
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "${BUILD_BUNDLE_DIR}" CACHE PATH "..." FORCE)
+    set(CMAKE_INSTALL_PREFIX "${BUILD_BUNDLE_DIR}" CACHE PATH "..." FORCE)
 endif()
 
 # Start with a clean build bundle directory every time.
@@ -103,7 +103,7 @@ install(FILES "${FLUTTER_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
 # --- Bundle BrainFlow Libraries ---
 file(GLOB BRAINFLOW_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/../packages/brainflow/lib/linux/*.so")
 foreach(brainflow_lib ${BRAINFLOW_LIBS})
-  install(FILES "${brainflow_lib}"
+    install(FILES "${brainflow_lib}"
     DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endforeach(brainflow_lib)
@@ -112,11 +112,11 @@ endforeach(brainflow_lib)
 
 # 1. Determine the Cargo profile based on the CMake build type
 if(CMAKE_BUILD_TYPE MATCHES "Release" OR CMAKE_BUILD_TYPE MATCHES "Profile")
-  set(CARGO_PROFILE "release")
-  set(CARGO_FLAGS "--release")
+    set(CARGO_PROFILE "release")
+    set(CARGO_FLAGS "--release")
 else()
-  set(CARGO_PROFILE "debug")
-  set(CARGO_FLAGS "")
+    set(CARGO_PROFILE "debug")
+    set(CARGO_FLAGS "")
 endif()
 
 # 2. Add a custom target to build the Rust code automatically
@@ -128,7 +128,7 @@ add_custom_target(cargo_build ALL
 )
 
 # 3. Define the path to the compiled library
-set(RUST_LIB_NAME "librust_lib_muse_stream.so")
+set(RUST_LIB_NAME "librust_lib_fl_muse_brainflow_mvp.so")
 set(RUST_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../rust/target/${CARGO_PROFILE}/${RUST_LIB_NAME}")
 
 # 4. Install the library (copy it to the build bundle)
@@ -141,7 +141,7 @@ add_dependencies(${BINARY_NAME} cargo_build)
 # ---------------------------------
 
 foreach(bundled_library ${PLUGIN_BUNDLED_LIBRARIES})
-  install(FILES "${bundled_library}"
+    install(FILES "${bundled_library}"
     DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endforeach(bundled_library)
@@ -163,6 +163,6 @@ install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
 
 # Install the AOT library on non-Debug builds only.
 if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
-  install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+    install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()

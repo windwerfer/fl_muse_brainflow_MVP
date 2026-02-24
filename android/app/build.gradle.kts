@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.fl_muse_brainflow_MVP"
+    namespace = "com.windwerfer.fl_muse_brainflow_mvp"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.fl_muse_brainflow_MVP"
+        applicationId = "com.windwerfer.fl_muse_brainflow_mvp"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -76,12 +76,12 @@ val syncRustLib = tasks.register<Copy>("syncRustLib") {
     into("$buildDir/rust_output")
 
     from("../../rust/target/aarch64-linux-android/$buildMode") {
-        include("librust_lib_muse_stream.so")
+        include("librust_lib_fl_muse_brainflow_mvp.so")
         into("arm64-v8a")
     }
 
     from("../../rust/target/armv7-linux-androideabi/$buildMode") {
-        include("librust_lib_muse_stream.so")
+        include("librust_lib_fl_muse_brainflow_mvp.so")
         into("armeabi-v7a")
     }
 }

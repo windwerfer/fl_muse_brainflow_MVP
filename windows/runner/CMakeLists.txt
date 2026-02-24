@@ -52,7 +52,7 @@ add_custom_command(
 add_custom_command(
   TARGET ${BINARY_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-  "${CMAKE_SOURCE_DIR}/../rust/target/debug/rust_lib_muse_stream.dll"
+  "${CMAKE_SOURCE_DIR}/../rust/target/debug/rust_lib_fl_muse_brainflow_mvp.dll"
   "$<TARGET_FILE_DIR:${BINARY_NAME}>"
 )
 # ------------------------------------

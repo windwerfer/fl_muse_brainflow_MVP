@@ -6,5 +6,5 @@ mod android_jni;
 
 #[cfg(target_os = "android")]
 pub use android_jni::{
-    JNI_OnLoad, Java_com_example_fl_1muse_1connection_1test_MainActivity_initBrainFlow,
+    JNI_OnLoad, Java_com_windwerfer_fl_1muse_1brainflow_1mvp_MainActivity_initBrainFlow,
 };

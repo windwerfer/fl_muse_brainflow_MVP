@@ -3,8 +3,8 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:muse_stream/src/rust/api.dart' as api;
-import 'package:muse_stream/src/rust/frb_generated.dart';
+import 'package:fl_muse_brainflow_mvp/src/rust/api.dart' as api;
+import 'package:fl_muse_brainflow_mvp/src/rust/frb_generated.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -35,7 +35,7 @@ Future<void> main() async {
     final version = await api.verifyBrainflowVersion();
     debugPrint("Step 3 Success: BrainFlow version $version is ready. ");
     debugPrint(
-        "   (brainflow lib + librust_lib_muse_stream.so loaded successfully)");
+        "   (brainflow lib + librust_lib_fl_muse_brainflow_mvp.so loaded successfully)");
   } catch (e) {
     debugPrint("CRITICAL WARNING: BrainFlow verification failed: $e");
     debugPrint("Note: Connection might fail if native libs are missing.");

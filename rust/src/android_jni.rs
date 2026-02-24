@@ -46,7 +46,7 @@ pub extern "system" fn JNI_OnLoad(vm: JavaVM, _reserved: *mut c_void) -> jni::sy
 
 // The Java callback function...
 #[no_mangle]
-pub extern "system" fn Java_com_example_fl_1muse_1brainflow_1MVP_MainActivity_initBrainFlow(
+pub extern "system" fn Java_com_windwerfer_fl_1muse_1brainflow_1mvp_MainActivity_initBrainFlow(
     env: JNIEnv,
     _class: JClass,
     context: JObject,

@@ -8,7 +8,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:muse_stream/main.dart';
+import 'package:fl_muse_brainflow_mvp/main.dart';
 
 void main() {
   testWidgets('App smoke test', (WidgetTester tester) async {
