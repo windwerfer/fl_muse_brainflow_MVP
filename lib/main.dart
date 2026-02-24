@@ -2,8 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'services/muse_ble_service.dart';
-import 'src/rust/frb_generated.dart'
-    as rust; // ← relative from lib/ (most common)
+import 'src/rust/muse_types.dart' as rust;
 
 void main() => runApp(const MyApp());
 

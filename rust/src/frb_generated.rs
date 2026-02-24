@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1741989334;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 2094290849;
 
 // Section: executor
 
@@ -218,6 +218,74 @@ fn wire__crate__api__init_logger_impl(
         },
     )
 }
+fn wire__crate__muse_types__muse_processed_data_default_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "muse_processed_data_default",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::muse_types::MuseProcessedData::default())?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__muse_parser__parse_and_process_muse_packets_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "parse_and_process_muse_packets",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_raw_packets = <Vec<Vec<u8>>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::muse_parser::parse_and_process_muse_packets(api_raw_packets),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__test_output_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -336,6 +404,14 @@ impl SseDecode for f64 {
     }
 }
 
+impl SseDecode for [f64; 3] {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <Vec<f64>>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::from_vec_to_array(inner);
+    }
+}
+
 impl SseDecode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -350,6 +426,46 @@ impl SseDecode for Vec<Vec<f64>> {
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
             ans_.push(<Vec<f64>>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<Vec<u8>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<Vec<u8>>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::muse_types::MusePacketType> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::muse_types::MusePacketType>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::muse_types::MuseProcessedData> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::muse_types::MuseProcessedData>::sse_decode(
+                deserializer,
+            ));
         }
         return ans_;
     }
@@ -391,11 +507,62 @@ impl SseDecode for Vec<usize> {
     }
 }
 
+impl SseDecode for crate::muse_types::MusePacketType {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::muse_types::MusePacketType::EegPpg,
+            1 => crate::muse_types::MusePacketType::Imu,
+            2 => crate::muse_types::MusePacketType::Other,
+            _ => unreachable!("Invalid variant for MusePacketType: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::muse_types::MuseProcessedData {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_eeg = <Vec<Vec<f64>>>::sse_decode(deserializer);
+        let mut var_ppgIr = <Vec<f64>>::sse_decode(deserializer);
+        let mut var_ppgRed = <Vec<f64>>::sse_decode(deserializer);
+        let mut var_spo2 = <Option<f64>>::sse_decode(deserializer);
+        let mut var_accel = <[f64; 3]>::sse_decode(deserializer);
+        let mut var_gyro = <[f64; 3]>::sse_decode(deserializer);
+        let mut var_timestamp = <f64>::sse_decode(deserializer);
+        let mut var_battery = <f64>::sse_decode(deserializer);
+        let mut var_packetTypes =
+            <Vec<crate::muse_types::MusePacketType>>::sse_decode(deserializer);
+        return crate::muse_types::MuseProcessedData {
+            eeg: var_eeg,
+            ppg_ir: var_ppgIr,
+            ppg_red: var_ppgRed,
+            spo2: var_spo2,
+            accel: var_accel,
+            gyro: var_gyro,
+            timestamp: var_timestamp,
+            battery: var_battery,
+            packet_types: var_packetTypes,
+        };
+    }
+}
+
 impl SseDecode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<String>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<f64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<f64>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -442,8 +609,20 @@ fn pde_ffi_dispatcher_primary_impl(
         3 => wire__crate__api__get_connection_status_impl(port, ptr, rust_vec_len, data_len),
         4 => wire__crate__api__get_latest_data_impl(port, ptr, rust_vec_len, data_len),
         5 => wire__crate__api__init_logger_impl(port, ptr, rust_vec_len, data_len),
-        6 => wire__crate__api__test_output_impl(port, ptr, rust_vec_len, data_len),
-        7 => wire__crate__api__verify_brainflow_version_impl(port, ptr, rust_vec_len, data_len),
+        6 => wire__crate__muse_types__muse_processed_data_default_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        7 => wire__crate__muse_parser__parse_and_process_muse_packets_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        8 => wire__crate__api__test_output_impl(port, ptr, rust_vec_len, data_len),
+        9 => wire__crate__api__verify_brainflow_version_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -498,6 +677,56 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::EegData> for crate::api::EegD
         self
     }
 }
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::muse_types::MusePacketType {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::EegPpg => 0.into_dart(),
+            Self::Imu => 1.into_dart(),
+            Self::Other => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::muse_types::MusePacketType
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::muse_types::MusePacketType>
+    for crate::muse_types::MusePacketType
+{
+    fn into_into_dart(self) -> crate::muse_types::MusePacketType {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::muse_types::MuseProcessedData {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.eeg.into_into_dart().into_dart(),
+            self.ppg_ir.into_into_dart().into_dart(),
+            self.ppg_red.into_into_dart().into_dart(),
+            self.spo2.into_into_dart().into_dart(),
+            self.accel.into_into_dart().into_dart(),
+            self.gyro.into_into_dart().into_dart(),
+            self.timestamp.into_into_dart().into_dart(),
+            self.battery.into_into_dart().into_dart(),
+            self.packet_types.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::muse_types::MuseProcessedData
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::muse_types::MuseProcessedData>
+    for crate::muse_types::MuseProcessedData
+{
+    fn into_into_dart(self) -> crate::muse_types::MuseProcessedData {
+        self
+    }
+}
 
 impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -546,6 +775,19 @@ impl SseEncode for f64 {
     }
 }
 
+impl SseEncode for [f64; 3] {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<f64>>::sse_encode(
+            {
+                let boxed: Box<[_]> = Box::new(self);
+                boxed.into_vec()
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -559,6 +801,36 @@ impl SseEncode for Vec<Vec<f64>> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <Vec<f64>>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<Vec<u8>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <Vec<u8>>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::muse_types::MusePacketType> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::muse_types::MusePacketType>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::muse_types::MuseProcessedData> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::muse_types::MuseProcessedData>::sse_encode(item, serializer);
         }
     }
 }
@@ -593,12 +865,54 @@ impl SseEncode for Vec<usize> {
     }
 }
 
+impl SseEncode for crate::muse_types::MusePacketType {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::muse_types::MusePacketType::EegPpg => 0,
+                crate::muse_types::MusePacketType::Imu => 1,
+                crate::muse_types::MusePacketType::Other => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::muse_types::MuseProcessedData {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<Vec<f64>>>::sse_encode(self.eeg, serializer);
+        <Vec<f64>>::sse_encode(self.ppg_ir, serializer);
+        <Vec<f64>>::sse_encode(self.ppg_red, serializer);
+        <Option<f64>>::sse_encode(self.spo2, serializer);
+        <[f64; 3]>::sse_encode(self.accel, serializer);
+        <[f64; 3]>::sse_encode(self.gyro, serializer);
+        <f64>::sse_encode(self.timestamp, serializer);
+        <f64>::sse_encode(self.battery, serializer);
+        <Vec<crate::muse_types::MusePacketType>>::sse_encode(self.packet_types, serializer);
+    }
+}
+
 impl SseEncode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <String>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<f64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <f64>::sse_encode(value, serializer);
         }
     }
 }

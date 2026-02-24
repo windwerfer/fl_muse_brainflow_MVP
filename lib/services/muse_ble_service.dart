@@ -5,8 +5,8 @@ import 'dart:typed_data';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../src/rust/frb_generated.dart'
-    as rust; // ← relative path from services/ (most common)
+import '../src/rust/muse_types.dart' as rust;
+import '../src/rust/muse_parser.dart' as rust_parser;
 
 class MuseBleService {
   static final MuseBleService instance = MuseBleService._();
@@ -23,7 +23,6 @@ class MuseBleService {
     await _requestPermissions();
 
     FlutterBluePlus.startScan(
-      withNamePrefix: ['Muse-S', 'Muse '],
       timeout: const Duration(seconds: 15),
     );
 
@@ -78,10 +77,10 @@ class MuseBleService {
 
     for (final char in dataChars) {
       await char.setNotifyValue(true);
-      final sub = char.onValueReceived.listen((value) {
+      final sub = char.onValueReceived.listen((value) async {
         if (value.isNotEmpty) {
-          final processed = rust.parseAndProcessMusePackets(
-              [value]); // FRB handles List<int> → Vec<u8>
+          final processed = await rust_parser.parseAndProcessMusePackets(
+              rawPackets: [Uint8List.fromList(value)]);
           for (final p in processed) _dataController.add(p);
         }
       });

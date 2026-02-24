@@ -9,6 +9,9 @@ import 'dart:convert';
 import 'frb_generated.dart';
 import 'frb_generated.io.dart'
     if (dart.library.js_interop) 'frb_generated.web.dart';
+import 'lib.dart';
+import 'muse_parser.dart';
+import 'muse_types.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 /// Main entrypoint of the Rust API
@@ -68,7 +71,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -1741989334;
+  int get rustContentHash => 2094290849;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -88,6 +91,11 @@ abstract class RustLibApi extends BaseApi {
   Future<EegData> crateApiGetLatestData({required int numSamples});
 
   Future<void> crateApiInitLogger();
+
+  Future<MuseProcessedData> crateMuseTypesMuseProcessedDataDefault();
+
+  Future<List<MuseProcessedData>> crateMuseParserParseAndProcessMusePackets(
+      {required List<Uint8List> rawPackets});
 
   Future<String> crateApiTestOutput();
 
@@ -221,12 +229,62 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<String> crateApiTestOutput() {
+  Future<MuseProcessedData> crateMuseTypesMuseProcessedDataDefault() {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 6, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_muse_processed_data,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseTypesMuseProcessedDataDefaultConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseTypesMuseProcessedDataDefaultConstMeta =>
+      const TaskConstMeta(
+        debugName: "muse_processed_data_default",
+        argNames: [],
+      );
+
+  @override
+  Future<List<MuseProcessedData>> crateMuseParserParseAndProcessMusePackets(
+      {required List<Uint8List> rawPackets}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_list_prim_u_8_strict(rawPackets, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 7, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_list_muse_processed_data,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseParserParseAndProcessMusePacketsConstMeta,
+      argValues: [rawPackets],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseParserParseAndProcessMusePacketsConstMeta =>
+      const TaskConstMeta(
+        debugName: "parse_and_process_muse_packets",
+        argNames: ["rawPackets"],
+      );
+
+  @override
+  Future<String> crateApiTestOutput() {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 8, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_String,
@@ -249,7 +307,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 7, port: port_);
+            funcId: 9, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_String,
@@ -280,6 +338,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  double dco_decode_box_autoadd_f_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as double;
+  }
+
+  @protected
   ConnectionStatus dco_decode_connection_status(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return ConnectionStatus.values[raw as int];
@@ -304,6 +368,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  F64Array3 dco_decode_f_64_array_3(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return F64Array3(dco_decode_list_prim_f_64_strict(raw));
+  }
+
+  @protected
   int dco_decode_i_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
@@ -315,6 +385,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     return (raw as List<dynamic>)
         .map(dco_decode_list_prim_f_64_strict)
         .toList();
+  }
+
+  @protected
+  List<Uint8List> dco_decode_list_list_prim_u_8_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_list_prim_u_8_strict).toList();
+  }
+
+  @protected
+  List<MusePacketType> dco_decode_list_muse_packet_type(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_muse_packet_type).toList();
+  }
+
+  @protected
+  List<MuseProcessedData> dco_decode_list_muse_processed_data(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_muse_processed_data).toList();
   }
 
   @protected
@@ -336,9 +424,40 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  MusePacketType dco_decode_muse_packet_type(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return MusePacketType.values[raw as int];
+  }
+
+  @protected
+  MuseProcessedData dco_decode_muse_processed_data(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 9)
+      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
+    return MuseProcessedData(
+      eeg: dco_decode_list_list_prim_f_64_strict(arr[0]),
+      ppgIr: dco_decode_list_prim_f_64_strict(arr[1]),
+      ppgRed: dco_decode_list_prim_f_64_strict(arr[2]),
+      spo2: dco_decode_opt_box_autoadd_f_64(arr[3]),
+      accel: dco_decode_f_64_array_3(arr[4]),
+      gyro: dco_decode_f_64_array_3(arr[5]),
+      timestamp: dco_decode_f_64(arr[6]),
+      battery: dco_decode_f_64(arr[7]),
+      packetTypes: dco_decode_list_muse_packet_type(arr[8]),
+    );
+  }
+
+  @protected
   String? dco_decode_opt_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_String(raw);
+  }
+
+  @protected
+  double? dco_decode_opt_box_autoadd_f_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_f_64(raw);
   }
 
   @protected
@@ -374,6 +493,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  double sse_decode_box_autoadd_f_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_f_64(deserializer));
+  }
+
+  @protected
   ConnectionStatus sse_decode_connection_status(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
@@ -395,6 +520,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  F64Array3 sse_decode_f_64_array_3(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_list_prim_f_64_strict(deserializer);
+    return F64Array3(inner);
+  }
+
+  @protected
   int sse_decode_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getInt32();
@@ -409,6 +541,45 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var ans_ = <Float64List>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_list_prim_f_64_strict(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<Uint8List> sse_decode_list_list_prim_u_8_strict(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <Uint8List>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_list_prim_u_8_strict(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<MusePacketType> sse_decode_list_muse_packet_type(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <MusePacketType>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_muse_packet_type(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<MuseProcessedData> sse_decode_list_muse_processed_data(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <MuseProcessedData>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_muse_processed_data(deserializer));
     }
     return ans_;
   }
@@ -435,11 +606,54 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  MusePacketType sse_decode_muse_packet_type(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return MusePacketType.values[inner];
+  }
+
+  @protected
+  MuseProcessedData sse_decode_muse_processed_data(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_eeg = sse_decode_list_list_prim_f_64_strict(deserializer);
+    var var_ppgIr = sse_decode_list_prim_f_64_strict(deserializer);
+    var var_ppgRed = sse_decode_list_prim_f_64_strict(deserializer);
+    var var_spo2 = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_accel = sse_decode_f_64_array_3(deserializer);
+    var var_gyro = sse_decode_f_64_array_3(deserializer);
+    var var_timestamp = sse_decode_f_64(deserializer);
+    var var_battery = sse_decode_f_64(deserializer);
+    var var_packetTypes = sse_decode_list_muse_packet_type(deserializer);
+    return MuseProcessedData(
+        eeg: var_eeg,
+        ppgIr: var_ppgIr,
+        ppgRed: var_ppgRed,
+        spo2: var_spo2,
+        accel: var_accel,
+        gyro: var_gyro,
+        timestamp: var_timestamp,
+        battery: var_battery,
+        packetTypes: var_packetTypes);
+  }
+
+  @protected
   String? sse_decode_opt_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_String(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_f_64(deserializer));
     } else {
       return null;
     }
@@ -482,6 +696,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_f_64(self, serializer);
+  }
+
+  @protected
   void sse_encode_connection_status(
       ConnectionStatus self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -502,6 +722,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_f_64_array_3(F64Array3 self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_prim_f_64_strict(self.inner, serializer);
+  }
+
+  @protected
   void sse_encode_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putInt32(self);
@@ -514,6 +740,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_list_prim_f_64_strict(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_list_prim_u_8_strict(
+      List<Uint8List> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_list_prim_u_8_strict(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_muse_packet_type(
+      List<MusePacketType> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_muse_packet_type(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_muse_processed_data(
+      List<MuseProcessedData> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_muse_processed_data(item, serializer);
     }
   }
 
@@ -542,12 +798,44 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_muse_packet_type(
+      MusePacketType self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_muse_processed_data(
+      MuseProcessedData self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_list_prim_f_64_strict(self.eeg, serializer);
+    sse_encode_list_prim_f_64_strict(self.ppgIr, serializer);
+    sse_encode_list_prim_f_64_strict(self.ppgRed, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.spo2, serializer);
+    sse_encode_f_64_array_3(self.accel, serializer);
+    sse_encode_f_64_array_3(self.gyro, serializer);
+    sse_encode_f_64(self.timestamp, serializer);
+    sse_encode_f_64(self.battery, serializer);
+    sse_encode_list_muse_packet_type(self.packetTypes, serializer);
+  }
+
+  @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_String(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_f_64(self, serializer);
     }
   }
 
