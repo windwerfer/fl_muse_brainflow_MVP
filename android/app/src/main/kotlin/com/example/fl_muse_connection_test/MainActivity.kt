@@ -1,4 +1,4 @@
-package com.example.fl_muse_connection_test
+package com.example.fl_muse_brainflow_MVP
 
 import io.flutter.embedding.android.FlutterActivity
 import android.content.Context

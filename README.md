@@ -1,4 +1,4 @@
-# fl_muse_brainflow_MVP
+# flutter_muse_brainflow_MVP
 
 This is minimal flutter implementation for the brainflow lib for Linux and Android (possibly Windows later, no Mac/iOS because i dont have the hardware). Muse S and Muse 2 will be the only tested devices (since thats what i have). Its goal is to be a base / sample code for cross platform EEG tools (biofeedback / logging ..). 
 
