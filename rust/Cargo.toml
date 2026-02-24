@@ -12,6 +12,7 @@ brainflow = { path = "../packages/brainflow" }
 anyhow = "1.0.101"
 log = "0.4.29"
 env_logger = "0.11.6"
+chrono = { version = "0.4.38", features = ["std"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 jni = "0.21"
