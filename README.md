@@ -47,11 +47,41 @@ scan on
 exit
 ```
 
-## Getting Started
+## 🚀 Quick Start
 
-clone the repo
 
-clean run
+Install git and rust [https://rustup.rs/] and flutter to run this on linux/win. For Android you also need Java JDK (17 or 21) and Android SDK + Command Line Tools (this is easiest through Android Studio). 
+
+```bash
+git clone https://github.com/windwerfer/fl_muse_brainflow_MVP.git
+
+cargo install just
+cargo install flutter_rust_bridge_codegen --force
 ```
 
+test if everything is there (its just a small script that checks if all tools are available)
+```bash
+just doctor
+```
+
+first run
+```bash
+# for android:
+just acc
+
+# for linux:
+just lcc
+```
+
+commands to rebuild/run normally
+```bash
+just a          # normal run  for Android
+just ac         # clean + Android
+just acc        # super-clean + Android   ← most used when something is broken
+
+just l          # normal run  for Linux
+just lc
+just lcc
+
+just f          # regenerate bindings only (included in acc & lcc)
 ```
