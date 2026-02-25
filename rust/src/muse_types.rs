@@ -14,14 +14,74 @@ pub const MUSE_GATT_ATTR_PPG2: &str = "273e000b-4c4d-454d-96b4-4b455555494f";
 
 pub const MUSE_GYRO_SCALE_FACTOR: f64 = 0.06103515625;
 pub const MUSE_ACCEL_SCALE_FACTOR: f64 = 0.00006103515635;
-pub const EEG_SCALE: f64 = 125.0 / 256.0;
-pub const EEG_OFFSET: f64 = 0x800 as f64;
 
-#[frb]
-#[derive(Debug, Clone, Default)]
-pub struct MuseRawPacket {
-    pub channel: u8,
-    pub data: Vec<u8>,
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EegResolution {
+    Bits12,
+    Bits14,
+}
+
+impl EegResolution {
+    pub fn scale_factor(&self) -> f64 {
+        match self {
+            EegResolution::Bits12 => 125.0 / 256.0,
+            EegResolution::Bits14 => 125.0 / 2048.0,
+        }
+    }
+
+    pub fn offset(&self) -> f64 {
+        match self {
+            EegResolution::Bits12 => 0x800 as f64,
+            EegResolution::Bits14 => 0x2000 as f64,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MuseModel {
+    Muse2016,
+    Muse2,
+    MuseS,
+    MuseSAthena,
+    Unknown,
+}
+
+impl MuseModel {
+    pub fn channel_count(&self) -> usize {
+        match self {
+            MuseModel::Muse2016 => 4,
+            MuseModel::Muse2 => 4,
+            MuseModel::MuseS => 5,
+            MuseModel::MuseSAthena => 7,
+            MuseModel::Unknown => 4,
+        }
+    }
+
+    pub fn resolution(&self) -> EegResolution {
+        match self {
+            MuseModel::MuseSAthena => EegResolution::Bits14,
+            _ => EegResolution::Bits12,
+        }
+    }
+
+    pub fn has_ppg(&self) -> bool {
+        matches!(
+            self,
+            MuseModel::Muse2 | MuseModel::MuseS | MuseModel::MuseSAthena
+        )
+    }
+
+    pub fn has_fnirs(&self) -> bool {
+        matches!(self, MuseModel::MuseSAthena)
+    }
+
+    pub fn ppg_channel_count(&self) -> usize {
+        match self {
+            MuseModel::Muse2 | MuseModel::MuseS => 2,
+            MuseModel::MuseSAthena => 3,
+            _ => 0,
+        }
+    }
 }
 
 #[frb]
@@ -30,7 +90,11 @@ pub struct MuseProcessedData {
     pub eeg: Vec<Vec<f64>>,
     pub ppg_ir: Vec<f64>,
     pub ppg_red: Vec<f64>,
+    pub ppg_nir: Vec<f64>,
     pub spo2: Option<f64>,
+    pub fnirs_hbo2: Option<f64>,
+    pub fnirs_hbr: Option<f64>,
+    pub fnirs_tsi: Option<f64>,
     pub accel: [f64; 3],
     pub gyro: [f64; 3],
     pub timestamp: f64,
@@ -49,21 +113,7 @@ pub enum MusePacketType {
     Ppg,
     Accel,
     Gyro,
+    Fnirs,
     None,
     Other,
-}
-
-#[frb]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum MuseModel {
-    MuseS,
-    Muse2,
-    Muse2016,
-    Unknown,
-}
-
-impl MuseModel {
-    pub fn has_ppg(&self) -> bool {
-        matches!(self, MuseModel::MuseS | MuseModel::Muse2)
-    }
 }
