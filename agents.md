@@ -28,7 +28,7 @@ MuseStream is a minimal EEG biofeedback application designed to connect to the M
 4. **Polling:** 10Hz polling for UI updates (256 samples per request).
 
 ## Development & Build Commands
-- **Regenerate Bridge:** `flutter_rust_bridge_codegen generate` (Uses `flutter_rust_bridge.yaml`)
+- **Regenerate Bridge:** To regenerate the Rust bindings, run `flutter_rust_bridge_codegen generate` from the project root. Do NOT use `flutter pub run flutter_rust_bridge_codegen` as `flutter_rust_bridge_codegen` is a Rust crate.
 - **Build Rust Only:** `cd rust && cargo build`
 - **Run App (Linux):** `flutter run -d linux`
 - **Build Android:** `flutter build apk` (Ensure permissions are granted)
