@@ -32,12 +32,12 @@ use flutter_rust_bridge::{Handler, IntoIntoDart};
 // Section: boilerplate
 
 flutter_rust_bridge::frb_generated_boilerplate!(
-    default_stream_sink_codec = SseCodec,
-    default_rust_opaque = RustOpaqueMoi,
-    default_rust_auto_opaque = RustAutoOpaqueMoi,
+    default_stream_sink_codec = DcoCodec,
+    default_rust_opaque = RustOpaqueNom,
+    default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 2094290849;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 859919898;
 
 // Section: executor
 
@@ -47,30 +47,18 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 fn wire__crate__api__connect_to_muse_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
+    mac_address: impl CstDecode<Option<String>>,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "connect_to_muse",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_mac_address = <Option<String>>::sse_decode(&mut deserializer);
-            deserializer.end();
+            let api_mac_address = mac_address.cst_decode();
             move |context| async move {
-                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || async move {
                         let output_ok = crate::api::connect_to_muse(api_mac_address).await?;
                         Ok(output_ok)
@@ -81,31 +69,16 @@ fn wire__crate__api__connect_to_muse_impl(
         },
     )
 }
-fn wire__crate__api__disconnect_muse_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+fn wire__crate__api__disconnect_muse_impl(port_: flutter_rust_bridge::for_generated::MessagePort) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "disconnect_muse",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            deserializer.end();
             move |context| async move {
-                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || async move {
                         let output_ok = crate::api::disconnect_muse().await?;
                         Ok(output_ok)
@@ -116,31 +89,63 @@ fn wire__crate__api__disconnect_muse_impl(
         },
     )
 }
+fn wire__crate__muse_types__eeg_resolution_offset_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    that: impl CstDecode<crate::muse_types::EegResolution>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "eeg_resolution_offset",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::muse_types::EegResolution::offset(&api_that))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__muse_types__eeg_resolution_scale_factor_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    that: impl CstDecode<crate::muse_types::EegResolution>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "eeg_resolution_scale_factor",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::muse_types::EegResolution::scale_factor(&api_that),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__get_connection_status_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "get_connection_status",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            deserializer.end();
             move |context| {
-                transform_result_sse::<_, ()>((move || {
+                transform_result_dco::<_, _, ()>((move || {
                     let output_ok = Result::<_, ()>::Ok(crate::api::get_connection_status())?;
                     Ok(output_ok)
                 })())
@@ -150,30 +155,18 @@ fn wire__crate__api__get_connection_status_impl(
 }
 fn wire__crate__api__get_latest_data_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
+    num_samples: impl CstDecode<i32>,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "get_latest_data",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_num_samples = <i32>::sse_decode(&mut deserializer);
-            deserializer.end();
+            let api_num_samples = num_samples.cst_decode();
             move |context| async move {
-                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || async move {
                         let output_ok = crate::api::get_latest_data(api_num_samples).await?;
                         Ok(output_ok)
@@ -184,31 +177,39 @@ fn wire__crate__api__get_latest_data_impl(
         },
     )
 }
-fn wire__crate__api__init_logger_impl(
+fn wire__crate__muse_parser__get_muse_model_from_name_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
+    name: impl CstDecode<String>,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_muse_model_from_name",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_name = name.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::muse_parser::get_muse_model_from_name(&api_name),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__init_logger_impl(port_: flutter_rust_bridge::for_generated::MessagePort) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "init_logger",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            deserializer.end();
             move |context| {
-                transform_result_sse::<_, ()>((move || {
+                transform_result_dco::<_, _, ()>((move || {
                     let output_ok = Result::<_, ()>::Ok({
                         crate::api::init_logger();
                     })?;
@@ -218,31 +219,153 @@ fn wire__crate__api__init_logger_impl(
         },
     )
 }
+fn wire__crate__muse_parser__init_muse_parser_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    model: impl CstDecode<crate::muse_types::MuseModel>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "init_muse_parser",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_model = model.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok({
+                        crate::muse_parser::init_muse_parser(api_model);
+                    })?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__muse_types__muse_model_channel_count_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    that: impl CstDecode<crate::muse_types::MuseModel>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "muse_model_channel_count",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::muse_types::MuseModel::channel_count(&api_that),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__muse_types__muse_model_has_fnirs_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    that: impl CstDecode<crate::muse_types::MuseModel>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "muse_model_has_fnirs",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::muse_types::MuseModel::has_fnirs(&api_that))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__muse_types__muse_model_has_ppg_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    that: impl CstDecode<crate::muse_types::MuseModel>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "muse_model_has_ppg",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::muse_types::MuseModel::has_ppg(&api_that))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__muse_types__muse_model_ppg_channel_count_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    that: impl CstDecode<crate::muse_types::MuseModel>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "muse_model_ppg_channel_count",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::muse_types::MuseModel::ppg_channel_count(&api_that),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__muse_types__muse_model_resolution_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    that: impl CstDecode<crate::muse_types::MuseModel>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "muse_model_resolution",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::muse_types::MuseModel::resolution(&api_that))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__muse_types__muse_processed_data_default_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "muse_processed_data_default",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            deserializer.end();
             move |context| {
-                transform_result_sse::<_, ()>((move || {
+                transform_result_dco::<_, _, ()>((move || {
                     let output_ok =
                         Result::<_, ()>::Ok(crate::muse_types::MuseProcessedData::default())?;
                     Ok(output_ok)
@@ -253,30 +376,18 @@ fn wire__crate__muse_types__muse_processed_data_default_impl(
 }
 fn wire__crate__muse_parser__parse_and_process_muse_packets_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
+    raw_packets: impl CstDecode<Vec<Vec<u8>>>,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "parse_and_process_muse_packets",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_raw_packets = <Vec<Vec<u8>>>::sse_decode(&mut deserializer);
-            deserializer.end();
+            let api_raw_packets = raw_packets.cst_decode();
             move |context| {
-                transform_result_sse::<_, ()>((move || {
+                transform_result_dco::<_, _, ()>((move || {
                     let output_ok = Result::<_, ()>::Ok(
                         crate::muse_parser::parse_and_process_muse_packets(api_raw_packets),
                     )?;
@@ -286,31 +397,64 @@ fn wire__crate__muse_parser__parse_and_process_muse_packets_impl(
         },
     )
 }
-fn wire__crate__api__test_output_impl(
+fn wire__crate__muse_parser__parse_muse_packet_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
+    channel: impl CstDecode<i32>,
+    data: impl CstDecode<Vec<u8>>,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "parse_muse_packet",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_channel = channel.cst_decode();
+            let api_data = data.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::muse_parser::parse_muse_packet(
+                        api_channel,
+                        api_data,
+                    ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__muse_parser__send_muse_command_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    command: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "send_muse_command",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_command = command.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::muse_parser::send_muse_command(&api_command))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__test_output_impl(port_: flutter_rust_bridge::for_generated::MessagePort) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "test_output",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            deserializer.end();
             move |context| {
-                transform_result_sse::<_, ()>((move || {
+                transform_result_dco::<_, _, ()>((move || {
                     let output_ok = Result::<_, ()>::Ok(crate::api::test_output())?;
                     Ok(output_ok)
                 })())
@@ -320,29 +464,16 @@ fn wire__crate__api__test_output_impl(
 }
 fn wire__crate__api__verify_brainflow_version_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "verify_brainflow_version",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            deserializer.end();
             move |context| {
-                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api::verify_brainflow_version()?;
                         Ok(output_ok)
@@ -355,6 +486,88 @@ fn wire__crate__api__verify_brainflow_version_impl(
 
 // Section: dart2rust
 
+impl CstDecode<bool> for bool {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> bool {
+        self
+    }
+}
+impl CstDecode<crate::api::ConnectionStatus> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::api::ConnectionStatus {
+        match self {
+            0 => crate::api::ConnectionStatus::Disconnected,
+            1 => crate::api::ConnectionStatus::Connecting,
+            2 => crate::api::ConnectionStatus::Connected,
+            3 => crate::api::ConnectionStatus::Error,
+            _ => unreachable!("Invalid variant for ConnectionStatus: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::muse_types::EegResolution> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::muse_types::EegResolution {
+        match self {
+            0 => crate::muse_types::EegResolution::Bits12,
+            1 => crate::muse_types::EegResolution::Bits14,
+            _ => unreachable!("Invalid variant for EegResolution: {}", self),
+        }
+    }
+}
+impl CstDecode<f64> for f64 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> f64 {
+        self
+    }
+}
+impl CstDecode<i32> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> i32 {
+        self
+    }
+}
+impl CstDecode<crate::muse_types::MuseModel> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::muse_types::MuseModel {
+        match self {
+            0 => crate::muse_types::MuseModel::Muse2016,
+            1 => crate::muse_types::MuseModel::Muse2,
+            2 => crate::muse_types::MuseModel::MuseS,
+            3 => crate::muse_types::MuseModel::MuseSAthena,
+            4 => crate::muse_types::MuseModel::Unknown,
+            _ => unreachable!("Invalid variant for MuseModel: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::muse_types::MusePacketType> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::muse_types::MusePacketType {
+        match self {
+            0 => crate::muse_types::MusePacketType::EegPpg,
+            1 => crate::muse_types::MusePacketType::Imu,
+            2 => crate::muse_types::MusePacketType::Eeg,
+            3 => crate::muse_types::MusePacketType::Ppg,
+            4 => crate::muse_types::MusePacketType::Accel,
+            5 => crate::muse_types::MusePacketType::Gyro,
+            6 => crate::muse_types::MusePacketType::Fnirs,
+            7 => crate::muse_types::MusePacketType::None,
+            8 => crate::muse_types::MusePacketType::Other,
+            _ => unreachable!("Invalid variant for MusePacketType: {}", self),
+        }
+    }
+}
+impl CstDecode<u8> for u8 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> u8 {
+        self
+    }
+}
+impl CstDecode<usize> for usize {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> usize {
+        self
+    }
+}
 impl SseDecode for flutter_rust_bridge::for_generated::anyhow::Error {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -368,6 +581,13 @@ impl SseDecode for String {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <Vec<u8>>::sse_decode(deserializer);
         return String::from_utf8(inner).unwrap();
+    }
+}
+
+impl SseDecode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u8().unwrap() != 0
     }
 }
 
@@ -393,6 +613,18 @@ impl SseDecode for crate::api::EegData {
         return crate::api::EegData {
             channels: var_channels,
             data: var_data,
+        };
+    }
+}
+
+impl SseDecode for crate::muse_types::EegResolution {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::muse_types::EegResolution::Bits12,
+            1 => crate::muse_types::EegResolution::Bits14,
+            _ => unreachable!("Invalid variant for EegResolution: {}", inner),
         };
     }
 }
@@ -507,6 +739,21 @@ impl SseDecode for Vec<usize> {
     }
 }
 
+impl SseDecode for crate::muse_types::MuseModel {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::muse_types::MuseModel::Muse2016,
+            1 => crate::muse_types::MuseModel::Muse2,
+            2 => crate::muse_types::MuseModel::MuseS,
+            3 => crate::muse_types::MuseModel::MuseSAthena,
+            4 => crate::muse_types::MuseModel::Unknown,
+            _ => unreachable!("Invalid variant for MuseModel: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for crate::muse_types::MusePacketType {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -514,7 +761,13 @@ impl SseDecode for crate::muse_types::MusePacketType {
         return match inner {
             0 => crate::muse_types::MusePacketType::EegPpg,
             1 => crate::muse_types::MusePacketType::Imu,
-            2 => crate::muse_types::MusePacketType::Other,
+            2 => crate::muse_types::MusePacketType::Eeg,
+            3 => crate::muse_types::MusePacketType::Ppg,
+            4 => crate::muse_types::MusePacketType::Accel,
+            5 => crate::muse_types::MusePacketType::Gyro,
+            6 => crate::muse_types::MusePacketType::Fnirs,
+            7 => crate::muse_types::MusePacketType::None,
+            8 => crate::muse_types::MusePacketType::Other,
             _ => unreachable!("Invalid variant for MusePacketType: {}", inner),
         };
     }
@@ -526,7 +779,11 @@ impl SseDecode for crate::muse_types::MuseProcessedData {
         let mut var_eeg = <Vec<Vec<f64>>>::sse_decode(deserializer);
         let mut var_ppgIr = <Vec<f64>>::sse_decode(deserializer);
         let mut var_ppgRed = <Vec<f64>>::sse_decode(deserializer);
+        let mut var_ppgNir = <Vec<f64>>::sse_decode(deserializer);
         let mut var_spo2 = <Option<f64>>::sse_decode(deserializer);
+        let mut var_fnirsHbo2 = <Option<f64>>::sse_decode(deserializer);
+        let mut var_fnirsHbr = <Option<f64>>::sse_decode(deserializer);
+        let mut var_fnirsTsi = <Option<f64>>::sse_decode(deserializer);
         let mut var_accel = <[f64; 3]>::sse_decode(deserializer);
         let mut var_gyro = <[f64; 3]>::sse_decode(deserializer);
         let mut var_timestamp = <f64>::sse_decode(deserializer);
@@ -537,11 +794,11 @@ impl SseDecode for crate::muse_types::MuseProcessedData {
             eeg: var_eeg,
             ppg_ir: var_ppgIr,
             ppg_red: var_ppgRed,
-            ppg_nir: vec![],
+            ppg_nir: var_ppgNir,
             spo2: var_spo2,
-            fnirs_hbo2: None,
-            fnirs_hbr: None,
-            fnirs_tsi: None,
+            fnirs_hbo2: var_fnirsHbo2,
+            fnirs_hbr: var_fnirsHbr,
+            fnirs_tsi: var_fnirsTsi,
             accel: var_accel,
             gyro: var_gyro,
             timestamp: var_timestamp,
@@ -592,13 +849,6 @@ impl SseDecode for usize {
     }
 }
 
-impl SseDecode for bool {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        deserializer.cursor.read_u8().unwrap() != 0
-    }
-}
-
 fn pde_ffi_dispatcher_primary_impl(
     func_id: i32,
     port: flutter_rust_bridge::for_generated::MessagePort,
@@ -608,25 +858,6 @@ fn pde_ffi_dispatcher_primary_impl(
 ) {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        1 => wire__crate__api__connect_to_muse_impl(port, ptr, rust_vec_len, data_len),
-        2 => wire__crate__api__disconnect_muse_impl(port, ptr, rust_vec_len, data_len),
-        3 => wire__crate__api__get_connection_status_impl(port, ptr, rust_vec_len, data_len),
-        4 => wire__crate__api__get_latest_data_impl(port, ptr, rust_vec_len, data_len),
-        5 => wire__crate__api__init_logger_impl(port, ptr, rust_vec_len, data_len),
-        6 => wire__crate__muse_types__muse_processed_data_default_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        7 => wire__crate__muse_parser__parse_and_process_muse_packets_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        8 => wire__crate__api__test_output_impl(port, ptr, rust_vec_len, data_len),
-        9 => wire__crate__api__verify_brainflow_version_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -682,12 +913,60 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::EegData> for crate::api::EegD
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::muse_types::EegResolution {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Bits12 => 0.into_dart(),
+            Self::Bits14 => 1.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::muse_types::EegResolution
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::muse_types::EegResolution>
+    for crate::muse_types::EegResolution
+{
+    fn into_into_dart(self) -> crate::muse_types::EegResolution {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::muse_types::MuseModel {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Muse2016 => 0.into_dart(),
+            Self::Muse2 => 1.into_dart(),
+            Self::MuseS => 2.into_dart(),
+            Self::MuseSAthena => 3.into_dart(),
+            Self::Unknown => 4.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::muse_types::MuseModel {}
+impl flutter_rust_bridge::IntoIntoDart<crate::muse_types::MuseModel>
+    for crate::muse_types::MuseModel
+{
+    fn into_into_dart(self) -> crate::muse_types::MuseModel {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::muse_types::MusePacketType {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         match self {
             Self::EegPpg => 0.into_dart(),
             Self::Imu => 1.into_dart(),
-            Self::Other => 2.into_dart(),
+            Self::Eeg => 2.into_dart(),
+            Self::Ppg => 3.into_dart(),
+            Self::Accel => 4.into_dart(),
+            Self::Gyro => 5.into_dart(),
+            Self::Fnirs => 6.into_dart(),
+            Self::None => 7.into_dart(),
+            Self::Other => 8.into_dart(),
             _ => unreachable!(),
         }
     }
@@ -710,7 +989,11 @@ impl flutter_rust_bridge::IntoDart for crate::muse_types::MuseProcessedData {
             self.eeg.into_into_dart().into_dart(),
             self.ppg_ir.into_into_dart().into_dart(),
             self.ppg_red.into_into_dart().into_dart(),
+            self.ppg_nir.into_into_dart().into_dart(),
             self.spo2.into_into_dart().into_dart(),
+            self.fnirs_hbo2.into_into_dart().into_dart(),
+            self.fnirs_hbr.into_into_dart().into_dart(),
+            self.fnirs_tsi.into_into_dart().into_dart(),
             self.accel.into_into_dart().into_dart(),
             self.gyro.into_into_dart().into_dart(),
             self.timestamp.into_into_dart().into_dart(),
@@ -746,6 +1029,13 @@ impl SseEncode for String {
     }
 }
 
+impl SseEncode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_u8(self as _).unwrap();
+    }
+}
+
 impl SseEncode for crate::api::ConnectionStatus {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -769,6 +1059,22 @@ impl SseEncode for crate::api::EegData {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <Vec<usize>>::sse_encode(self.channels, serializer);
         <Vec<Vec<f64>>>::sse_encode(self.data, serializer);
+    }
+}
+
+impl SseEncode for crate::muse_types::EegResolution {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::muse_types::EegResolution::Bits12 => 0,
+                crate::muse_types::EegResolution::Bits14 => 1,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
     }
 }
 
@@ -869,6 +1175,25 @@ impl SseEncode for Vec<usize> {
     }
 }
 
+impl SseEncode for crate::muse_types::MuseModel {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::muse_types::MuseModel::Muse2016 => 0,
+                crate::muse_types::MuseModel::Muse2 => 1,
+                crate::muse_types::MuseModel::MuseS => 2,
+                crate::muse_types::MuseModel::MuseSAthena => 3,
+                crate::muse_types::MuseModel::Unknown => 4,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for crate::muse_types::MusePacketType {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -876,7 +1201,13 @@ impl SseEncode for crate::muse_types::MusePacketType {
             match self {
                 crate::muse_types::MusePacketType::EegPpg => 0,
                 crate::muse_types::MusePacketType::Imu => 1,
-                crate::muse_types::MusePacketType::Other => 2,
+                crate::muse_types::MusePacketType::Eeg => 2,
+                crate::muse_types::MusePacketType::Ppg => 3,
+                crate::muse_types::MusePacketType::Accel => 4,
+                crate::muse_types::MusePacketType::Gyro => 5,
+                crate::muse_types::MusePacketType::Fnirs => 6,
+                crate::muse_types::MusePacketType::None => 7,
+                crate::muse_types::MusePacketType::Other => 8,
                 _ => {
                     unimplemented!("");
                 }
@@ -892,7 +1223,11 @@ impl SseEncode for crate::muse_types::MuseProcessedData {
         <Vec<Vec<f64>>>::sse_encode(self.eeg, serializer);
         <Vec<f64>>::sse_encode(self.ppg_ir, serializer);
         <Vec<f64>>::sse_encode(self.ppg_red, serializer);
+        <Vec<f64>>::sse_encode(self.ppg_nir, serializer);
         <Option<f64>>::sse_encode(self.spo2, serializer);
+        <Option<f64>>::sse_encode(self.fnirs_hbo2, serializer);
+        <Option<f64>>::sse_encode(self.fnirs_hbr, serializer);
+        <Option<f64>>::sse_encode(self.fnirs_tsi, serializer);
         <[f64; 3]>::sse_encode(self.accel, serializer);
         <[f64; 3]>::sse_encode(self.gyro, serializer);
         <f64>::sse_encode(self.timestamp, serializer);
@@ -943,13 +1278,6 @@ impl SseEncode for usize {
     }
 }
 
-impl SseEncode for bool {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        serializer.cursor.write_u8(self as _).unwrap();
-    }
-}
-
 #[cfg(not(target_family = "wasm"))]
 mod io {
     // This file is automatically generated, so please do not edit it.
@@ -967,6 +1295,506 @@ mod io {
     // Section: boilerplate
 
     flutter_rust_bridge::frb_generated_boilerplate_io!();
+
+    // Section: dart2rust
+
+    impl CstDecode<flutter_rust_bridge::for_generated::anyhow::Error>
+        for *mut wire_cst_list_prim_u_8_strict
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> flutter_rust_bridge::for_generated::anyhow::Error {
+            unimplemented!()
+        }
+    }
+    impl CstDecode<String> for *mut wire_cst_list_prim_u_8_strict {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> String {
+            let vec: Vec<u8> = self.cst_decode();
+            String::from_utf8(vec).unwrap()
+        }
+    }
+    impl CstDecode<f64> for *mut f64 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> f64 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<crate::api::EegData> for wire_cst_eeg_data {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::EegData {
+            crate::api::EegData {
+                channels: self.channels.cst_decode(),
+                data: self.data.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<[f64; 3]> for *mut wire_cst_list_prim_f_64_strict {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> [f64; 3] {
+            let vec: Vec<f64> = self.cst_decode();
+            flutter_rust_bridge::for_generated::from_vec_to_array(vec)
+        }
+    }
+    impl CstDecode<Vec<Vec<f64>>> for *mut wire_cst_list_list_prim_f_64_strict {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<Vec<f64>> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<Vec<u8>>> for *mut wire_cst_list_list_prim_u_8_strict {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<Vec<u8>> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::muse_types::MusePacketType>> for *mut wire_cst_list_muse_packet_type {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::muse_types::MusePacketType> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::muse_types::MuseProcessedData>>
+        for *mut wire_cst_list_muse_processed_data
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::muse_types::MuseProcessedData> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<f64>> for *mut wire_cst_list_prim_f_64_strict {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<f64> {
+            unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            }
+        }
+    }
+    impl CstDecode<Vec<u8>> for *mut wire_cst_list_prim_u_8_loose {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<u8> {
+            unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            }
+        }
+    }
+    impl CstDecode<Vec<u8>> for *mut wire_cst_list_prim_u_8_strict {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<u8> {
+            unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            }
+        }
+    }
+    impl CstDecode<Vec<usize>> for *mut wire_cst_list_prim_usize_strict {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<usize> {
+            unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            }
+        }
+    }
+    impl CstDecode<crate::muse_types::MuseProcessedData> for wire_cst_muse_processed_data {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::muse_types::MuseProcessedData {
+            crate::muse_types::MuseProcessedData {
+                eeg: self.eeg.cst_decode(),
+                ppg_ir: self.ppg_ir.cst_decode(),
+                ppg_red: self.ppg_red.cst_decode(),
+                ppg_nir: self.ppg_nir.cst_decode(),
+                spo2: self.spo2.cst_decode(),
+                fnirs_hbo2: self.fnirs_hbo2.cst_decode(),
+                fnirs_hbr: self.fnirs_hbr.cst_decode(),
+                fnirs_tsi: self.fnirs_tsi.cst_decode(),
+                accel: self.accel.cst_decode(),
+                gyro: self.gyro.cst_decode(),
+                timestamp: self.timestamp.cst_decode(),
+                battery: self.battery.cst_decode(),
+                packet_types: self.packet_types.cst_decode(),
+            }
+        }
+    }
+    impl NewWithNullPtr for wire_cst_eeg_data {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                channels: core::ptr::null_mut(),
+                data: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_eeg_data {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_muse_processed_data {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                eeg: core::ptr::null_mut(),
+                ppg_ir: core::ptr::null_mut(),
+                ppg_red: core::ptr::null_mut(),
+                ppg_nir: core::ptr::null_mut(),
+                spo2: core::ptr::null_mut(),
+                fnirs_hbo2: core::ptr::null_mut(),
+                fnirs_hbr: core::ptr::null_mut(),
+                fnirs_tsi: core::ptr::null_mut(),
+                accel: core::ptr::null_mut(),
+                gyro: core::ptr::null_mut(),
+                timestamp: Default::default(),
+                battery: Default::default(),
+                packet_types: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_muse_processed_data {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__api__connect_to_muse(
+        port_: i64,
+        mac_address: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__connect_to_muse_impl(port_, mac_address)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__api__disconnect_muse(port_: i64) {
+        wire__crate__api__disconnect_muse_impl(port_)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__eeg_resolution_offset(
+        port_: i64,
+        that: i32,
+    ) {
+        wire__crate__muse_types__eeg_resolution_offset_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__eeg_resolution_scale_factor(
+        port_: i64,
+        that: i32,
+    ) {
+        wire__crate__muse_types__eeg_resolution_scale_factor_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__api__get_connection_status(
+        port_: i64,
+    ) {
+        wire__crate__api__get_connection_status_impl(port_)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__api__get_latest_data(
+        port_: i64,
+        num_samples: i32,
+    ) {
+        wire__crate__api__get_latest_data_impl(port_, num_samples)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_parser__get_muse_model_from_name(
+        port_: i64,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__muse_parser__get_muse_model_from_name_impl(port_, name)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__api__init_logger(port_: i64) {
+        wire__crate__api__init_logger_impl(port_)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_parser__init_muse_parser(
+        port_: i64,
+        model: i32,
+    ) {
+        wire__crate__muse_parser__init_muse_parser_impl(port_, model)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__muse_model_channel_count(
+        port_: i64,
+        that: i32,
+    ) {
+        wire__crate__muse_types__muse_model_channel_count_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__muse_model_has_fnirs(
+        port_: i64,
+        that: i32,
+    ) {
+        wire__crate__muse_types__muse_model_has_fnirs_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__muse_model_has_ppg(
+        port_: i64,
+        that: i32,
+    ) {
+        wire__crate__muse_types__muse_model_has_ppg_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__muse_model_ppg_channel_count(
+        port_: i64,
+        that: i32,
+    ) {
+        wire__crate__muse_types__muse_model_ppg_channel_count_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__muse_model_resolution(
+        port_: i64,
+        that: i32,
+    ) {
+        wire__crate__muse_types__muse_model_resolution_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__muse_processed_data_default(
+        port_: i64,
+    ) {
+        wire__crate__muse_types__muse_processed_data_default_impl(port_)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_parser__parse_and_process_muse_packets(
+        port_: i64,
+        raw_packets: *mut wire_cst_list_list_prim_u_8_strict,
+    ) {
+        wire__crate__muse_parser__parse_and_process_muse_packets_impl(port_, raw_packets)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_parser__parse_muse_packet(
+        port_: i64,
+        channel: i32,
+        data: *mut wire_cst_list_prim_u_8_loose,
+    ) {
+        wire__crate__muse_parser__parse_muse_packet_impl(port_, channel, data)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__muse_parser__send_muse_command(
+        port_: i64,
+        command: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__muse_parser__send_muse_command_impl(port_, command)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__api__test_output(port_: i64) {
+        wire__crate__api__test_output_impl(port_)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_wire__crate__api__verify_brainflow_version(
+        port_: i64,
+    ) {
+        wire__crate__api__verify_brainflow_version_impl(port_)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_cst_new_box_autoadd_f_64(
+        value: f64,
+    ) -> *mut f64 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_cst_new_list_list_prim_f_64_strict(
+        len: i32,
+    ) -> *mut wire_cst_list_list_prim_f_64_strict {
+        let wrap = wire_cst_list_list_prim_f_64_strict {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <*mut wire_cst_list_prim_f_64_strict>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_cst_new_list_list_prim_u_8_strict(
+        len: i32,
+    ) -> *mut wire_cst_list_list_prim_u_8_strict {
+        let wrap = wire_cst_list_list_prim_u_8_strict {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <*mut wire_cst_list_prim_u_8_strict>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_cst_new_list_muse_packet_type(
+        len: i32,
+    ) -> *mut wire_cst_list_muse_packet_type {
+        let wrap = wire_cst_list_muse_packet_type {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(Default::default(), len),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_cst_new_list_muse_processed_data(
+        len: i32,
+    ) -> *mut wire_cst_list_muse_processed_data {
+        let wrap = wire_cst_list_muse_processed_data {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_muse_processed_data>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_cst_new_list_prim_f_64_strict(
+        len: i32,
+    ) -> *mut wire_cst_list_prim_f_64_strict {
+        let ans = wire_cst_list_prim_f_64_strict {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(Default::default(), len),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(ans)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_cst_new_list_prim_u_8_loose(
+        len: i32,
+    ) -> *mut wire_cst_list_prim_u_8_loose {
+        let ans = wire_cst_list_prim_u_8_loose {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(Default::default(), len),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(ans)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_cst_new_list_prim_u_8_strict(
+        len: i32,
+    ) -> *mut wire_cst_list_prim_u_8_strict {
+        let ans = wire_cst_list_prim_u_8_strict {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(Default::default(), len),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(ans)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_fl_muse_brainflow_mvp_cst_new_list_prim_usize_strict(
+        len: i32,
+    ) -> *mut wire_cst_list_prim_usize_strict {
+        let ans = wire_cst_list_prim_usize_strict {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(Default::default(), len),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(ans)
+    }
+
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_eeg_data {
+        channels: *mut wire_cst_list_prim_usize_strict,
+        data: *mut wire_cst_list_list_prim_f_64_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_list_prim_f_64_strict {
+        ptr: *mut *mut wire_cst_list_prim_f_64_strict,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_list_prim_u_8_strict {
+        ptr: *mut *mut wire_cst_list_prim_u_8_strict,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_muse_packet_type {
+        ptr: *mut i32,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_muse_processed_data {
+        ptr: *mut wire_cst_muse_processed_data,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_prim_f_64_strict {
+        ptr: *mut f64,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_prim_u_8_loose {
+        ptr: *mut u8,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_prim_u_8_strict {
+        ptr: *mut u8,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_prim_usize_strict {
+        ptr: *mut usize,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_muse_processed_data {
+        eeg: *mut wire_cst_list_list_prim_f_64_strict,
+        ppg_ir: *mut wire_cst_list_prim_f_64_strict,
+        ppg_red: *mut wire_cst_list_prim_f_64_strict,
+        ppg_nir: *mut wire_cst_list_prim_f_64_strict,
+        spo2: *mut f64,
+        fnirs_hbo2: *mut f64,
+        fnirs_hbr: *mut f64,
+        fnirs_tsi: *mut f64,
+        accel: *mut wire_cst_list_prim_f_64_strict,
+        gyro: *mut wire_cst_list_prim_f_64_strict,
+        timestamp: f64,
+        battery: f64,
+        packet_types: *mut wire_cst_list_muse_packet_type,
+    }
 }
 #[cfg(not(target_family = "wasm"))]
 pub use io::*;
@@ -991,6 +1819,403 @@ mod web {
     // Section: boilerplate
 
     flutter_rust_bridge::frb_generated_boilerplate_web!();
+
+    // Section: dart2rust
+
+    impl CstDecode<flutter_rust_bridge::for_generated::anyhow::Error> for String {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> flutter_rust_bridge::for_generated::anyhow::Error {
+            unimplemented!()
+        }
+    }
+    impl CstDecode<String> for String {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> String {
+            self
+        }
+    }
+    impl CstDecode<crate::api::EegData> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::EegData {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::api::EegData {
+                channels: self_.get(0).cst_decode(),
+                data: self_.get(1).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<[f64; 3]> for Box<[f64]> {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> [f64; 3] {
+            let vec: Vec<f64> = self.cst_decode();
+            flutter_rust_bridge::for_generated::from_vec_to_array(vec)
+        }
+    }
+    impl CstDecode<Vec<Vec<f64>>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<Vec<f64>> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<Vec<u8>>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<Vec<u8>> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::muse_types::MusePacketType>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::muse_types::MusePacketType> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::muse_types::MuseProcessedData>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::muse_types::MuseProcessedData> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<f64>> for Box<[f64]> {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<f64> {
+            self.into_vec()
+        }
+    }
+    impl CstDecode<Vec<u8>> for Box<[u8]> {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<u8> {
+            self.into_vec()
+        }
+    }
+    impl CstDecode<Vec<usize>> for Box<[usize]> {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<usize> {
+            self.into_vec()
+        }
+    }
+    impl CstDecode<crate::muse_types::MuseProcessedData>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::muse_types::MuseProcessedData {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                13,
+                "Expected 13 elements, got {}",
+                self_.length()
+            );
+            crate::muse_types::MuseProcessedData {
+                eeg: self_.get(0).cst_decode(),
+                ppg_ir: self_.get(1).cst_decode(),
+                ppg_red: self_.get(2).cst_decode(),
+                ppg_nir: self_.get(3).cst_decode(),
+                spo2: self_.get(4).cst_decode(),
+                fnirs_hbo2: self_.get(5).cst_decode(),
+                fnirs_hbr: self_.get(6).cst_decode(),
+                fnirs_tsi: self_.get(7).cst_decode(),
+                accel: self_.get(8).cst_decode(),
+                gyro: self_.get(9).cst_decode(),
+                timestamp: self_.get(10).cst_decode(),
+                battery: self_.get(11).cst_decode(),
+                packet_types: self_.get(12).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<Option<String>> for Option<String> {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Option<String> {
+            self.map(CstDecode::cst_decode)
+        }
+    }
+    impl CstDecode<flutter_rust_bridge::for_generated::anyhow::Error>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> flutter_rust_bridge::for_generated::anyhow::Error {
+            unimplemented!()
+        }
+    }
+    impl CstDecode<String> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> String {
+            self.as_string().expect("non-UTF-8 string, or not a string")
+        }
+    }
+    impl CstDecode<bool> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> bool {
+            self.is_truthy()
+        }
+    }
+    impl CstDecode<crate::api::ConnectionStatus>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::ConnectionStatus {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::muse_types::EegResolution>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::muse_types::EegResolution {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<f64> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> f64 {
+            self.unchecked_into_f64() as _
+        }
+    }
+    impl CstDecode<[f64; 3]> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> [f64; 3] {
+            let vec: Vec<f64> = self.cst_decode();
+            flutter_rust_bridge::for_generated::from_vec_to_array(vec)
+        }
+    }
+    impl CstDecode<i32> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> i32 {
+            self.unchecked_into_f64() as _
+        }
+    }
+    impl CstDecode<Vec<f64>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<f64> {
+            self.unchecked_into::<flutter_rust_bridge::for_generated::js_sys::Float64Array>()
+                .to_vec()
+                .into()
+        }
+    }
+    impl CstDecode<Vec<u8>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<u8> {
+            self.unchecked_into::<flutter_rust_bridge::for_generated::js_sys::Uint8Array>()
+                .to_vec()
+                .into()
+        }
+    }
+    impl CstDecode<Vec<usize>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<usize> {
+            self.unchecked_into::<flutter_rust_bridge::for_generated::js_sys::Uint32Array>()
+                .to_vec()
+                .into()
+        }
+    }
+    impl CstDecode<crate::muse_types::MuseModel>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::muse_types::MuseModel {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::muse_types::MusePacketType>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::muse_types::MusePacketType {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<u8> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> u8 {
+            self.unchecked_into_f64() as _
+        }
+    }
+    impl CstDecode<usize> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> usize {
+            ::std::convert::TryInto::<u64>::try_into(self).unwrap() as _
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__connect_to_muse(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        mac_address: Option<String>,
+    ) {
+        wire__crate__api__connect_to_muse_impl(port_, mac_address)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__disconnect_muse(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+    ) {
+        wire__crate__api__disconnect_muse_impl(port_)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_types__eeg_resolution_offset(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        that: i32,
+    ) {
+        wire__crate__muse_types__eeg_resolution_offset_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_types__eeg_resolution_scale_factor(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        that: i32,
+    ) {
+        wire__crate__muse_types__eeg_resolution_scale_factor_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__get_connection_status(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+    ) {
+        wire__crate__api__get_connection_status_impl(port_)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__get_latest_data(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        num_samples: i32,
+    ) {
+        wire__crate__api__get_latest_data_impl(port_, num_samples)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_parser__get_muse_model_from_name(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        name: String,
+    ) {
+        wire__crate__muse_parser__get_muse_model_from_name_impl(port_, name)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__init_logger(port_: flutter_rust_bridge::for_generated::MessagePort) {
+        wire__crate__api__init_logger_impl(port_)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_parser__init_muse_parser(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        model: i32,
+    ) {
+        wire__crate__muse_parser__init_muse_parser_impl(port_, model)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_types__muse_model_channel_count(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        that: i32,
+    ) {
+        wire__crate__muse_types__muse_model_channel_count_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_types__muse_model_has_fnirs(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        that: i32,
+    ) {
+        wire__crate__muse_types__muse_model_has_fnirs_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_types__muse_model_has_ppg(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        that: i32,
+    ) {
+        wire__crate__muse_types__muse_model_has_ppg_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_types__muse_model_ppg_channel_count(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        that: i32,
+    ) {
+        wire__crate__muse_types__muse_model_ppg_channel_count_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_types__muse_model_resolution(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        that: i32,
+    ) {
+        wire__crate__muse_types__muse_model_resolution_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_types__muse_processed_data_default(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+    ) {
+        wire__crate__muse_types__muse_processed_data_default_impl(port_)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_parser__parse_and_process_muse_packets(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        raw_packets: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__muse_parser__parse_and_process_muse_packets_impl(port_, raw_packets)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_parser__parse_muse_packet(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        channel: i32,
+        data: Box<[u8]>,
+    ) {
+        wire__crate__muse_parser__parse_muse_packet_impl(port_, channel, data)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__muse_parser__send_muse_command(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        command: String,
+    ) {
+        wire__crate__muse_parser__send_muse_command_impl(port_, command)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__test_output(port_: flutter_rust_bridge::for_generated::MessagePort) {
+        wire__crate__api__test_output_impl(port_)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__verify_brainflow_version(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+    ) {
+        wire__crate__api__verify_brainflow_version_impl(port_)
+    }
 }
 #[cfg(target_family = "wasm")]
 pub use web::*;

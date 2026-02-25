@@ -7,48 +7,94 @@ import 'frb_generated.dart';
 import 'lib.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `clone`, `eq`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`
+
+enum EegResolution {
+  bits12,
+  bits14,
+  ;
+
+  Future<double> offset() =>
+      RustLib.instance.api.crateMuseTypesEegResolutionOffset(
+        that: this,
+      );
+
+  Future<double> scaleFactor() =>
+      RustLib.instance.api.crateMuseTypesEegResolutionScaleFactor(
+        that: this,
+      );
+}
+
+enum MuseModel {
+  muse2016,
+  muse2,
+  museS,
+  museSAthena,
+  unknown,
+  ;
+
+  Future<BigInt> channelCount() =>
+      RustLib.instance.api.crateMuseTypesMuseModelChannelCount(
+        that: this,
+      );
+
+  Future<bool> hasFnirs() =>
+      RustLib.instance.api.crateMuseTypesMuseModelHasFnirs(
+        that: this,
+      );
+
+  Future<bool> hasPpg() => RustLib.instance.api.crateMuseTypesMuseModelHasPpg(
+        that: this,
+      );
+
+  Future<BigInt> ppgChannelCount() =>
+      RustLib.instance.api.crateMuseTypesMuseModelPpgChannelCount(
+        that: this,
+      );
+
+  Future<EegResolution> resolution() =>
+      RustLib.instance.api.crateMuseTypesMuseModelResolution(
+        that: this,
+      );
+}
 
 enum MusePacketType {
   eegPpg,
   imu,
+  eeg,
+  ppg,
+  accel,
+  gyro,
+  fnirs,
+  none,
   other,
   ;
 }
 
 class MuseProcessedData {
-  /// 7 channels × samples (in µV after BrainFlow scaling)
   final List<Float64List> eeg;
-
-  /// Infrared PPG (for HR + SpO2)
   final Float64List ppgIr;
-
-  /// Red PPG
   final Float64List ppgRed;
-
-  /// Calculated SpO2 (null until enough samples)
+  final Float64List ppgNir;
   final double? spo2;
-
-  /// Accelerometer [x, y, z] in g
+  final double? fnirsHbo2;
+  final double? fnirsHbr;
+  final double? fnirsTsi;
   final F64Array3 accel;
-
-  /// Gyroscope [x, y, z] in deg/s
   final F64Array3 gyro;
-
-  /// Corrected timestamp (seconds since UNIX epoch)
   final double timestamp;
-
-  /// Battery % (0-100)
   final double battery;
-
-  /// Which packet types were in this batch
   final List<MusePacketType> packetTypes;
 
   const MuseProcessedData({
     required this.eeg,
     required this.ppgIr,
     required this.ppgRed,
+    required this.ppgNir,
     this.spo2,
+    this.fnirsHbo2,
+    this.fnirsHbr,
+    this.fnirsTsi,
     required this.accel,
     required this.gyro,
     required this.timestamp,
@@ -64,7 +110,11 @@ class MuseProcessedData {
       eeg.hashCode ^
       ppgIr.hashCode ^
       ppgRed.hashCode ^
+      ppgNir.hashCode ^
       spo2.hashCode ^
+      fnirsHbo2.hashCode ^
+      fnirsHbr.hashCode ^
+      fnirsTsi.hashCode ^
       accel.hashCode ^
       gyro.hashCode ^
       timestamp.hashCode ^
@@ -79,7 +129,11 @@ class MuseProcessedData {
           eeg == other.eeg &&
           ppgIr == other.ppgIr &&
           ppgRed == other.ppgRed &&
+          ppgNir == other.ppgNir &&
           spo2 == other.spo2 &&
+          fnirsHbo2 == other.fnirsHbo2 &&
+          fnirsHbr == other.fnirsHbr &&
+          fnirsTsi == other.fnirsTsi &&
           accel == other.accel &&
           gyro == other.gyro &&
           timestamp == other.timestamp &&

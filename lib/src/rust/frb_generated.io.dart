@@ -28,6 +28,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String dco_decode_String(dynamic raw);
 
   @protected
+  bool dco_decode_bool(dynamic raw);
+
+  @protected
   double dco_decode_box_autoadd_f_64(dynamic raw);
 
   @protected
@@ -35,6 +38,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   EegData dco_decode_eeg_data(dynamic raw);
+
+  @protected
+  EegResolution dco_decode_eeg_resolution(dynamic raw);
 
   @protected
   double dco_decode_f_64(dynamic raw);
@@ -61,10 +67,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Float64List dco_decode_list_prim_f_64_strict(dynamic raw);
 
   @protected
+  List<int> dco_decode_list_prim_u_8_loose(dynamic raw);
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
   Uint64List dco_decode_list_prim_usize_strict(dynamic raw);
+
+  @protected
+  MuseModel dco_decode_muse_model(dynamic raw);
 
   @protected
   MusePacketType dco_decode_muse_packet_type(dynamic raw);
@@ -94,6 +106,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
+  bool sse_decode_bool(SseDeserializer deserializer);
+
+  @protected
   double sse_decode_box_autoadd_f_64(SseDeserializer deserializer);
 
   @protected
@@ -101,6 +116,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   EegData sse_decode_eeg_data(SseDeserializer deserializer);
+
+  @protected
+  EegResolution sse_decode_eeg_resolution(SseDeserializer deserializer);
 
   @protected
   double sse_decode_f_64(SseDeserializer deserializer);
@@ -131,10 +149,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Float64List sse_decode_list_prim_f_64_strict(SseDeserializer deserializer);
 
   @protected
+  List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer);
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
   Uint64List sse_decode_list_prim_usize_strict(SseDeserializer deserializer);
+
+  @protected
+  MuseModel sse_decode_muse_model(SseDeserializer deserializer);
 
   @protected
   MusePacketType sse_decode_muse_packet_type(SseDeserializer deserializer);
@@ -159,7 +183,181 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BigInt sse_decode_usize(SseDeserializer deserializer);
 
   @protected
-  bool sse_decode_bool(SseDeserializer deserializer);
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_AnyhowException(
+      AnyhowException raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    throw UnimplementedError();
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_list_prim_u_8_strict(utf8.encoder.convert(raw));
+  }
+
+  @protected
+  ffi.Pointer<ffi.Double> cst_encode_box_autoadd_f_64(double raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_f_64(cst_encode_f_64(raw));
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_encode_f_64_array_3(
+      F64Array3 raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_f_64_strict(3);
+    ans.ref.ptr.asTypedList(3).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_list_prim_f_64_strict>
+      cst_encode_list_list_prim_f_64_strict(List<Float64List> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_list_prim_f_64_strict(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      ans.ref.ptr[i] = cst_encode_list_prim_f_64_strict(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_list_prim_u_8_strict>
+      cst_encode_list_list_prim_u_8_strict(List<Uint8List> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_list_prim_u_8_strict(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      ans.ref.ptr[i] = cst_encode_list_prim_u_8_strict(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_muse_packet_type> cst_encode_list_muse_packet_type(
+      List<MusePacketType> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_muse_packet_type(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      ans.ref.ptr[i] = cst_encode_muse_packet_type(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_muse_processed_data>
+      cst_encode_list_muse_processed_data(List<MuseProcessedData> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_muse_processed_data(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_muse_processed_data(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_encode_list_prim_f_64_strict(
+      Float64List raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_f_64_strict(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_loose> cst_encode_list_prim_u_8_loose(
+      List<int> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_u_8_loose(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(
+      Uint8List raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_usize_strict>
+      cst_encode_list_prim_usize_strict(Uint64List raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    throw UnimplementedError('Not implemented in this codec');
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(
+      String? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_String(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Double> cst_encode_opt_box_autoadd_f_64(double? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_64(raw);
+  }
+
+  @protected
+  int cst_encode_usize(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.toSigned(64).toInt();
+  }
+
+  @protected
+  void cst_api_fill_to_wire_eeg_data(
+      EegData apiObj, wire_cst_eeg_data wireObj) {
+    wireObj.channels = cst_encode_list_prim_usize_strict(apiObj.channels);
+    wireObj.data = cst_encode_list_list_prim_f_64_strict(apiObj.data);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_muse_processed_data(
+      MuseProcessedData apiObj, wire_cst_muse_processed_data wireObj) {
+    wireObj.eeg = cst_encode_list_list_prim_f_64_strict(apiObj.eeg);
+    wireObj.ppg_ir = cst_encode_list_prim_f_64_strict(apiObj.ppgIr);
+    wireObj.ppg_red = cst_encode_list_prim_f_64_strict(apiObj.ppgRed);
+    wireObj.ppg_nir = cst_encode_list_prim_f_64_strict(apiObj.ppgNir);
+    wireObj.spo2 = cst_encode_opt_box_autoadd_f_64(apiObj.spo2);
+    wireObj.fnirs_hbo2 = cst_encode_opt_box_autoadd_f_64(apiObj.fnirsHbo2);
+    wireObj.fnirs_hbr = cst_encode_opt_box_autoadd_f_64(apiObj.fnirsHbr);
+    wireObj.fnirs_tsi = cst_encode_opt_box_autoadd_f_64(apiObj.fnirsTsi);
+    wireObj.accel = cst_encode_f_64_array_3(apiObj.accel);
+    wireObj.gyro = cst_encode_f_64_array_3(apiObj.gyro);
+    wireObj.timestamp = cst_encode_f_64(apiObj.timestamp);
+    wireObj.battery = cst_encode_f_64(apiObj.battery);
+    wireObj.packet_types = cst_encode_list_muse_packet_type(apiObj.packetTypes);
+  }
+
+  @protected
+  bool cst_encode_bool(bool raw);
+
+  @protected
+  int cst_encode_connection_status(ConnectionStatus raw);
+
+  @protected
+  int cst_encode_eeg_resolution(EegResolution raw);
+
+  @protected
+  double cst_encode_f_64(double raw);
+
+  @protected
+  int cst_encode_i_32(int raw);
+
+  @protected
+  int cst_encode_muse_model(MuseModel raw);
+
+  @protected
+  int cst_encode_muse_packet_type(MusePacketType raw);
+
+  @protected
+  int cst_encode_u_8(int raw);
+
+  @protected
+  void cst_encode_unit(void raw);
 
   @protected
   void sse_encode_AnyhowException(
@@ -167,6 +365,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer);
@@ -177,6 +378,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_eeg_data(EegData self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_eeg_resolution(EegResolution self, SseSerializer serializer);
 
   @protected
   void sse_encode_f_64(double self, SseSerializer serializer);
@@ -208,12 +412,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       Float64List self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_prim_u_8_loose(List<int> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
       Uint8List self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_prim_usize_strict(
       Uint64List self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_muse_model(MuseModel self, SseSerializer serializer);
 
   @protected
   void sse_encode_muse_packet_type(
@@ -237,13 +447,17 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_usize(BigInt self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer);
 }
 
 // Section: wire_class
 
+// ignore_for_file: camel_case_types, non_constant_identifier_names, avoid_positional_boolean_parameters, annotate_overrides, constant_identifier_names
+// AUTO GENERATED FILE, DO NOT EDIT.
+//
+// Generated by `package:ffigen`.
+// ignore_for_file: type=lint
+
+/// generated by flutter_rust_bridge
 class RustLibWire implements BaseWire {
   factory RustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
       RustLibWire(lib.ffiDynamicLibrary);
@@ -255,4 +469,539 @@ class RustLibWire implements BaseWire {
   /// The symbols are looked up in [dynamicLibrary].
   RustLibWire(ffi.DynamicLibrary dynamicLibrary)
       : _lookup = dynamicLibrary.lookup;
+
+  /// The symbols are looked up with [lookup].
+  RustLibWire.fromLookup(
+    ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup,
+  ) : _lookup = lookup;
+
+  void store_dart_post_cobject(DartPostCObjectFnType ptr) {
+    return _store_dart_post_cobject(ptr);
+  }
+
+  late final _store_dart_post_cobjectPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(DartPostCObjectFnType)>>(
+    'store_dart_post_cobject',
+  );
+  late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
+      .asFunction<void Function(DartPostCObjectFnType)>();
+
+  void wire__crate__api__connect_to_muse(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> mac_address,
+  ) {
+    return _wire__crate__api__connect_to_muse(port_, mac_address);
+  }
+
+  late final _wire__crate__api__connect_to_musePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )>>('frbgen_fl_muse_brainflow_mvp_wire__crate__api__connect_to_muse');
+  late final _wire__crate__api__connect_to_muse =
+      _wire__crate__api__connect_to_musePtr.asFunction<
+          void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)>();
+
+  void wire__crate__api__disconnect_muse(int port_) {
+    return _wire__crate__api__disconnect_muse(port_);
+  }
+
+  late final _wire__crate__api__disconnect_musePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__api__disconnect_muse',
+  );
+  late final _wire__crate__api__disconnect_muse =
+      _wire__crate__api__disconnect_musePtr.asFunction<void Function(int)>();
+
+  void wire__crate__muse_types__eeg_resolution_offset(int port_, int that) {
+    return _wire__crate__muse_types__eeg_resolution_offset(port_, that);
+  }
+
+  late final _wire__crate__muse_types__eeg_resolution_offsetPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__eeg_resolution_offset',
+  );
+  late final _wire__crate__muse_types__eeg_resolution_offset =
+      _wire__crate__muse_types__eeg_resolution_offsetPtr
+          .asFunction<void Function(int, int)>();
+
+  void wire__crate__muse_types__eeg_resolution_scale_factor(
+    int port_,
+    int that,
+  ) {
+    return _wire__crate__muse_types__eeg_resolution_scale_factor(port_, that);
+  }
+
+  late final _wire__crate__muse_types__eeg_resolution_scale_factorPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__eeg_resolution_scale_factor',
+  );
+  late final _wire__crate__muse_types__eeg_resolution_scale_factor =
+      _wire__crate__muse_types__eeg_resolution_scale_factorPtr
+          .asFunction<void Function(int, int)>();
+
+  void wire__crate__api__get_connection_status(int port_) {
+    return _wire__crate__api__get_connection_status(port_);
+  }
+
+  late final _wire__crate__api__get_connection_statusPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__api__get_connection_status',
+  );
+  late final _wire__crate__api__get_connection_status =
+      _wire__crate__api__get_connection_statusPtr
+          .asFunction<void Function(int)>();
+
+  void wire__crate__api__get_latest_data(int port_, int num_samples) {
+    return _wire__crate__api__get_latest_data(port_, num_samples);
+  }
+
+  late final _wire__crate__api__get_latest_dataPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__api__get_latest_data',
+  );
+  late final _wire__crate__api__get_latest_data =
+      _wire__crate__api__get_latest_dataPtr
+          .asFunction<void Function(int, int)>();
+
+  void wire__crate__muse_parser__get_muse_model_from_name(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__muse_parser__get_muse_model_from_name(port_, name);
+  }
+
+  late final _wire__crate__muse_parser__get_muse_model_from_namePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_parser__get_muse_model_from_name',
+  );
+  late final _wire__crate__muse_parser__get_muse_model_from_name =
+      _wire__crate__muse_parser__get_muse_model_from_namePtr.asFunction<
+          void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)>();
+
+  void wire__crate__api__init_logger(int port_) {
+    return _wire__crate__api__init_logger(port_);
+  }
+
+  late final _wire__crate__api__init_loggerPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__api__init_logger',
+  );
+  late final _wire__crate__api__init_logger =
+      _wire__crate__api__init_loggerPtr.asFunction<void Function(int)>();
+
+  void wire__crate__muse_parser__init_muse_parser(int port_, int model) {
+    return _wire__crate__muse_parser__init_muse_parser(port_, model);
+  }
+
+  late final _wire__crate__muse_parser__init_muse_parserPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_parser__init_muse_parser',
+  );
+  late final _wire__crate__muse_parser__init_muse_parser =
+      _wire__crate__muse_parser__init_muse_parserPtr
+          .asFunction<void Function(int, int)>();
+
+  void wire__crate__muse_types__muse_model_channel_count(int port_, int that) {
+    return _wire__crate__muse_types__muse_model_channel_count(port_, that);
+  }
+
+  late final _wire__crate__muse_types__muse_model_channel_countPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__muse_model_channel_count',
+  );
+  late final _wire__crate__muse_types__muse_model_channel_count =
+      _wire__crate__muse_types__muse_model_channel_countPtr
+          .asFunction<void Function(int, int)>();
+
+  void wire__crate__muse_types__muse_model_has_fnirs(int port_, int that) {
+    return _wire__crate__muse_types__muse_model_has_fnirs(port_, that);
+  }
+
+  late final _wire__crate__muse_types__muse_model_has_fnirsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__muse_model_has_fnirs',
+  );
+  late final _wire__crate__muse_types__muse_model_has_fnirs =
+      _wire__crate__muse_types__muse_model_has_fnirsPtr
+          .asFunction<void Function(int, int)>();
+
+  void wire__crate__muse_types__muse_model_has_ppg(int port_, int that) {
+    return _wire__crate__muse_types__muse_model_has_ppg(port_, that);
+  }
+
+  late final _wire__crate__muse_types__muse_model_has_ppgPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__muse_model_has_ppg',
+  );
+  late final _wire__crate__muse_types__muse_model_has_ppg =
+      _wire__crate__muse_types__muse_model_has_ppgPtr
+          .asFunction<void Function(int, int)>();
+
+  void wire__crate__muse_types__muse_model_ppg_channel_count(
+    int port_,
+    int that,
+  ) {
+    return _wire__crate__muse_types__muse_model_ppg_channel_count(port_, that);
+  }
+
+  late final _wire__crate__muse_types__muse_model_ppg_channel_countPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__muse_model_ppg_channel_count',
+  );
+  late final _wire__crate__muse_types__muse_model_ppg_channel_count =
+      _wire__crate__muse_types__muse_model_ppg_channel_countPtr
+          .asFunction<void Function(int, int)>();
+
+  void wire__crate__muse_types__muse_model_resolution(int port_, int that) {
+    return _wire__crate__muse_types__muse_model_resolution(port_, that);
+  }
+
+  late final _wire__crate__muse_types__muse_model_resolutionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__muse_model_resolution',
+  );
+  late final _wire__crate__muse_types__muse_model_resolution =
+      _wire__crate__muse_types__muse_model_resolutionPtr
+          .asFunction<void Function(int, int)>();
+
+  void wire__crate__muse_types__muse_processed_data_default(int port_) {
+    return _wire__crate__muse_types__muse_processed_data_default(port_);
+  }
+
+  late final _wire__crate__muse_types__muse_processed_data_defaultPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_types__muse_processed_data_default',
+  );
+  late final _wire__crate__muse_types__muse_processed_data_default =
+      _wire__crate__muse_types__muse_processed_data_defaultPtr
+          .asFunction<void Function(int)>();
+
+  void wire__crate__muse_parser__parse_and_process_muse_packets(
+    int port_,
+    ffi.Pointer<wire_cst_list_list_prim_u_8_strict> raw_packets,
+  ) {
+    return _wire__crate__muse_parser__parse_and_process_muse_packets(
+      port_,
+      raw_packets,
+    );
+  }
+
+  late final _wire__crate__muse_parser__parse_and_process_muse_packetsPtr =
+      _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                ffi.Int64,
+                ffi.Pointer<wire_cst_list_list_prim_u_8_strict>,
+              )>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_parser__parse_and_process_muse_packets',
+  );
+  late final _wire__crate__muse_parser__parse_and_process_muse_packets =
+      _wire__crate__muse_parser__parse_and_process_muse_packetsPtr.asFunction<
+          void Function(
+              int, ffi.Pointer<wire_cst_list_list_prim_u_8_strict>)>();
+
+  void wire__crate__muse_parser__parse_muse_packet(
+    int port_,
+    int channel,
+    ffi.Pointer<wire_cst_list_prim_u_8_loose> data,
+  ) {
+    return _wire__crate__muse_parser__parse_muse_packet(port_, channel, data);
+  }
+
+  late final _wire__crate__muse_parser__parse_muse_packetPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Int32,
+            ffi.Pointer<wire_cst_list_prim_u_8_loose>,
+          )>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_parser__parse_muse_packet',
+  );
+  late final _wire__crate__muse_parser__parse_muse_packet =
+      _wire__crate__muse_parser__parse_muse_packetPtr.asFunction<
+          void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_loose>)>();
+
+  void wire__crate__muse_parser__send_muse_command(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> command,
+  ) {
+    return _wire__crate__muse_parser__send_muse_command(port_, command);
+  }
+
+  late final _wire__crate__muse_parser__send_muse_commandPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__muse_parser__send_muse_command',
+  );
+  late final _wire__crate__muse_parser__send_muse_command =
+      _wire__crate__muse_parser__send_muse_commandPtr.asFunction<
+          void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)>();
+
+  void wire__crate__api__test_output(int port_) {
+    return _wire__crate__api__test_output(port_);
+  }
+
+  late final _wire__crate__api__test_outputPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__api__test_output',
+  );
+  late final _wire__crate__api__test_output =
+      _wire__crate__api__test_outputPtr.asFunction<void Function(int)>();
+
+  void wire__crate__api__verify_brainflow_version(int port_) {
+    return _wire__crate__api__verify_brainflow_version(port_);
+  }
+
+  late final _wire__crate__api__verify_brainflow_versionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+    'frbgen_fl_muse_brainflow_mvp_wire__crate__api__verify_brainflow_version',
+  );
+  late final _wire__crate__api__verify_brainflow_version =
+      _wire__crate__api__verify_brainflow_versionPtr
+          .asFunction<void Function(int)>();
+
+  ffi.Pointer<ffi.Double> cst_new_box_autoadd_f_64(double value) {
+    return _cst_new_box_autoadd_f_64(value);
+  }
+
+  late final _cst_new_box_autoadd_f_64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Double> Function(ffi.Double)>>(
+    'frbgen_fl_muse_brainflow_mvp_cst_new_box_autoadd_f_64',
+  );
+  late final _cst_new_box_autoadd_f_64 = _cst_new_box_autoadd_f_64Ptr
+      .asFunction<ffi.Pointer<ffi.Double> Function(double)>();
+
+  ffi.Pointer<wire_cst_list_list_prim_f_64_strict>
+      cst_new_list_list_prim_f_64_strict(int len) {
+    return _cst_new_list_list_prim_f_64_strict(len);
+  }
+
+  late final _cst_new_list_list_prim_f_64_strictPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<wire_cst_list_list_prim_f_64_strict> Function(
+                  ffi.Int32)>>(
+      'frbgen_fl_muse_brainflow_mvp_cst_new_list_list_prim_f_64_strict');
+  late final _cst_new_list_list_prim_f_64_strict =
+      _cst_new_list_list_prim_f_64_strictPtr.asFunction<
+          ffi.Pointer<wire_cst_list_list_prim_f_64_strict> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_list_prim_u_8_strict>
+      cst_new_list_list_prim_u_8_strict(int len) {
+    return _cst_new_list_list_prim_u_8_strict(len);
+  }
+
+  late final _cst_new_list_list_prim_u_8_strictPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<wire_cst_list_list_prim_u_8_strict> Function(
+                  ffi.Int32)>>(
+      'frbgen_fl_muse_brainflow_mvp_cst_new_list_list_prim_u_8_strict');
+  late final _cst_new_list_list_prim_u_8_strict =
+      _cst_new_list_list_prim_u_8_strictPtr.asFunction<
+          ffi.Pointer<wire_cst_list_list_prim_u_8_strict> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_muse_packet_type> cst_new_list_muse_packet_type(
+    int len,
+  ) {
+    return _cst_new_list_muse_packet_type(len);
+  }
+
+  late final _cst_new_list_muse_packet_typePtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<wire_cst_list_muse_packet_type> Function(ffi.Int32)>>(
+      'frbgen_fl_muse_brainflow_mvp_cst_new_list_muse_packet_type');
+  late final _cst_new_list_muse_packet_type = _cst_new_list_muse_packet_typePtr
+      .asFunction<ffi.Pointer<wire_cst_list_muse_packet_type> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_muse_processed_data>
+      cst_new_list_muse_processed_data(int len) {
+    return _cst_new_list_muse_processed_data(len);
+  }
+
+  late final _cst_new_list_muse_processed_dataPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<wire_cst_list_muse_processed_data> Function(
+                  ffi.Int32)>>(
+      'frbgen_fl_muse_brainflow_mvp_cst_new_list_muse_processed_data');
+  late final _cst_new_list_muse_processed_data =
+      _cst_new_list_muse_processed_dataPtr.asFunction<
+          ffi.Pointer<wire_cst_list_muse_processed_data> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_new_list_prim_f_64_strict(
+    int len,
+  ) {
+    return _cst_new_list_prim_f_64_strict(len);
+  }
+
+  late final _cst_new_list_prim_f_64_strictPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<wire_cst_list_prim_f_64_strict> Function(ffi.Int32)>>(
+      'frbgen_fl_muse_brainflow_mvp_cst_new_list_prim_f_64_strict');
+  late final _cst_new_list_prim_f_64_strict = _cst_new_list_prim_f_64_strictPtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_f_64_strict> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_prim_u_8_loose> cst_new_list_prim_u_8_loose(
+    int len,
+  ) {
+    return _cst_new_list_prim_u_8_loose(len);
+  }
+
+  late final _cst_new_list_prim_u_8_loosePtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<wire_cst_list_prim_u_8_loose> Function(ffi.Int32)>>(
+      'frbgen_fl_muse_brainflow_mvp_cst_new_list_prim_u_8_loose');
+  late final _cst_new_list_prim_u_8_loose = _cst_new_list_prim_u_8_loosePtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_loose> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
+    int len,
+  ) {
+    return _cst_new_list_prim_u_8_strict(len);
+  }
+
+  late final _cst_new_list_prim_u_8_strictPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(ffi.Int32)>>(
+      'frbgen_fl_muse_brainflow_mvp_cst_new_list_prim_u_8_strict');
+  late final _cst_new_list_prim_u_8_strict = _cst_new_list_prim_u_8_strictPtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_prim_usize_strict> cst_new_list_prim_usize_strict(
+    int len,
+  ) {
+    return _cst_new_list_prim_usize_strict(len);
+  }
+
+  late final _cst_new_list_prim_usize_strictPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<wire_cst_list_prim_usize_strict> Function(
+                  ffi.Int32)>>(
+      'frbgen_fl_muse_brainflow_mvp_cst_new_list_prim_usize_strict');
+  late final _cst_new_list_prim_usize_strict =
+      _cst_new_list_prim_usize_strictPtr.asFunction<
+          ffi.Pointer<wire_cst_list_prim_usize_strict> Function(int)>();
+
+  int dummy_method_to_enforce_bundling() {
+    return _dummy_method_to_enforce_bundling();
+  }
+
+  late final _dummy_method_to_enforce_bundlingPtr =
+      _lookup<ffi.NativeFunction<ffi.Int64 Function()>>(
+    'dummy_method_to_enforce_bundling',
+  );
+  late final _dummy_method_to_enforce_bundling =
+      _dummy_method_to_enforce_bundlingPtr.asFunction<int Function()>();
 }
+
+typedef DartPostCObjectFnType
+    = ffi.Pointer<ffi.NativeFunction<DartPostCObjectFnTypeFunction>>;
+typedef DartPostCObjectFnTypeFunction = ffi.Bool Function(
+    DartPort port_id, ffi.Pointer<ffi.Void> message);
+typedef DartDartPostCObjectFnTypeFunction = bool Function(
+    DartDartPort port_id, ffi.Pointer<ffi.Void> message);
+typedef DartPort = ffi.Int64;
+typedef DartDartPort = int;
+
+final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_list_prim_u_8_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_u_8_strict>> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_prim_u_8_loose extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_prim_f_64_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Double> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_list_prim_f_64_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_f_64_strict>> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_muse_packet_type extends ffi.Struct {
+  external ffi.Pointer<ffi.Int32> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_muse_processed_data extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_list_prim_f_64_strict> eeg;
+
+  external ffi.Pointer<wire_cst_list_prim_f_64_strict> ppg_ir;
+
+  external ffi.Pointer<wire_cst_list_prim_f_64_strict> ppg_red;
+
+  external ffi.Pointer<wire_cst_list_prim_f_64_strict> ppg_nir;
+
+  external ffi.Pointer<ffi.Double> spo2;
+
+  external ffi.Pointer<ffi.Double> fnirs_hbo2;
+
+  external ffi.Pointer<ffi.Double> fnirs_hbr;
+
+  external ffi.Pointer<ffi.Double> fnirs_tsi;
+
+  external ffi.Pointer<wire_cst_list_prim_f_64_strict> accel;
+
+  external ffi.Pointer<wire_cst_list_prim_f_64_strict> gyro;
+
+  @ffi.Double()
+  external double timestamp;
+
+  @ffi.Double()
+  external double battery;
+
+  external ffi.Pointer<wire_cst_list_muse_packet_type> packet_types;
+}
+
+final class wire_cst_list_muse_processed_data extends ffi.Struct {
+  external ffi.Pointer<wire_cst_muse_processed_data> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_prim_usize_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.UintPtr> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_eeg_data extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_usize_strict> channels;
+
+  external ffi.Pointer<wire_cst_list_list_prim_f_64_strict> data;
+}
+
+const double MUSE_GYRO_SCALE_FACTOR = 0.06103515625;
+
+const double MUSE_ACCEL_SCALE_FACTOR = 0.00006103515635;

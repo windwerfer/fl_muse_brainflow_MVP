@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use brainflow::board_shim::{get_eeg_channels, BoardShim};
 use brainflow::brainflow_input_params::BrainFlowInputParamsBuilder;
 use brainflow::{BoardIds, BrainFlowPresets};
+use flutter_rust_bridge::frb;
 use log::info;
 use std::sync::Mutex;
 
@@ -16,6 +17,7 @@ pub enum ConnectionStatus {
     Error,
 }
 
+#[frb]
 pub async fn connect_to_muse(mac_address: Option<String>) -> Result<String> {
     info!("Connecting to Muse... mac: {:?}", mac_address);
     info!("Target OS: {}", std::env::consts::OS);

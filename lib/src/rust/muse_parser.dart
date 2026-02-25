@@ -8,7 +8,22 @@ import 'lib.dart';
 import 'muse_types.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `unpack_eeg_ppg_packet`, `unpack_imu_packet`
+// These functions are ignored because they are not marked as `pub`: `calculate_fnirs`, `calculate_spo2`, `cast_16bit_to_int32`, `cast_24bit_to_int32`, `channel_count`, `get_timestamp`, `new`, `parse_accel_data`, `parse_eeg_channel`, `parse_eeg_samples`, `parse_gyro_data`, `parse_ppg_data`, `parse_ppg_samples`, `ppg_channel_count`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `MuseState`
+
+Future<void> initMuseParser({required MuseModel model}) =>
+    RustLib.instance.api.crateMuseParserInitMuseParser(model: model);
+
+Future<List<MuseProcessedData>> parseMusePacket(
+        {required int channel, required List<int> data}) =>
+    RustLib.instance.api
+        .crateMuseParserParseMusePacket(channel: channel, data: data);
+
+Future<Uint8List> sendMuseCommand({required String command}) =>
+    RustLib.instance.api.crateMuseParserSendMuseCommand(command: command);
+
+Future<MuseModel> getMuseModelFromName({required String name}) =>
+    RustLib.instance.api.crateMuseParserGetMuseModelFromName(name: name);
 
 Future<List<MuseProcessedData>> parseAndProcessMusePackets(
         {required List<Uint8List> rawPackets}) =>
