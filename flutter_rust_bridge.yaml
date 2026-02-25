@@ -1,4 +1,4 @@
-rust_input: "crate::"
+rust_input: "crate::api,crate::muse_types,crate::muse_parser"
 rust_output: "rust/src/frb_generated.rs"
 dart_output: "lib/src/rust"
 rust_root: "rust"

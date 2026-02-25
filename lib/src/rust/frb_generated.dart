@@ -3,11 +3,15 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
+import 'api.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'frb_generated.dart';
 import 'frb_generated.io.dart'
     if (dart.library.js_interop) 'frb_generated.web.dart';
+import 'lib.dart';
+import 'muse_parser.dart';
+import 'muse_types.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 /// Main entrypoint of the Rust API
@@ -67,7 +71,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -291292710;
+  int get rustContentHash => 155740761;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -77,7 +81,65 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   );
 }
 
-abstract class RustLibApi extends BaseApi {}
+abstract class RustLibApi extends BaseApi {
+  Future<BandPowers?> crateApiCalculateBandPowers(
+      {required List<double> eegData, required BigInt samplingRate});
+
+  Future<double> crateApiCalculateSignalQuality(
+      {required List<double> data, required BigInt samplingRate});
+
+  Future<String> crateApiConnectToMuse({String? macAddress});
+
+  Future<String> crateApiDisconnectMuse();
+
+  Future<double> crateMuseTypesEegResolutionOffset(
+      {required EegResolution that});
+
+  Future<double> crateMuseTypesEegResolutionScaleFactor(
+      {required EegResolution that});
+
+  Future<ConnectionStatus> crateApiGetConnectionStatus();
+
+  Future<EegData> crateApiGetLatestData({required int numSamples});
+
+  Future<MuseModel> crateMuseParserGetMuseModelFromName({required String name});
+
+  Future<void> crateApiInitLogger();
+
+  Future<void> crateMuseParserInitMuseParser({required MuseModel model});
+
+  Future<BigInt> crateMuseTypesMuseModelChannelCount({required MuseModel that});
+
+  Future<bool> crateMuseTypesMuseModelHasFnirs({required MuseModel that});
+
+  Future<bool> crateMuseTypesMuseModelHasPpg({required MuseModel that});
+
+  Future<BigInt> crateMuseTypesMuseModelPpgChannelCount(
+      {required MuseModel that});
+
+  Future<EegResolution> crateMuseTypesMuseModelResolution(
+      {required MuseModel that});
+
+  Future<MuseProcessedData> crateMuseTypesMuseProcessedDataDefault();
+
+  Future<List<MuseProcessedData>> crateMuseParserParseAndProcessMusePackets(
+      {required List<Uint8List> rawPackets});
+
+  Future<List<MuseProcessedData>> crateMuseParserParseMusePacket(
+      {required int channel, required List<int> data});
+
+  Future<double?> crateApiPredictMindfulness(
+      {required List<double> eegData, required BigInt samplingRate});
+
+  Future<double?> crateApiPredictRestfulness(
+      {required List<double> eegData, required BigInt samplingRate});
+
+  Future<Uint8List> crateMuseParserSendMuseCommand({required String command});
+
+  Future<String> crateApiTestOutput();
+
+  Future<String> crateApiVerifyBrainflowVersion();
+}
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   RustLibApiImpl({
@@ -87,10 +149,860 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     required super.portManager,
   });
 
+  @override
+  Future<BandPowers?> crateApiCalculateBandPowers(
+      {required List<double> eegData, required BigInt samplingRate}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_prim_f_64_loose(eegData, serializer);
+        sse_encode_usize(samplingRate, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 1, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_opt_box_autoadd_band_powers,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiCalculateBandPowersConstMeta,
+      argValues: [eegData, samplingRate],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiCalculateBandPowersConstMeta =>
+      const TaskConstMeta(
+        debugName: "calculate_band_powers",
+        argNames: ["eegData", "samplingRate"],
+      );
+
+  @override
+  Future<double> crateApiCalculateSignalQuality(
+      {required List<double> data, required BigInt samplingRate}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_prim_f_64_loose(data, serializer);
+        sse_encode_usize(samplingRate, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 2, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_f_64,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiCalculateSignalQualityConstMeta,
+      argValues: [data, samplingRate],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiCalculateSignalQualityConstMeta =>
+      const TaskConstMeta(
+        debugName: "calculate_signal_quality",
+        argNames: ["data", "samplingRate"],
+      );
+
+  @override
+  Future<String> crateApiConnectToMuse({String? macAddress}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_opt_String(macAddress, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 3, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiConnectToMuseConstMeta,
+      argValues: [macAddress],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiConnectToMuseConstMeta => const TaskConstMeta(
+        debugName: "connect_to_muse",
+        argNames: ["macAddress"],
+      );
+
+  @override
+  Future<String> crateApiDisconnectMuse() {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 4, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiDisconnectMuseConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiDisconnectMuseConstMeta => const TaskConstMeta(
+        debugName: "disconnect_muse",
+        argNames: [],
+      );
+
+  @override
+  Future<double> crateMuseTypesEegResolutionOffset(
+      {required EegResolution that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_eeg_resolution(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 5, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_f_64,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseTypesEegResolutionOffsetConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseTypesEegResolutionOffsetConstMeta =>
+      const TaskConstMeta(
+        debugName: "eeg_resolution_offset",
+        argNames: ["that"],
+      );
+
+  @override
+  Future<double> crateMuseTypesEegResolutionScaleFactor(
+      {required EegResolution that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_eeg_resolution(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 6, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_f_64,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseTypesEegResolutionScaleFactorConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseTypesEegResolutionScaleFactorConstMeta =>
+      const TaskConstMeta(
+        debugName: "eeg_resolution_scale_factor",
+        argNames: ["that"],
+      );
+
+  @override
+  Future<ConnectionStatus> crateApiGetConnectionStatus() {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 7, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_connection_status,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiGetConnectionStatusConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiGetConnectionStatusConstMeta =>
+      const TaskConstMeta(
+        debugName: "get_connection_status",
+        argNames: [],
+      );
+
+  @override
+  Future<EegData> crateApiGetLatestData({required int numSamples}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_i_32(numSamples, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 8, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_eeg_data,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiGetLatestDataConstMeta,
+      argValues: [numSamples],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiGetLatestDataConstMeta => const TaskConstMeta(
+        debugName: "get_latest_data",
+        argNames: ["numSamples"],
+      );
+
+  @override
+  Future<MuseModel> crateMuseParserGetMuseModelFromName(
+      {required String name}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(name, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 9, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_muse_model,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseParserGetMuseModelFromNameConstMeta,
+      argValues: [name],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseParserGetMuseModelFromNameConstMeta =>
+      const TaskConstMeta(
+        debugName: "get_muse_model_from_name",
+        argNames: ["name"],
+      );
+
+  @override
+  Future<void> crateApiInitLogger() {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 10, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_unit,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiInitLoggerConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiInitLoggerConstMeta => const TaskConstMeta(
+        debugName: "init_logger",
+        argNames: [],
+      );
+
+  @override
+  Future<void> crateMuseParserInitMuseParser({required MuseModel model}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_muse_model(model, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 11, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_unit,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseParserInitMuseParserConstMeta,
+      argValues: [model],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseParserInitMuseParserConstMeta =>
+      const TaskConstMeta(
+        debugName: "init_muse_parser",
+        argNames: ["model"],
+      );
+
+  @override
+  Future<BigInt> crateMuseTypesMuseModelChannelCount(
+      {required MuseModel that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_muse_model(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 12, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_usize,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseTypesMuseModelChannelCountConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseTypesMuseModelChannelCountConstMeta =>
+      const TaskConstMeta(
+        debugName: "muse_model_channel_count",
+        argNames: ["that"],
+      );
+
+  @override
+  Future<bool> crateMuseTypesMuseModelHasFnirs({required MuseModel that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_muse_model(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 13, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_bool,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseTypesMuseModelHasFnirsConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseTypesMuseModelHasFnirsConstMeta =>
+      const TaskConstMeta(
+        debugName: "muse_model_has_fnirs",
+        argNames: ["that"],
+      );
+
+  @override
+  Future<bool> crateMuseTypesMuseModelHasPpg({required MuseModel that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_muse_model(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 14, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_bool,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseTypesMuseModelHasPpgConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseTypesMuseModelHasPpgConstMeta =>
+      const TaskConstMeta(
+        debugName: "muse_model_has_ppg",
+        argNames: ["that"],
+      );
+
+  @override
+  Future<BigInt> crateMuseTypesMuseModelPpgChannelCount(
+      {required MuseModel that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_muse_model(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 15, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_usize,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseTypesMuseModelPpgChannelCountConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseTypesMuseModelPpgChannelCountConstMeta =>
+      const TaskConstMeta(
+        debugName: "muse_model_ppg_channel_count",
+        argNames: ["that"],
+      );
+
+  @override
+  Future<EegResolution> crateMuseTypesMuseModelResolution(
+      {required MuseModel that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_muse_model(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 16, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_eeg_resolution,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseTypesMuseModelResolutionConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseTypesMuseModelResolutionConstMeta =>
+      const TaskConstMeta(
+        debugName: "muse_model_resolution",
+        argNames: ["that"],
+      );
+
+  @override
+  Future<MuseProcessedData> crateMuseTypesMuseProcessedDataDefault() {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 17, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_muse_processed_data,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseTypesMuseProcessedDataDefaultConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseTypesMuseProcessedDataDefaultConstMeta =>
+      const TaskConstMeta(
+        debugName: "muse_processed_data_default",
+        argNames: [],
+      );
+
+  @override
+  Future<List<MuseProcessedData>> crateMuseParserParseAndProcessMusePackets(
+      {required List<Uint8List> rawPackets}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_list_prim_u_8_strict(rawPackets, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 18, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_list_muse_processed_data,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseParserParseAndProcessMusePacketsConstMeta,
+      argValues: [rawPackets],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseParserParseAndProcessMusePacketsConstMeta =>
+      const TaskConstMeta(
+        debugName: "parse_and_process_muse_packets",
+        argNames: ["rawPackets"],
+      );
+
+  @override
+  Future<List<MuseProcessedData>> crateMuseParserParseMusePacket(
+      {required int channel, required List<int> data}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_i_32(channel, serializer);
+        sse_encode_list_prim_u_8_loose(data, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 19, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_list_muse_processed_data,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseParserParseMusePacketConstMeta,
+      argValues: [channel, data],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseParserParseMusePacketConstMeta =>
+      const TaskConstMeta(
+        debugName: "parse_muse_packet",
+        argNames: ["channel", "data"],
+      );
+
+  @override
+  Future<double?> crateApiPredictMindfulness(
+      {required List<double> eegData, required BigInt samplingRate}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_prim_f_64_loose(eegData, serializer);
+        sse_encode_usize(samplingRate, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 20, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_opt_box_autoadd_f_64,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiPredictMindfulnessConstMeta,
+      argValues: [eegData, samplingRate],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiPredictMindfulnessConstMeta => const TaskConstMeta(
+        debugName: "predict_mindfulness",
+        argNames: ["eegData", "samplingRate"],
+      );
+
+  @override
+  Future<double?> crateApiPredictRestfulness(
+      {required List<double> eegData, required BigInt samplingRate}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_prim_f_64_loose(eegData, serializer);
+        sse_encode_usize(samplingRate, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 21, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_opt_box_autoadd_f_64,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiPredictRestfulnessConstMeta,
+      argValues: [eegData, samplingRate],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiPredictRestfulnessConstMeta => const TaskConstMeta(
+        debugName: "predict_restfulness",
+        argNames: ["eegData", "samplingRate"],
+      );
+
+  @override
+  Future<Uint8List> crateMuseParserSendMuseCommand({required String command}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(command, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 22, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_list_prim_u_8_strict,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateMuseParserSendMuseCommandConstMeta,
+      argValues: [command],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateMuseParserSendMuseCommandConstMeta =>
+      const TaskConstMeta(
+        debugName: "send_muse_command",
+        argNames: ["command"],
+      );
+
+  @override
+  Future<String> crateApiTestOutput() {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 23, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiTestOutputConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiTestOutputConstMeta => const TaskConstMeta(
+        debugName: "test_output",
+        argNames: [],
+      );
+
+  @override
+  Future<String> crateApiVerifyBrainflowVersion() {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 24, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiVerifyBrainflowVersionConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiVerifyBrainflowVersionConstMeta =>
+      const TaskConstMeta(
+        debugName: "verify_brainflow_version",
+        argNames: [],
+      );
+
   @protected
-  int sse_decode_i_32(SseDeserializer deserializer) {
+  AnyhowException dco_decode_AnyhowException(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return AnyhowException(raw as String);
+  }
+
+  @protected
+  String dco_decode_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as String;
+  }
+
+  @protected
+  BandPowers dco_decode_band_powers(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return BandPowers(
+      delta: dco_decode_f_64(arr[0]),
+      theta: dco_decode_f_64(arr[1]),
+      alpha: dco_decode_f_64(arr[2]),
+      beta: dco_decode_f_64(arr[3]),
+      gamma: dco_decode_f_64(arr[4]),
+    );
+  }
+
+  @protected
+  bool dco_decode_bool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as bool;
+  }
+
+  @protected
+  BandPowers dco_decode_box_autoadd_band_powers(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_band_powers(raw);
+  }
+
+  @protected
+  double dco_decode_box_autoadd_f_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as double;
+  }
+
+  @protected
+  ConnectionStatus dco_decode_connection_status(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return ConnectionStatus.values[raw as int];
+  }
+
+  @protected
+  EegData dco_decode_eeg_data(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return EegData(
+      channels: dco_decode_list_prim_usize_strict(arr[0]),
+      data: dco_decode_list_list_prim_f_64_strict(arr[1]),
+    );
+  }
+
+  @protected
+  EegResolution dco_decode_eeg_resolution(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return EegResolution.values[raw as int];
+  }
+
+  @protected
+  double dco_decode_f_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as double;
+  }
+
+  @protected
+  F64Array3 dco_decode_f_64_array_3(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return F64Array3(dco_decode_list_prim_f_64_strict(raw));
+  }
+
+  @protected
+  int dco_decode_i_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
+  List<Float64List> dco_decode_list_list_prim_f_64_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>)
+        .map(dco_decode_list_prim_f_64_strict)
+        .toList();
+  }
+
+  @protected
+  List<Uint8List> dco_decode_list_list_prim_u_8_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_list_prim_u_8_strict).toList();
+  }
+
+  @protected
+  List<MusePacketType> dco_decode_list_muse_packet_type(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_muse_packet_type).toList();
+  }
+
+  @protected
+  List<MuseProcessedData> dco_decode_list_muse_processed_data(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_muse_processed_data).toList();
+  }
+
+  @protected
+  List<double> dco_decode_list_prim_f_64_loose(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as List<double>;
+  }
+
+  @protected
+  Float64List dco_decode_list_prim_f_64_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as Float64List;
+  }
+
+  @protected
+  List<int> dco_decode_list_prim_u_8_loose(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as List<int>;
+  }
+
+  @protected
+  Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as Uint8List;
+  }
+
+  @protected
+  Uint64List dco_decode_list_prim_usize_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as Uint64List;
+  }
+
+  @protected
+  MuseModel dco_decode_muse_model(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return MuseModel.values[raw as int];
+  }
+
+  @protected
+  MusePacketType dco_decode_muse_packet_type(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return MusePacketType.values[raw as int];
+  }
+
+  @protected
+  MuseProcessedData dco_decode_muse_processed_data(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 21)
+      throw Exception('unexpected arr length: expect 21 but see ${arr.length}');
+    return MuseProcessedData(
+      eeg: dco_decode_list_list_prim_f_64_strict(arr[0]),
+      ppgIr: dco_decode_list_prim_f_64_strict(arr[1]),
+      ppgRed: dco_decode_list_prim_f_64_strict(arr[2]),
+      ppgNir: dco_decode_list_prim_f_64_strict(arr[3]),
+      spo2: dco_decode_opt_box_autoadd_f_64(arr[4]),
+      fnirsHbo2: dco_decode_opt_box_autoadd_f_64(arr[5]),
+      fnirsHbr: dco_decode_opt_box_autoadd_f_64(arr[6]),
+      fnirsTsi: dco_decode_opt_box_autoadd_f_64(arr[7]),
+      accel: dco_decode_f_64_array_3(arr[8]),
+      gyro: dco_decode_f_64_array_3(arr[9]),
+      timestamp: dco_decode_f_64(arr[10]),
+      battery: dco_decode_f_64(arr[11]),
+      packetTypes: dco_decode_list_muse_packet_type(arr[12]),
+      signalQuality: dco_decode_f_64(arr[13]),
+      mindfulness: dco_decode_opt_box_autoadd_f_64(arr[14]),
+      restfulness: dco_decode_opt_box_autoadd_f_64(arr[15]),
+      alpha: dco_decode_opt_box_autoadd_f_64(arr[16]),
+      beta: dco_decode_opt_box_autoadd_f_64(arr[17]),
+      gamma: dco_decode_opt_box_autoadd_f_64(arr[18]),
+      delta: dco_decode_opt_box_autoadd_f_64(arr[19]),
+      theta: dco_decode_opt_box_autoadd_f_64(arr[20]),
+    );
+  }
+
+  @protected
+  String? dco_decode_opt_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_String(raw);
+  }
+
+  @protected
+  BandPowers? dco_decode_opt_box_autoadd_band_powers(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_band_powers(raw);
+  }
+
+  @protected
+  double? dco_decode_opt_box_autoadd_f_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_f_64(raw);
+  }
+
+  @protected
+  int dco_decode_u_8(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
+  void dco_decode_unit(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return;
+  }
+
+  @protected
+  BigInt dco_decode_usize(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeU64(raw);
+  }
+
+  @protected
+  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getInt32();
+    var inner = sse_decode_String(deserializer);
+    return AnyhowException(inner);
+  }
+
+  @protected
+  String sse_decode_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_list_prim_u_8_strict(deserializer);
+    return utf8.decoder.convert(inner);
+  }
+
+  @protected
+  BandPowers sse_decode_band_powers(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_delta = sse_decode_f_64(deserializer);
+    var var_theta = sse_decode_f_64(deserializer);
+    var var_alpha = sse_decode_f_64(deserializer);
+    var var_beta = sse_decode_f_64(deserializer);
+    var var_gamma = sse_decode_f_64(deserializer);
+    return BandPowers(
+        delta: var_delta,
+        theta: var_theta,
+        alpha: var_alpha,
+        beta: var_beta,
+        gamma: var_gamma);
   }
 
   @protected
@@ -100,14 +1012,506 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_i_32(int self, SseSerializer serializer) {
+  BandPowers sse_decode_box_autoadd_band_powers(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putInt32(self);
+    return (sse_decode_band_powers(deserializer));
+  }
+
+  @protected
+  double sse_decode_box_autoadd_f_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_f_64(deserializer));
+  }
+
+  @protected
+  ConnectionStatus sse_decode_connection_status(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return ConnectionStatus.values[inner];
+  }
+
+  @protected
+  EegData sse_decode_eeg_data(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_channels = sse_decode_list_prim_usize_strict(deserializer);
+    var var_data = sse_decode_list_list_prim_f_64_strict(deserializer);
+    return EegData(channels: var_channels, data: var_data);
+  }
+
+  @protected
+  EegResolution sse_decode_eeg_resolution(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return EegResolution.values[inner];
+  }
+
+  @protected
+  double sse_decode_f_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getFloat64();
+  }
+
+  @protected
+  F64Array3 sse_decode_f_64_array_3(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_list_prim_f_64_strict(deserializer);
+    return F64Array3(inner);
+  }
+
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getInt32();
+  }
+
+  @protected
+  List<Float64List> sse_decode_list_list_prim_f_64_strict(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <Float64List>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_list_prim_f_64_strict(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<Uint8List> sse_decode_list_list_prim_u_8_strict(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <Uint8List>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_list_prim_u_8_strict(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<MusePacketType> sse_decode_list_muse_packet_type(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <MusePacketType>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_muse_packet_type(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<MuseProcessedData> sse_decode_list_muse_processed_data(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <MuseProcessedData>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_muse_processed_data(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<double> sse_decode_list_prim_f_64_loose(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getFloat64List(len_);
+  }
+
+  @protected
+  Float64List sse_decode_list_prim_f_64_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getFloat64List(len_);
+  }
+
+  @protected
+  List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  Uint64List sse_decode_list_prim_usize_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getUint64List(len_);
+  }
+
+  @protected
+  MuseModel sse_decode_muse_model(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return MuseModel.values[inner];
+  }
+
+  @protected
+  MusePacketType sse_decode_muse_packet_type(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return MusePacketType.values[inner];
+  }
+
+  @protected
+  MuseProcessedData sse_decode_muse_processed_data(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_eeg = sse_decode_list_list_prim_f_64_strict(deserializer);
+    var var_ppgIr = sse_decode_list_prim_f_64_strict(deserializer);
+    var var_ppgRed = sse_decode_list_prim_f_64_strict(deserializer);
+    var var_ppgNir = sse_decode_list_prim_f_64_strict(deserializer);
+    var var_spo2 = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_fnirsHbo2 = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_fnirsHbr = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_fnirsTsi = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_accel = sse_decode_f_64_array_3(deserializer);
+    var var_gyro = sse_decode_f_64_array_3(deserializer);
+    var var_timestamp = sse_decode_f_64(deserializer);
+    var var_battery = sse_decode_f_64(deserializer);
+    var var_packetTypes = sse_decode_list_muse_packet_type(deserializer);
+    var var_signalQuality = sse_decode_f_64(deserializer);
+    var var_mindfulness = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_restfulness = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_alpha = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_beta = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_gamma = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_delta = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_theta = sse_decode_opt_box_autoadd_f_64(deserializer);
+    return MuseProcessedData(
+        eeg: var_eeg,
+        ppgIr: var_ppgIr,
+        ppgRed: var_ppgRed,
+        ppgNir: var_ppgNir,
+        spo2: var_spo2,
+        fnirsHbo2: var_fnirsHbo2,
+        fnirsHbr: var_fnirsHbr,
+        fnirsTsi: var_fnirsTsi,
+        accel: var_accel,
+        gyro: var_gyro,
+        timestamp: var_timestamp,
+        battery: var_battery,
+        packetTypes: var_packetTypes,
+        signalQuality: var_signalQuality,
+        mindfulness: var_mindfulness,
+        restfulness: var_restfulness,
+        alpha: var_alpha,
+        beta: var_beta,
+        gamma: var_gamma,
+        delta: var_delta,
+        theta: var_theta);
+  }
+
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_String(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  BandPowers? sse_decode_opt_box_autoadd_band_powers(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_band_powers(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_f_64(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  int sse_decode_u_8(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint8();
+  }
+
+  @protected
+  void sse_decode_unit(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+  }
+
+  @protected
+  BigInt sse_decode_usize(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getBigUint64();
+  }
+
+  @protected
+  void sse_encode_AnyhowException(
+      AnyhowException self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.message, serializer);
+  }
+
+  @protected
+  void sse_encode_String(String self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer);
+  }
+
+  @protected
+  void sse_encode_band_powers(BandPowers self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_f_64(self.delta, serializer);
+    sse_encode_f_64(self.theta, serializer);
+    sse_encode_f_64(self.alpha, serializer);
+    sse_encode_f_64(self.beta, serializer);
+    sse_encode_f_64(self.gamma, serializer);
   }
 
   @protected
   void sse_encode_bool(bool self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putUint8(self ? 1 : 0);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_band_powers(
+      BandPowers self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_band_powers(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_f_64(self, serializer);
+  }
+
+  @protected
+  void sse_encode_connection_status(
+      ConnectionStatus self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_eeg_data(EegData self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_prim_usize_strict(self.channels, serializer);
+    sse_encode_list_list_prim_f_64_strict(self.data, serializer);
+  }
+
+  @protected
+  void sse_encode_eeg_resolution(EegResolution self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_f_64(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putFloat64(self);
+  }
+
+  @protected
+  void sse_encode_f_64_array_3(F64Array3 self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_prim_f_64_strict(self.inner, serializer);
+  }
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putInt32(self);
+  }
+
+  @protected
+  void sse_encode_list_list_prim_f_64_strict(
+      List<Float64List> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_list_prim_f_64_strict(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_list_prim_u_8_strict(
+      List<Uint8List> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_list_prim_u_8_strict(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_muse_packet_type(
+      List<MusePacketType> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_muse_packet_type(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_muse_processed_data(
+      List<MuseProcessedData> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_muse_processed_data(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_prim_f_64_loose(
+      List<double> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putFloat64List(
+        self is Float64List ? self : Float64List.fromList(self));
+  }
+
+  @protected
+  void sse_encode_list_prim_f_64_strict(
+      Float64List self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putFloat64List(self);
+  }
+
+  @protected
+  void sse_encode_list_prim_u_8_loose(
+      List<int> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer
+        .putUint8List(self is Uint8List ? self : Uint8List.fromList(self));
+  }
+
+  @protected
+  void sse_encode_list_prim_u_8_strict(
+      Uint8List self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_list_prim_usize_strict(
+      Uint64List self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putUint64List(self);
+  }
+
+  @protected
+  void sse_encode_muse_model(MuseModel self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_muse_packet_type(
+      MusePacketType self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_muse_processed_data(
+      MuseProcessedData self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_list_prim_f_64_strict(self.eeg, serializer);
+    sse_encode_list_prim_f_64_strict(self.ppgIr, serializer);
+    sse_encode_list_prim_f_64_strict(self.ppgRed, serializer);
+    sse_encode_list_prim_f_64_strict(self.ppgNir, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.spo2, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.fnirsHbo2, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.fnirsHbr, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.fnirsTsi, serializer);
+    sse_encode_f_64_array_3(self.accel, serializer);
+    sse_encode_f_64_array_3(self.gyro, serializer);
+    sse_encode_f_64(self.timestamp, serializer);
+    sse_encode_f_64(self.battery, serializer);
+    sse_encode_list_muse_packet_type(self.packetTypes, serializer);
+    sse_encode_f_64(self.signalQuality, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.mindfulness, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.restfulness, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.alpha, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.beta, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.gamma, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.delta, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.theta, serializer);
+  }
+
+  @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_String(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_band_powers(
+      BandPowers? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_band_powers(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_f_64(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_u_8(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint8(self);
+  }
+
+  @protected
+  void sse_encode_unit(void self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+  }
+
+  @protected
+  void sse_encode_usize(BigInt self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putBigUint64(self);
   }
 }
