@@ -28,6 +28,7 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   final List<rust.MuseProcessedData> _history = [];
   late StreamSubscription<rust.MuseProcessedData> _sub;
 
+  final _scrollController = ScrollController();
   List<BluetoothDevice> _devices = [];
   StreamSubscription<List<ScanResult>>? _scanSub;
   BluetoothDevice? _connectedDevice;
@@ -97,10 +98,11 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   }
 
   void _startScan() {
-    print('xxxx');
+    print('[SCAN] Starting scan...');
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 10));
     _scanSub?.cancel();
     _scanSub = FlutterBluePlus.scanResults.listen((results) {
+      print('[SCAN] Results received: ${results.length} devices');
       if (results.isNotEmpty) {
         print('=== BLE Devices Found ===');
         for (final r in results) {
@@ -110,27 +112,40 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
         }
         print('==========================');
       }
+      // Show all devices for debugging
       final museDevices = results
           .where((r) => r.device.platformName.toLowerCase().contains('muse'))
           .map((r) => r.device)
           .toList();
+
+      // Debug: show all devices found
+      print(
+          '[SCAN] All devices: ${results.map((r) => r.device.platformName).toList()}');
+      print(
+          '[SCAN] Muse filtered: ${museDevices.map((d) => d.platformName).toList()}');
+      print('[SCAN] Muse devices found: ${museDevices.length}');
       setState(() {
         _devices = museDevices;
       });
-      if (!_autoConnectAttempted && museDevices.length == 1) {
-        _autoConnectAttempted = true;
-        Future.delayed(const Duration(seconds: 1), () {
-          if (_connectedDevice == null && _devices.isNotEmpty) {
-            _connectToDevice(_devices.first);
-          }
-        });
-      }
+      // Disable auto-connect for manual selection testing
+      // if (!_autoConnectAttempted && museDevices.length == 1) {
+      //   _autoConnectAttempted = true;
+      //   print('[SCAN] Auto-connecting to ${museDevices.first.platformName}...');
+      //   Future.delayed(const Duration(seconds: 1), () {
+      //     if (_connectedDevice == null && _devices.isNotEmpty) {
+      //       _connectToDevice(_devices.first);
+      //     }
+      //   });
+      // }
     });
   }
 
   Future<void> _connectToDevice(BluetoothDevice device) async {
+    print('[CONNECT] Starting connection to ${device.platformName}...');
     _scanSub?.cancel();
+    print('[CONNECT] Calling service.startScanAndConnect()...');
     await _service.startScanAndConnect();
+    print('[CONNECT] Service connected, updating state...');
     setState(() {
       _connectedDevice = device;
       _history.clear();
@@ -217,15 +232,6 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   }
 
   @override
-  void dispose() {
-    _sub.cancel();
-    _scanSub?.cancel();
-    _scanTimer?.cancel();
-    _service.disconnect();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -268,8 +274,10 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
       child: _devices.isEmpty
           ? const Center(child: Text('Scanning for Muse devices...'))
           : Scrollbar(
+              controller: _scrollController,
               thumbVisibility: true,
               child: ListView.builder(
+                controller: _scrollController,
                 itemCount: _devices.length,
                 itemBuilder: (context, index) {
                   final device = _devices[index];
@@ -360,5 +368,15 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _sub.cancel();
+    _scanSub?.cancel();
+    _scanTimer?.cancel();
+    _service.disconnect();
+    super.dispose();
   }
 }

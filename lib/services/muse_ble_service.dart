@@ -22,15 +22,20 @@ class MuseBleService {
   int _channelIndex = 0;
 
   Future<void> startScanAndConnect() async {
+    print('[SERVICE] Requesting permissions...');
     await _requestPermissions();
 
+    print('[SERVICE] Starting scan...');
     FlutterBluePlus.startScan(
       timeout: const Duration(seconds: 15),
     );
 
     _scanSub = FlutterBluePlus.scanResults.listen((results) async {
+      print('[SERVICE] Scan results: ${results.length} devices');
       for (final result in results) {
+        print('[SERVICE] Found: ${result.device.platformName}');
         if (result.device.platformName.toLowerCase().contains('muse')) {
+          print('[SERVICE] Found Muse! Stopping scan and connecting...');
           FlutterBluePlus.stopScan();
           _deviceName = result.device.platformName;
           await _connect(result.device);
@@ -50,7 +55,9 @@ class MuseBleService {
 
   Future<void> _connect(BluetoothDevice device) async {
     _device = device;
+    print('[SERVICE] Connecting to ${device.platformName}...');
     await device.connect(license: License.free, autoConnect: false);
+    print('[SERVICE] Connected! Requesting MTU...');
     await device.requestMtu(512);
 
     final model = await rust_parser.getMuseModelFromName(name: _deviceName);
