@@ -35,6 +35,9 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   int _expectedPacketNum = 0;
   int _missedPackets = 0;
   int _receivedPackets = 0;
+  double _battery = -1;
+  Timer? _scanTimer;
+  bool _autoConnectAttempted = false;
 
   static const List<String> _eegChannels = [
     'TP9',
@@ -69,10 +72,18 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
     super.initState();
     _sub = _service.processedStream.listen(_onData);
     _startScan();
+    _scanTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      if (_connectedDevice == null) {
+        _startScan();
+      }
+    });
   }
 
   void _onData(rust.MuseProcessedData data) {
     setState(() {
+      if (data.battery >= 0) {
+        _battery = data.battery;
+      }
       _history.add(data);
       if (_history.length > 256) _history.removeAt(0);
 
@@ -87,13 +98,32 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
 
   void _startScan() {
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 10));
+    _scanSub?.cancel();
     _scanSub = FlutterBluePlus.scanResults.listen((results) {
+      if (results.isNotEmpty) {
+        print('=== BLE Devices Found ===');
+        for (final r in results) {
+          final name =
+              r.device.platformName.isEmpty ? 'Unknown' : r.device.platformName;
+          print('  - $name (${r.device.remoteId.str})');
+        }
+        print('==========================');
+      }
+      final museDevices = results
+          .where((r) => r.device.platformName.toLowerCase().contains('muse'))
+          .map((r) => r.device)
+          .toList();
       setState(() {
-        _devices = results
-            .where((r) => r.device.platformName.toLowerCase().contains('muse'))
-            .map((r) => r.device)
-            .toList();
+        _devices = museDevices;
       });
+      if (!_autoConnectAttempted && museDevices.length == 1) {
+        _autoConnectAttempted = true;
+        Future.delayed(const Duration(seconds: 1), () {
+          if (_connectedDevice == null && _devices.isNotEmpty) {
+            _connectToDevice(_devices.first);
+          }
+        });
+      }
     });
   }
 
@@ -189,6 +219,7 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   void dispose() {
     _sub.cancel();
     _scanSub?.cancel();
+    _scanTimer?.cancel();
     _service.disconnect();
     super.dispose();
   }
@@ -204,7 +235,11 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
               icon: const Icon(Icons.refresh),
               onPressed: () {
                 _service.disconnect();
-                setState(() => _connectedDevice = null);
+                setState(() {
+                  _connectedDevice = null;
+                  _autoConnectAttempted = false;
+                  _battery = -1;
+                });
                 _startScan();
               },
             ),
@@ -212,129 +247,96 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
       ),
       body: Column(
         children: [
-          if (_connectedDevice == null)
-            _buildDeviceList()
-          else
-            _buildConnectedView(),
+          if (_connectedDevice == null) _buildDeviceList(),
+          _buildSensorDropdown(),
+          Expanded(child: _buildChart()),
+          _buildStatusBar(),
         ],
       ),
     );
   }
 
   Widget _buildDeviceList() {
-    return Expanded(
+    return Container(
+      height: 100,
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: _devices.isEmpty
           ? const Center(child: Text('Scanning for Muse devices...'))
-          : ListView.builder(
-              itemCount: _devices.length,
-              itemBuilder: (context, index) {
-                final device = _devices[index];
-                return ListTile(
-                  leading: const Icon(Icons.bluetooth),
-                  title: Text(device.platformName.isEmpty
-                      ? 'Unknown Muse'
-                      : device.platformName),
-                  subtitle: Text(device.remoteId.str),
-                  onTap: () => _connectToDevice(device),
-                );
-              },
+          : Scrollbar(
+              thumbVisibility: true,
+              child: ListView.builder(
+                itemCount: _devices.length,
+                itemBuilder: (context, index) {
+                  final device = _devices[index];
+                  return ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.bluetooth, size: 20),
+                    title: Text(device.platformName.isEmpty
+                        ? 'Unknown Muse'
+                        : device.platformName),
+                    subtitle: Text(device.remoteId.str),
+                    onTap: () => _connectToDevice(device),
+                  );
+                },
+              ),
             ),
     );
   }
 
-  Widget _buildConnectedView() {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: DropdownButton<String>(
-                  value: _selectedSensor,
-                  isExpanded: true,
-                  items: _availableSensors
-                      .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                      .toList(),
-                  onChanged: (v) => setState(() => _selectedSensor = v!),
-                ),
-              ),
-            ],
-          ),
-        ),
-        _buildSignalQuality(),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: LineChart(
-              LineChartData(
-                minX: 0,
-                maxX: 256,
-                minY: _selectedSensor == 'SpO2'
-                    ? 80
-                    : _selectedSensor.startsWith('Accel') ||
-                            _selectedSensor.startsWith('Gyro')
-                        ? -5
-                        : -100,
-                maxY: _selectedSensor == 'SpO2'
-                    ? 100
-                    : _selectedSensor.startsWith('Accel') ||
-                            _selectedSensor.startsWith('Gyro')
-                        ? 5
-                        : 100,
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: _getSensorData()
-                        .asMap()
-                        .entries
-                        .map((e) => FlSpot(e.key.toDouble(), e.value))
-                        .toList(),
-                    color: Colors.cyan,
-                    isCurved: true,
-                    barWidth: 2,
-                    dotData: const FlDotData(show: false),
-                  ),
-                ],
-                titlesData: const FlTitlesData(show: false),
-                borderData: FlBorderData(show: true),
-                gridData: const FlGridData(show: true),
-              ),
-            ),
-          ),
-        ),
-        _buildStatusBar(),
-      ],
-    );
-  }
-
-  Widget _buildSignalQuality() {
-    final quality = _signalQuality;
-    final color = _signalColor;
+  Widget _buildSensorDropdown() {
     return Container(
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('/',
-              style: TextStyle(
-                  color: Colors.red[300],
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold)),
-          Text('‾‾',
-              style: TextStyle(
-                  color: Colors.yellow[300],
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold)),
-          Text('\\',
-              style: TextStyle(
-                  color: Colors.green[300],
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold)),
-          const SizedBox(width: 12),
-          Text(quality,
-              style: TextStyle(
-                  color: color, fontSize: 18, fontWeight: FontWeight.bold)),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: DropdownButton<String>(
+        value: _selectedSensor,
+        isExpanded: true,
+        items: _availableSensors
+            .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+            .toList(),
+        onChanged: (v) => setState(() => _selectedSensor = v!),
+      ),
+    );
+  }
+
+  Widget _buildChart() {
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: LineChart(
+        LineChartData(
+          minX: 0,
+          maxX: 256,
+          minY: _selectedSensor == 'SpO2'
+              ? 80
+              : _selectedSensor.startsWith('Accel') ||
+                      _selectedSensor.startsWith('Gyro')
+                  ? -5
+                  : -100,
+          maxY: _selectedSensor == 'SpO2'
+              ? 100
+              : _selectedSensor.startsWith('Accel') ||
+                      _selectedSensor.startsWith('Gyro')
+                  ? 5
+                  : 100,
+          lineBarsData: [
+            LineChartBarData(
+              spots: _getSensorData()
+                  .asMap()
+                  .entries
+                  .map((e) => FlSpot(e.key.toDouble(), e.value))
+                  .toList(),
+              color: Colors.cyan,
+              isCurved: true,
+              barWidth: 2,
+              dotData: const FlDotData(show: false),
+            ),
+          ],
+          titlesData: const FlTitlesData(show: false),
+          borderData: FlBorderData(show: true),
+          gridData: const FlGridData(show: true),
+        ),
       ),
     );
   }
@@ -349,7 +351,11 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
               style: TextStyle(color: _signalColor)),
           Text(
               'Packets: $_receivedPackets${_missedPackets > 0 ? ' (+$_missedPackets lost)' : ''}'),
-          Text('Battery: --%', style: const TextStyle(color: Colors.grey)),
+          Text('Battery: ${_battery >= 0 ? '${_battery.toInt()}%' : '--%'}',
+              style: TextStyle(
+                  color: _battery >= 0
+                      ? (_battery > 20 ? Colors.green : Colors.red)
+                      : Colors.grey)),
         ],
       ),
     );

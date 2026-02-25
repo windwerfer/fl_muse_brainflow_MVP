@@ -8,7 +8,7 @@ import 'lib.dart';
 import 'muse_types.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `calculate_fnirs`, `calculate_spo2`, `cast_16bit_to_int32`, `cast_24bit_to_int32`, `channel_count`, `get_timestamp`, `new`, `parse_accel_data`, `parse_eeg_channel`, `parse_eeg_samples`, `parse_gyro_data`, `parse_ppg_data`, `parse_ppg_samples`, `ppg_channel_count`
+// These functions are ignored because they are not marked as `pub`: `calculate_fnirs`, `calculate_spo2`, `cast_16bit_to_int32`, `cast_24bit_to_int32`, `channel_count`, `get_timestamp`, `new`, `parse_accel_data`, `parse_battery_data`, `parse_eeg_channel`, `parse_eeg_samples`, `parse_gyro_data`, `parse_ppg_data`, `parse_ppg_samples`, `ppg_channel_count`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `MuseState`
 
 Future<void> initMuseParser({required MuseModel model}) =>

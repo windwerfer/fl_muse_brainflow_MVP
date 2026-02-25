@@ -1101,8 +1101,9 @@ impl SseDecode for crate::muse_types::MusePacketType {
             4 => crate::muse_types::MusePacketType::Accel,
             5 => crate::muse_types::MusePacketType::Gyro,
             6 => crate::muse_types::MusePacketType::Fnirs,
-            7 => crate::muse_types::MusePacketType::None,
-            8 => crate::muse_types::MusePacketType::Other,
+            7 => crate::muse_types::MusePacketType::Battery,
+            8 => crate::muse_types::MusePacketType::None,
+            9 => crate::muse_types::MusePacketType::Other,
             _ => unreachable!("Invalid variant for MusePacketType: {}", inner),
         };
     }
@@ -1402,8 +1403,9 @@ impl flutter_rust_bridge::IntoDart for crate::muse_types::MusePacketType {
             Self::Accel => 4.into_dart(),
             Self::Gyro => 5.into_dart(),
             Self::Fnirs => 6.into_dart(),
-            Self::None => 7.into_dart(),
-            Self::Other => 8.into_dart(),
+            Self::Battery => 7.into_dart(),
+            Self::None => 8.into_dart(),
+            Self::Other => 9.into_dart(),
             _ => unreachable!(),
         }
     }
@@ -1662,8 +1664,9 @@ impl SseEncode for crate::muse_types::MusePacketType {
                 crate::muse_types::MusePacketType::Accel => 4,
                 crate::muse_types::MusePacketType::Gyro => 5,
                 crate::muse_types::MusePacketType::Fnirs => 6,
-                crate::muse_types::MusePacketType::None => 7,
-                crate::muse_types::MusePacketType::Other => 8,
+                crate::muse_types::MusePacketType::Battery => 7,
+                crate::muse_types::MusePacketType::None => 8,
+                crate::muse_types::MusePacketType::Other => 9,
                 _ => {
                     unimplemented!("");
                 }

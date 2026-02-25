@@ -124,6 +124,7 @@ pub enum MusePacketType {
     Accel,
     Gyro,
     Fnirs,
+    Battery,
     None,
     Other,
 }

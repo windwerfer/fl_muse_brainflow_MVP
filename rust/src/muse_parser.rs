@@ -22,6 +22,7 @@ struct MuseState {
     last_timestamp: f64,
     package_count: u16,
     initialized: bool,
+    battery: f64,
 }
 
 impl MuseState {
@@ -39,6 +40,7 @@ impl MuseState {
             last_timestamp: 0.0,
             package_count: 0,
             initialized: true,
+            battery: -1.0,
         }
     }
 
@@ -102,6 +104,11 @@ pub fn parse_muse_packet(channel: i32, data: Vec<u8>) -> Vec<MuseProcessedData> 
         }
         7..=9 => {
             if let Some(data) = parse_ppg_data(muse_state, channel as usize - 7, &data) {
+                results.push(data);
+            }
+        }
+        10 => {
+            if let Some(data) = parse_battery_data(muse_state, &data) {
                 results.push(data);
             }
         }
@@ -272,6 +279,40 @@ fn parse_gyro_data(state: &mut MuseState, data: &[u8]) -> Option<MuseProcessedDa
         timestamp: get_timestamp(),
         battery: 0.0,
         packet_types: vec![MusePacketType::Gyro],
+        signal_quality: 100.0,
+        mindfulness: None,
+        restfulness: None,
+        alpha: None,
+        beta: None,
+        gamma: None,
+        delta: None,
+        theta: None,
+    })
+}
+
+fn parse_battery_data(state: &mut MuseState, data: &[u8]) -> Option<MuseProcessedData> {
+    if data.len() < 4 {
+        return None;
+    }
+
+    let battery_val = ((data[2] as u16) | ((data[3] as u16) << 8)) as f64;
+    let battery_percent = (battery_val / 512.0 * 100.0).clamp(0.0, 100.0);
+    state.battery = battery_percent;
+
+    Some(MuseProcessedData {
+        eeg: vec![],
+        ppg_ir: vec![],
+        ppg_red: vec![],
+        ppg_nir: vec![],
+        spo2: None,
+        fnirs_hbo2: None,
+        fnirs_hbr: None,
+        fnirs_tsi: None,
+        accel: [0.0; 3],
+        gyro: [0.0; 3],
+        timestamp: get_timestamp(),
+        battery: state.battery,
+        packet_types: vec![MusePacketType::Battery],
         signal_quality: 100.0,
         mindfulness: None,
         restfulness: None,

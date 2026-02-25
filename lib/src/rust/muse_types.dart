@@ -66,6 +66,7 @@ enum MusePacketType {
   accel,
   gyro,
   fnirs,
+  battery,
   none,
   other,
   ;
