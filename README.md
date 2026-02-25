@@ -1,6 +1,18 @@
 # flutter_muse_brainflow_MVP
 
-This is minimal flutter implementation for the brainflow lib for Linux and Android (possibly Windows later, no Mac/iOS because i dont have the hardware). Muse S and Muse 2 will be the only tested devices (since thats what i have). Its goal is to be a base / sample code for cross platform EEG tools (biofeedback / logging ..). 
+This is *will be* a minimal flutter implementation for the brainflow lib for Linux and Android (possibly Windows later, no Mac/iOS because i dont have the hardware). Muse S and Muse 2 will be the only tested devices (since thats what i have). Its goal is to be a base / sample code for cross platform EEG tools (biofeedback / logging ..). 
+
+**this is a work in progress at the moment.. will definatly break**
+**come back next week and it should compile**
+
+# Devices
+
+                 tested     implemented   reimplemented from
+Muse 2016                        x           (brainflow)
+Muse 2                           x           (brainflow)
+Muse S                           x           (brainflow)
+Muse S Athena                    x           (amuse)
+
 
 # Goal?
 
@@ -16,22 +28,30 @@ Its Flutter/Dart (UI, Bluetooth connections, Graphs..) with Rust (processing the
 
 # running under Linux
 
-must install the bluez package and expose to the user:
+linux is the only platform that is a bit tricky.
+You must install the bluez package and expose to the user:
 ```
 sudo apt install bluez
 sudo usermod -aG bluetooth $USER   # then reboot
-sudo systemctl restart bluetooth
+```
+
+test if it worked
+```
+bluetoothctl
+```
+inside the programm enter (should list all discovered bluetooth devices)
+```
+power on
+scan on
+
+exit
 ```
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+clone the repo
 
-A few resources to get you started if this is your first Flutter project:
+clean run
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```
