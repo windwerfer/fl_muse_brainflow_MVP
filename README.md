@@ -14,6 +14,14 @@ I wanted to do some simple Biofeedback tests and couldnt find anything for the m
 
 Its Flutter/Dart (UI, Bluetooth connections, Graphs..) with Rust (processing the EEG Signals). Rust because I dont have the confidence to write the complex streaming logic without some buffer overflows.
 
+# running under Linux
+
+must install the bluez package and expose to the user:
+```
+sudo apt install bluez
+sudo usermod -aG bluetooth $USER   # then reboot
+sudo systemctl restart bluetooth
+```
 
 ## Getting Started
 

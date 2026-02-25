@@ -50,7 +50,7 @@ class MuseBleService {
 
   Future<void> _connect(BluetoothDevice device) async {
     _device = device;
-    await device.connect(autoConnect: false);
+    await device.connect(license: License.free, autoConnect: false);
     await device.requestMtu(512);
 
     final model = await rust_parser.getMuseModelFromName(name: _deviceName);

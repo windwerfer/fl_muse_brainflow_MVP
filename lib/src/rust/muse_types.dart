@@ -11,18 +11,13 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 enum EegResolution {
   bits12,
-  bits14,
-  ;
+  bits14;
 
   Future<double> offset() =>
-      RustLib.instance.api.crateMuseTypesEegResolutionOffset(
-        that: this,
-      );
+      RustLib.instance.api.crateMuseTypesEegResolutionOffset(that: this);
 
   Future<double> scaleFactor() =>
-      RustLib.instance.api.crateMuseTypesEegResolutionScaleFactor(
-        that: this,
-      );
+      RustLib.instance.api.crateMuseTypesEegResolutionScaleFactor(that: this);
 }
 
 enum MuseModel {
@@ -30,32 +25,22 @@ enum MuseModel {
   muse2,
   museS,
   museSAthena,
-  unknown,
-  ;
+  unknown;
 
   Future<BigInt> channelCount() =>
-      RustLib.instance.api.crateMuseTypesMuseModelChannelCount(
-        that: this,
-      );
+      RustLib.instance.api.crateMuseTypesMuseModelChannelCount(that: this);
 
   Future<bool> hasFnirs() =>
-      RustLib.instance.api.crateMuseTypesMuseModelHasFnirs(
-        that: this,
-      );
+      RustLib.instance.api.crateMuseTypesMuseModelHasFnirs(that: this);
 
-  Future<bool> hasPpg() => RustLib.instance.api.crateMuseTypesMuseModelHasPpg(
-        that: this,
-      );
+  Future<bool> hasPpg() =>
+      RustLib.instance.api.crateMuseTypesMuseModelHasPpg(that: this);
 
   Future<BigInt> ppgChannelCount() =>
-      RustLib.instance.api.crateMuseTypesMuseModelPpgChannelCount(
-        that: this,
-      );
+      RustLib.instance.api.crateMuseTypesMuseModelPpgChannelCount(that: this);
 
   Future<EegResolution> resolution() =>
-      RustLib.instance.api.crateMuseTypesMuseModelResolution(
-        that: this,
-      );
+      RustLib.instance.api.crateMuseTypesMuseModelResolution(that: this);
 }
 
 enum MusePacketType {
@@ -69,7 +54,6 @@ enum MusePacketType {
   battery,
   none,
   other,
-  ;
 }
 
 class MuseProcessedData {

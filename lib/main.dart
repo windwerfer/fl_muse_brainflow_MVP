@@ -97,6 +97,7 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   }
 
   void _startScan() {
+    print('xxxx');
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 10));
     _scanSub?.cancel();
     _scanSub = FlutterBluePlus.scanResults.listen((results) {

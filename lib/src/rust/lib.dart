@@ -14,9 +14,7 @@ class F64Array3 extends NonGrowableListView<double> {
   Float64List get inner => _inner;
   final Float64List _inner;
 
-  F64Array3(this._inner)
-      : assert(_inner.length == arraySize),
-        super(_inner);
+  F64Array3(this._inner) : assert(_inner.length == arraySize), super(_inner);
 
   F64Array3.init() : this(Float64List(arraySize));
 }

@@ -149,19 +149,23 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<Float64List> sse_decode_list_list_prim_f_64_strict(
-      SseDeserializer deserializer);
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<Uint8List> sse_decode_list_list_prim_u_8_strict(
-      SseDeserializer deserializer);
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<MusePacketType> sse_decode_list_muse_packet_type(
-      SseDeserializer deserializer);
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<MuseProcessedData> sse_decode_list_muse_processed_data(
-      SseDeserializer deserializer);
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<double> sse_decode_list_prim_f_64_loose(SseDeserializer deserializer);
@@ -186,14 +190,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   MuseProcessedData sse_decode_muse_processed_data(
-      SseDeserializer deserializer);
+    SseDeserializer deserializer,
+  );
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
   BandPowers? sse_decode_opt_box_autoadd_band_powers(
-      SseDeserializer deserializer);
+    SseDeserializer deserializer,
+  );
 
   @protected
   double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer);
@@ -209,7 +215,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_AnyhowException(
-      AnyhowException self, SseSerializer serializer);
+    AnyhowException self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
@@ -222,14 +230,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_box_autoadd_band_powers(
-      BandPowers self, SseSerializer serializer);
+    BandPowers self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer);
 
   @protected
   void sse_encode_connection_status(
-      ConnectionStatus self, SseSerializer serializer);
+    ConnectionStatus self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_eeg_data(EegData self, SseSerializer serializer);
@@ -248,56 +260,78 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_list_list_prim_f_64_strict(
-      List<Float64List> self, SseSerializer serializer);
+    List<Float64List> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_list_prim_u_8_strict(
-      List<Uint8List> self, SseSerializer serializer);
+    List<Uint8List> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_muse_packet_type(
-      List<MusePacketType> self, SseSerializer serializer);
+    List<MusePacketType> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_muse_processed_data(
-      List<MuseProcessedData> self, SseSerializer serializer);
+    List<MuseProcessedData> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_prim_f_64_loose(
-      List<double> self, SseSerializer serializer);
+    List<double> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_prim_f_64_strict(
-      Float64List self, SseSerializer serializer);
+    Float64List self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_prim_u_8_loose(List<int> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_prim_u_8_strict(
-      Uint8List self, SseSerializer serializer);
+    Uint8List self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_prim_usize_strict(
-      Uint64List self, SseSerializer serializer);
+    Uint64List self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_muse_model(MuseModel self, SseSerializer serializer);
 
   @protected
   void sse_encode_muse_packet_type(
-      MusePacketType self, SseSerializer serializer);
+    MusePacketType self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_muse_processed_data(
-      MuseProcessedData self, SseSerializer serializer);
+    MuseProcessedData self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_band_powers(
-      BandPowers? self, SseSerializer serializer);
+    BandPowers? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer);
@@ -320,9 +354,9 @@ class RustLibWire implements BaseWire {
 
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-      _lookup;
+  _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
   RustLibWire(ffi.DynamicLibrary dynamicLibrary)
-      : _lookup = dynamicLibrary.lookup;
+    : _lookup = dynamicLibrary.lookup;
 }
