@@ -85,6 +85,14 @@ class MuseProcessedData {
   final double timestamp;
   final double battery;
   final List<MusePacketType> packetTypes;
+  final double signalQuality;
+  final double? mindfulness;
+  final double? restfulness;
+  final double? alpha;
+  final double? beta;
+  final double? gamma;
+  final double? delta;
+  final double? theta;
 
   const MuseProcessedData({
     required this.eeg,
@@ -100,6 +108,14 @@ class MuseProcessedData {
     required this.timestamp,
     required this.battery,
     required this.packetTypes,
+    required this.signalQuality,
+    this.mindfulness,
+    this.restfulness,
+    this.alpha,
+    this.beta,
+    this.gamma,
+    this.delta,
+    this.theta,
   });
 
   static Future<MuseProcessedData> default_() =>
@@ -119,7 +135,15 @@ class MuseProcessedData {
       gyro.hashCode ^
       timestamp.hashCode ^
       battery.hashCode ^
-      packetTypes.hashCode;
+      packetTypes.hashCode ^
+      signalQuality.hashCode ^
+      mindfulness.hashCode ^
+      restfulness.hashCode ^
+      alpha.hashCode ^
+      beta.hashCode ^
+      gamma.hashCode ^
+      delta.hashCode ^
+      theta.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -138,5 +162,13 @@ class MuseProcessedData {
           gyro == other.gyro &&
           timestamp == other.timestamp &&
           battery == other.battery &&
-          packetTypes == other.packetTypes;
+          packetTypes == other.packetTypes &&
+          signalQuality == other.signalQuality &&
+          mindfulness == other.mindfulness &&
+          restfulness == other.restfulness &&
+          alpha == other.alpha &&
+          beta == other.beta &&
+          gamma == other.gamma &&
+          delta == other.delta &&
+          theta == other.theta;
 }

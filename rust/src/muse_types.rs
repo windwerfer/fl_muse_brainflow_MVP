@@ -15,6 +15,7 @@ pub const MUSE_GATT_ATTR_PPG2: &str = "273e000b-4c4d-454d-96b4-4b455555494f";
 pub const MUSE_GYRO_SCALE_FACTOR: f64 = 0.06103515625;
 pub const MUSE_ACCEL_SCALE_FACTOR: f64 = 0.00006103515635;
 
+#[frb]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EegResolution {
     Bits12,
@@ -37,6 +38,7 @@ impl EegResolution {
     }
 }
 
+#[frb]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MuseModel {
     Muse2016,
@@ -100,6 +102,14 @@ pub struct MuseProcessedData {
     pub timestamp: f64,
     pub battery: f64,
     pub packet_types: Vec<MusePacketType>,
+    pub signal_quality: f64,
+    pub mindfulness: Option<f64>,
+    pub restfulness: Option<f64>,
+    pub alpha: Option<f64>,
+    pub beta: Option<f64>,
+    pub gamma: Option<f64>,
+    pub delta: Option<f64>,
+    pub theta: Option<f64>,
 }
 
 #[frb]

@@ -1,3 +1,4 @@
+use crate::api;
 use crate::muse_types::{
     EegResolution, MuseModel, MusePacketType, MuseProcessedData, MUSE_ACCEL_SCALE_FACTOR,
     MUSE_GYRO_SCALE_FACTOR,
@@ -145,6 +146,15 @@ fn parse_eeg_channel(
             .map(|v| v.clone())
             .collect();
 
+        let all_eeg_flat: Vec<f64> = eeg.iter().flatten().copied().collect();
+
+        let signal_quality = api::calculate_signal_quality(all_eeg_flat.clone(), 256);
+
+        let mindfulness = api::predict_mindfulness(all_eeg_flat.clone(), 256);
+        let restfulness = api::predict_restfulness(all_eeg_flat.clone(), 256);
+
+        let band_powers = api::calculate_band_powers(all_eeg_flat, 256);
+
         let result = MuseProcessedData {
             eeg,
             ppg_ir: vec![],
@@ -159,6 +169,14 @@ fn parse_eeg_channel(
             timestamp: get_timestamp(),
             battery: 0.0,
             packet_types: vec![MusePacketType::Eeg],
+            signal_quality,
+            mindfulness,
+            restfulness,
+            alpha: band_powers.as_ref().map(|b| b.alpha),
+            beta: band_powers.as_ref().map(|b| b.beta),
+            gamma: band_powers.as_ref().map(|b| b.gamma),
+            delta: band_powers.as_ref().map(|b| b.delta),
+            theta: band_powers.as_ref().map(|b| b.theta),
         };
 
         for buf in &mut state.eeg_buffers {
@@ -218,6 +236,14 @@ fn parse_accel_data(state: &mut MuseState, data: &[u8]) -> Option<MuseProcessedD
         timestamp: get_timestamp(),
         battery: 0.0,
         packet_types: vec![MusePacketType::Accel],
+        signal_quality: 100.0,
+        mindfulness: None,
+        restfulness: None,
+        alpha: None,
+        beta: None,
+        gamma: None,
+        delta: None,
+        theta: None,
     })
 }
 
@@ -246,6 +272,14 @@ fn parse_gyro_data(state: &mut MuseState, data: &[u8]) -> Option<MuseProcessedDa
         timestamp: get_timestamp(),
         battery: 0.0,
         packet_types: vec![MusePacketType::Gyro],
+        signal_quality: 100.0,
+        mindfulness: None,
+        restfulness: None,
+        alpha: None,
+        beta: None,
+        gamma: None,
+        delta: None,
+        theta: None,
     })
 }
 
@@ -309,6 +343,14 @@ fn parse_ppg_data(state: &mut MuseState, ppg_idx: usize, data: &[u8]) -> Option<
             } else {
                 vec![MusePacketType::Ppg]
             },
+            signal_quality: 100.0,
+            mindfulness: None,
+            restfulness: None,
+            alpha: None,
+            beta: None,
+            gamma: None,
+            delta: None,
+            theta: None,
         })
     } else {
         None
@@ -452,6 +494,14 @@ pub fn parse_and_process_muse_packets(raw_packets: Vec<Vec<u8>>) -> Vec<MuseProc
             timestamp: get_timestamp(),
             battery: 0.0,
             packet_types: vec![MusePacketType::Eeg],
+            signal_quality: 100.0,
+            mindfulness: None,
+            restfulness: None,
+            alpha: None,
+            beta: None,
+            gamma: None,
+            delta: None,
+            theta: None,
         });
     }
     results

@@ -6,6 +6,7 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These functions are ignored because they are not marked as `pub`: `calculate_std`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `eq`, `fmt`
 
 Future<String> connectToMuse({String? macAddress}) =>
@@ -26,6 +27,61 @@ Future<String> verifyBrainflowVersion() =>
 Future<String> testOutput() => RustLib.instance.api.crateApiTestOutput();
 
 Future<void> initLogger() => RustLib.instance.api.crateApiInitLogger();
+
+Future<double> calculateSignalQuality(
+        {required List<double> data, required BigInt samplingRate}) =>
+    RustLib.instance.api
+        .crateApiCalculateSignalQuality(data: data, samplingRate: samplingRate);
+
+Future<double?> predictMindfulness(
+        {required List<double> eegData, required BigInt samplingRate}) =>
+    RustLib.instance.api.crateApiPredictMindfulness(
+        eegData: eegData, samplingRate: samplingRate);
+
+Future<double?> predictRestfulness(
+        {required List<double> eegData, required BigInt samplingRate}) =>
+    RustLib.instance.api.crateApiPredictRestfulness(
+        eegData: eegData, samplingRate: samplingRate);
+
+Future<BandPowers?> calculateBandPowers(
+        {required List<double> eegData, required BigInt samplingRate}) =>
+    RustLib.instance.api.crateApiCalculateBandPowers(
+        eegData: eegData, samplingRate: samplingRate);
+
+class BandPowers {
+  final double delta;
+  final double theta;
+  final double alpha;
+  final double beta;
+  final double gamma;
+
+  const BandPowers({
+    required this.delta,
+    required this.theta,
+    required this.alpha,
+    required this.beta,
+    required this.gamma,
+  });
+
+  @override
+  int get hashCode =>
+      delta.hashCode ^
+      theta.hashCode ^
+      alpha.hashCode ^
+      beta.hashCode ^
+      gamma.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BandPowers &&
+          runtimeType == other.runtimeType &&
+          delta == other.delta &&
+          theta == other.theta &&
+          alpha == other.alpha &&
+          beta == other.beta &&
+          gamma == other.gamma;
+}
 
 enum ConnectionStatus {
   disconnected,
