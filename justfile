@@ -35,7 +35,7 @@ windows:
 clean:
     @echo "🧼 Normal clean..."
     flutter clean
-    cargo clean -p rust_lib_fl_muse_brainflow_mvp
+    cd rust && cargo clean -p rust_lib_fl_muse_brainflow_mvp && cd ..
 
 super-clean:
     @echo "🧼 SUPER DEEP CLEAN..."
