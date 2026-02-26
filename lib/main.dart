@@ -34,12 +34,7 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   bool _isScanning = false;
   BluetoothDevice? _connectedDevice;
   String _selectedSensor = 'TP9';
-  int _expectedPacketNum = 0;
-  int _missedPackets = 0;
-  int _receivedPackets = 0;
   double _battery = -1;
-  Timer? _scanTimer;
-  bool _autoConnectAttempted = false;
 
   static const List<String> _eegChannels = [
     'TP9',
@@ -68,127 +63,90 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
     'Gyro_Y',
     'Gyro_Z'
   ];
+  void _onData(rust.MuseProcessedData data) {
+    if (mounted) {
+      setState(() {
+        _history.add(data);
+        if (_history.length > 256) {
+          _history.removeAt(0);
+        }
+        _battery = data.battery;
+      });
+    }
+  }
+
+  // New: listen to Bluetooth adapter so we auto-start when BT turns on
+  StreamSubscription<BluetoothAdapterState>? _adapterSub;
 
   @override
   void initState() {
     super.initState();
     _sub = _service.processedStream.listen(_onData);
-    _startScan();
-    _scanTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_connectedDevice == null && !_isScanning) {
+
+    // Debug: show Bluetooth state changes
+    _adapterSub = FlutterBluePlus.adapterState.listen((state) {
+      print('[BLE] Adapter state changed → $state');
+      if (state == BluetoothAdapterState.on) {
         _startScan();
       }
     });
+
+    FlutterBluePlus.setLogLevel(LogLevel.verbose); // ← remove after debugging
+    _startScan();
   }
 
-  void _onData(rust.MuseProcessedData data) {
-    setState(() {
-      if (data.battery >= 0) {
-        _battery = data.battery;
-      }
-      _history.add(data);
-      if (_history.length > 256) _history.removeAt(0);
-
-      final pkgNum = _receivedPackets % 256;
-      if (_expectedPacketNum > 0 && pkgNum != _expectedPacketNum) {
-        _missedPackets++;
-      }
-      _expectedPacketNum = (_receivedPackets + 1) % 256;
-      _receivedPackets++;
-    });
-  }
-
-  void _startScan() {
+  // ─────────────────────────────────────────────────────────────
+  // FIXED scanning — rock-solid, no flicker, follows 2026 best practice
+  // ─────────────────────────────────────────────────────────────
+  void _startScan() async {
     if (_isScanning) return;
     _isScanning = true;
-    print('[SCAN] Starting scan...');
-    FlutterBluePlus.startScan(timeout: const Duration(seconds: 10));
-    Future.delayed(const Duration(seconds: 10), () {
-      _isScanning = false;
-      print('[SCAN] Scan window ended');
-    });
+
+    print('[SCAN] Stopping previous scan...');
+    await FlutterBluePlus.stopScan();
+
+    // Subscribe FIRST (important!)
     _scanSub?.cancel();
-    _scanSub = FlutterBluePlus.scanResults.listen((results) {
-      print('[SCAN] Results received: ${results.length} devices');
-      if (results.isNotEmpty) {
-        print('=== BLE Devices Found ===');
-        for (final r in results) {
-          final name =
-              r.device.platformName.isEmpty ? 'Unknown' : r.device.platformName;
-          print('  - $name (${r.device.remoteId.str})');
-        }
-        print('==========================');
-      }
-      // Show all devices for debugging
-      final newMuseDevices = results
+    _scanSub = FlutterBluePlus.onScanResults.listen((results) {
+      print('[SCAN] Live results → ${results.length} devices');
+      // Optional: print all devices for debugging (remove later)
+      // for (final r in results) {
+      //   print('   • ${r.device.platformName} (${r.device.remoteId.str})');
+      // }
+
+      final museDevices = results
           .where((r) => r.device.platformName.toLowerCase().contains('muse'))
           .map((r) => r.device)
           .toList();
 
-      // Debug: show all devices found
-      print(
-          '[SCAN] All devices: ${results.map((r) => r.device.platformName).toList()}');
-      print(
-          '[SCAN] Muse filtered: ${newMuseDevices.map((d) => d.platformName).toList()}');
-      print('[SCAN] Muse devices found: ${newMuseDevices.length}');
-
-      // Keep existing devices + add new ones (avoid duplicates)
-      // Also remove devices not seen in this scan
-      setState(() {
-        final currentIds = newMuseDevices.map((d) => d.remoteId.str).toSet();
-        _devices.removeWhere((d) => !currentIds.contains(d.remoteId.str));
-        for (final device in newMuseDevices) {
-          if (!_devices.any((d) => d.remoteId.str == device.remoteId.str)) {
-            _devices.add(device);
-          }
-        }
-      });
-      // Disable auto-connect for manual selection testing
-      // if (!_autoConnectAttempted && museDevices.length == 1) {
-      //   _autoConnectAttempted = true;
-      //   print('[SCAN] Auto-connecting to ${museDevices.first.platformName}...');
-      //   Future.delayed(const Duration(seconds: 1), () {
-      //     if (_connectedDevice == null && _devices.isNotEmpty) {
-      //       _connectToDevice(_devices.first);
-      //     }
-      //   });
-      // }
+      if (mounted) {
+        setState(() => _devices = museDevices);
+      }
     });
+
+    print('[SCAN] Starting continuous scan...');
+    await FlutterBluePlus.startScan(
+      timeout: null,
+      removeIfGone:
+          const Duration(seconds: 30), // Muse disappears cleanly after 15 s
+      continuousUpdates: true, // REQUIRED for removeIfGone
+      androidScanMode:
+          AndroidScanMode.lowLatency, // better range/speed on Android
+    );
+    print('[SCAN] Scan started successfully (continuous mode)');
   }
 
+  // Stop scan before connecting to avoid BLE conflicts
   Future<void> _connectToDevice(BluetoothDevice device) async {
-    print('[CONNECT] Starting connection to ${device.platformName}...');
+    await FlutterBluePlus.stopScan();
+    _isScanning = false;
     _scanSub?.cancel();
-    print('[CONNECT] Calling service.startScanAndConnect()...');
+
     await _service.startScanAndConnect();
-    print('[CONNECT] Service connected, updating state...');
     setState(() {
       _connectedDevice = device;
       _history.clear();
-      _receivedPackets = 0;
-      _missedPackets = 0;
     });
-  }
-
-  String get _signalQuality {
-    if (_receivedPackets < 10) return 'waiting...';
-    final lossPercent = (_missedPackets / _receivedPackets) * 100;
-    if (lossPercent < 5) return 'good';
-    if (lossPercent < 15) return 'medium';
-    return 'poor';
-  }
-
-  Color get _signalColor {
-    switch (_signalQuality) {
-      case 'good':
-        return Colors.green;
-      case 'medium':
-        return Colors.yellow;
-      case 'poor':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
   }
 
   List<String> get _availableSensors {
@@ -260,7 +218,6 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
                 _service.disconnect();
                 setState(() {
                   _connectedDevice = null;
-                  _autoConnectAttempted = false;
                   _battery = -1;
                 });
                 _startScan();
@@ -370,12 +327,8 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Text('Signal: ${_signalQuality.toUpperCase()}',
-              style: TextStyle(color: _signalColor)),
-          Text(
-              'Packets: $_receivedPackets${_missedPackets > 0 ? ' (+$_missedPackets lost)' : ''}'),
           Text('Battery: ${_battery >= 0 ? '${_battery.toInt()}%' : '--%'}',
               style: TextStyle(
                   color: _battery >= 0
@@ -391,7 +344,8 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
     _scrollController.dispose();
     _sub.cancel();
     _scanSub?.cancel();
-    _scanTimer?.cancel();
+    _adapterSub?.cancel();
+    FlutterBluePlus.stopScan();
     _service.disconnect();
     super.dispose();
   }
