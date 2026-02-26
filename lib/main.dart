@@ -31,6 +31,7 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   final _scrollController = ScrollController();
   List<BluetoothDevice> _devices = [];
   StreamSubscription<List<ScanResult>>? _scanSub;
+  bool _isScanning = false;
   BluetoothDevice? _connectedDevice;
   String _selectedSensor = 'TP9';
   int _expectedPacketNum = 0;
@@ -73,8 +74,8 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
     super.initState();
     _sub = _service.processedStream.listen(_onData);
     _startScan();
-    _scanTimer = Timer.periodic(const Duration(seconds: 2), (_) {
-      if (_connectedDevice == null) {
+    _scanTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_connectedDevice == null && !_isScanning) {
         _startScan();
       }
     });
@@ -98,8 +99,14 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   }
 
   void _startScan() {
+    if (_isScanning) return;
+    _isScanning = true;
     print('[SCAN] Starting scan...');
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 10));
+    Future.delayed(const Duration(seconds: 10), () {
+      _isScanning = false;
+      print('[SCAN] Scan window ended');
+    });
     _scanSub?.cancel();
     _scanSub = FlutterBluePlus.scanResults.listen((results) {
       print('[SCAN] Results received: ${results.length} devices');
@@ -113,7 +120,7 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
         print('==========================');
       }
       // Show all devices for debugging
-      final museDevices = results
+      final newMuseDevices = results
           .where((r) => r.device.platformName.toLowerCase().contains('muse'))
           .map((r) => r.device)
           .toList();
@@ -122,10 +129,19 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
       print(
           '[SCAN] All devices: ${results.map((r) => r.device.platformName).toList()}');
       print(
-          '[SCAN] Muse filtered: ${museDevices.map((d) => d.platformName).toList()}');
-      print('[SCAN] Muse devices found: ${museDevices.length}');
+          '[SCAN] Muse filtered: ${newMuseDevices.map((d) => d.platformName).toList()}');
+      print('[SCAN] Muse devices found: ${newMuseDevices.length}');
+
+      // Keep existing devices + add new ones (avoid duplicates)
+      // Also remove devices not seen in this scan
       setState(() {
-        _devices = museDevices;
+        final currentIds = newMuseDevices.map((d) => d.remoteId.str).toSet();
+        _devices.removeWhere((d) => !currentIds.contains(d.remoteId.str));
+        for (final device in newMuseDevices) {
+          if (!_devices.any((d) => d.remoteId.str == device.remoteId.str)) {
+            _devices.add(device);
+          }
+        }
       });
       // Disable auto-connect for manual selection testing
       // if (!_autoConnectAttempted && museDevices.length == 1) {
