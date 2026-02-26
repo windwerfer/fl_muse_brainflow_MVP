@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:io' show Platform; // ← this makes it desktop-safe
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -15,49 +15,91 @@ class MuseBleService {
   final _dataController = StreamController<rust.MuseProcessedData>.broadcast();
   Stream<rust.MuseProcessedData> get processedStream => _dataController.stream;
 
-  BluetoothDevice? _device;
-  StreamSubscription? _scanSub;
+  final _museDevicesController =
+      StreamController<List<BluetoothDevice>>.broadcast();
+  Stream<List<BluetoothDevice>> get museDevicesStream =>
+      _museDevicesController.stream;
+
+  final List<BluetoothDevice> _museDevices = [];
+  List<BluetoothDevice> get museDevices => _museDevices;
+
+  BluetoothDevice? _connectedDevice;
+  BluetoothDevice? get connectedDevice => _connectedDevice;
+
+  bool _isScanning = false;
+  bool get isScanning => _isScanning;
+
+  StreamSubscription<List<ScanResult>>? _scanSub;
   final List<StreamSubscription> _charSubs = [];
+
   String _deviceName = 'Muse';
   int _channelIndex = 0;
 
-  Future<void> startScanAndConnect() async {
-    print('[SERVICE] Requesting permissions...');
-    await _requestPermissions();
+  // ─────────────────────────────────────────────────────────────
+  // PUBLIC API
+  // ─────────────────────────────────────────────────────────────
+  Future<void> startScan() async {
+    if (_isScanning) return;
+    _isScanning = true;
 
-    print('[SERVICE] Starting scan...');
-    FlutterBluePlus.startScan(
-      timeout: const Duration(seconds: 15),
-    );
+    await _requestPermissions(); // now safe on Linux
 
-    _scanSub = FlutterBluePlus.scanResults.listen((results) async {
-      print('[SERVICE] Scan results: ${results.length} devices');
-      for (final result in results) {
-        print('[SERVICE] Found: ${result.device.platformName}');
-        if (result.device.platformName.toLowerCase().contains('muse')) {
-          print('[SERVICE] Found Muse! Stopping scan and connecting...');
-          FlutterBluePlus.stopScan();
-          _deviceName = result.device.platformName;
-          await _connect(result.device);
-          break;
-        }
-      }
+    await FlutterBluePlus.stopScan();
+    _scanSub?.cancel();
+
+    _scanSub = FlutterBluePlus.onScanResults.listen((results) {
+      final museDevices = results
+          .where((r) => r.device.platformName.toLowerCase().contains('muse'))
+          .map((r) => r.device)
+          .toList();
+
+      _museDevices.clear();
+      _museDevices.addAll(museDevices);
+      _museDevicesController.add(List.from(_museDevices));
     });
+
+    print('[SCAN] Starting continuous scan on ${Platform.operatingSystem}...');
+    await FlutterBluePlus.startScan(
+      timeout: null,
+      removeIfGone: const Duration(seconds: 30),
+      continuousUpdates: true,
+      androidScanMode: AndroidScanMode.lowLatency,
+    );
   }
 
+  Future<void> connectToDevice(BluetoothDevice device) async {
+    await stopScan();
+    _connectedDevice = device;
+    _deviceName = device.platformName;
+    await _connect(device);
+  }
+
+  Future<void> stopScan() async {
+    _isScanning = false;
+    await FlutterBluePlus.stopScan();
+    _scanSub?.cancel();
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // PRIVATE
+  // ─────────────────────────────────────────────────────────────
   Future<void> _requestPermissions() async {
-    await [
-      Permission.bluetoothScan,
-      Permission.bluetoothConnect,
-      Permission.locationWhenInUse
-    ].request();
+    if (Platform.isAndroid || Platform.isIOS) {
+      print('[PERM] Requesting Bluetooth + Location permissions...');
+      await [
+        Permission.bluetoothScan,
+        Permission.bluetoothConnect,
+        Permission.locationWhenInUse,
+      ].request();
+    } else {
+      print(
+          '[PERM] Skipping permissions — desktop (${Platform.operatingSystem})');
+    }
   }
 
   Future<void> _connect(BluetoothDevice device) async {
-    _device = device;
     print('[SERVICE] Connecting to ${device.platformName}...');
     await device.connect(license: License.free, autoConnect: false);
-    print('[SERVICE] Connected! Requesting MTU...');
     await device.requestMtu(512);
 
     final model = await rust_parser.getMuseModelFromName(name: _deviceName);
@@ -72,12 +114,10 @@ class MuseBleService {
       final uuid = service.uuid.toString().toLowerCase();
       if (uuid.contains('fe8d') || uuid.contains('273e')) {
         for (final char in service.characteristics) {
-          if (char.properties.notify || char.properties.indicate) {
+          if (char.properties.notify || char.properties.indicate)
             dataChars.add(char);
-          }
-          if (char.properties.write || char.properties.writeWithoutResponse) {
+          if (char.properties.write || char.properties.writeWithoutResponse)
             controlChar = char;
-          }
         }
       }
     }
@@ -97,19 +137,14 @@ class MuseBleService {
       final sub = char.onValueReceived.listen((value) async {
         if (value.isNotEmpty) {
           final processed = await rust_parser.parseMusePacket(
-            channel: channelIdx,
-            data: value,
-          );
-          for (final p in processed) {
-            _dataController.add(p);
-          }
+              channel: channelIdx, data: value);
+          for (final p in processed) _dataController.add(p);
         }
       });
       _charSubs.add(sub);
       _channelIndex++;
     }
-
-    print('✅ $_deviceName connected & streaming (ch: $_channelIndex)');
+    print('✅ $_deviceName connected & streaming (${_channelIndex} channels)');
   }
 
   Future<void> _sendCommand(BluetoothCharacteristic char, String cmd) async {
@@ -118,11 +153,10 @@ class MuseBleService {
   }
 
   void disconnect() {
-    _device?.disconnect();
-    for (final sub in _charSubs) {
-      sub.cancel();
-    }
+    _connectedDevice?.disconnect();
+    _connectedDevice = null;
+    for (final sub in _charSubs) sub.cancel();
     _charSubs.clear();
-    _scanSub?.cancel();
+    stopScan();
   }
 }
