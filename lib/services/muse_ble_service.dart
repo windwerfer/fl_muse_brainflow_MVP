@@ -161,13 +161,32 @@ class MuseBleService {
       print(
           '[CONNECT] 13. Sending exact BrainFlow startup sequence from muse.cpp...');
 
-      await _sendCommand(controlChar, 'h'); // stop
+      var res = await _sendCommand(controlChar, 'h');
+      if (!res) {
+        print('[CONNECT] FAILED: command "h" failed, aborting sequence');
+        return;
+      }
       await Future.delayed(const Duration(milliseconds: 200));
-      await _sendCommand(controlChar, 'v1');
+
+      res = await _sendCommand(controlChar, 'v1');
+      if (!res) {
+        print('[CONNECT] FAILED: command "v1" failed, aborting sequence');
+        return;
+      }
       await Future.delayed(const Duration(milliseconds: 200));
-      await _sendCommand(controlChar, 'p21');
+
+      res = await _sendCommand(controlChar, 'p21');
+      if (!res) {
+        print('[CONNECT] FAILED: command "p21" failed, aborting sequence');
+        return;
+      }
       await Future.delayed(const Duration(milliseconds: 200));
-      await _sendCommand(controlChar, 'd');
+
+      res = await _sendCommand(controlChar, 'd');
+      if (!res) {
+        print('[CONNECT] FAILED: command "d" failed, aborting sequence');
+        return;
+      }
       print('[CONNECT] 14. Startup sequence sent (h → v1 → p21 → d)');
     }
 
@@ -210,7 +229,7 @@ class MuseBleService {
         '🎉 [CONNECT] SUCCESS — MuseS-6235 should now be streaming live data!');
   }
 
-  Future<void> _sendCommand(BluetoothCharacteristic char, String cmd) async {
+  Future<bool> _sendCommand(BluetoothCharacteristic char, String cmd) async {
     try {
       final len = cmd.length;
       final formatted = List<int>.filled(len + 2, 0);
@@ -221,8 +240,10 @@ class MuseBleService {
       formatted[len + 1] = 10;
       await char.write(formatted, withoutResponse: true);
       await Future.delayed(const Duration(milliseconds: 80));
+      return true;
     } catch (e) {
       print('[COMMAND] Failed "$cmd": $e');
+      return false;
     }
   }
 }
