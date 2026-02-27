@@ -5,9 +5,18 @@ This is *will be* a minimal flutter implementation for the brainflow lib for Lin
 **this is a work in progress at the moment.. will definatly break**
 **come back next week and it should compile**
 
+*******************
+current state:
+- flutter compiles for Linus & Android
+- flutter flutter_blue_plus is wired up (the dart lib that will handle the BLE communication) and displays Muse devices (Bug: Linux at the moment falsely removes them again after 30s)
+- Muse S / 2 / Athena code is reimplemented in Rust (untested, not yet wired together with the BLE stream from flutter_blue_plus)
+- brainflow libs are correctly placed into the build apks and can be accesed for the linux version
+*******************
+
+
 # Devices
 
-                 tested     implemented   reimplemented from
+                 tested     implemented   reimplemented from       Android     Linux    Win
 Muse 2016                        x           (brainflow)
 Muse 2                           x           (brainflow)
 Muse S                           x           (brainflow)
@@ -16,26 +25,28 @@ Muse S Athena                    x           (amuse)
 
 # Goal?
 
-You clone the code, compile it, and it just runs. You add whatever you need.
+This should become an example project. You clone the code, compile it, and it just runs. Then you add whatever you need.
 
 # Why?
 
-I wanted to do some simple Biofeedback tests and couldnt find anything for the mobile platforms. the brainflow lib is a awesome toolkit, but it is beyond me to get the bluetooth to work on android. so this project uses the Flutter Bluetooth BLE lib to do the connection to Muse and then passes that data to brainflow for the real number crunching.
+I wanted to do some simple Biofeedback tests and couldnt find anything for the mobile platforms. the brainflow lib is a awesome toolkit, but it is beyond me to get the bluetooth to work on android. So this project uses the Flutter Bluetooth BLE lib to do the connection to Muse and then passes that data to brainflow for the real number crunching.
 
 # Codeing
 
-Its Flutter/Dart (UI, Bluetooth connections, Graphs..) with Rust (processing the EEG Signals). Rust because I dont have the confidence to write the complex streaming logic without some buffer overflows.
+Its Flutter/Dart (UI, Bluetooth connections, Graphs..) with Rust (processing the EEG Signals). Why Rust? Because I dont have the confidence to write the complex streaming logic without some buffer overflows.
 
 # running under Linux
 
-linux is the only platform that is a bit tricky.
-You must install the bluez package and expose to the user:
+If the Bluetooth doesnt want to connect on linux you can try:
 ```
+# install the bluez package and expose to the user
 sudo apt install bluez
 sudo usermod -aG bluetooth $USER   # then reboot
 ```
+linux is the only platform that is a bit tricky with flutter_blue_plus.
 
-test if it worked
+
+To test if it worked:
 ```
 bluetoothctl
 ```
@@ -50,13 +61,21 @@ exit
 ## 🚀 Quick Start
 
 
-Install git and rust [https://rustup.rs/] and flutter to run this on linux/win. For Android you also need Java JDK (17 or 21) and Android SDK + Command Line Tools (this is easiest through Android Studio). 
+Requirements (Linux/Win): 
+ - git 
+ - rust [https://rustup.rs/] 
+ - flutter 
+ 
+Additionally for Android: 
+ - Java JDK (17 or 21) 
+ - Android SDK + Command Line Tools (this is easiest through Android Studio). 
 
+After that, clone the project and install 2 more Rust programms you need to run this:
 ```bash
 git clone https://github.com/windwerfer/fl_muse_brainflow_MVP.git
 
-cargo install just
-cargo install flutter_rust_bridge_codegen --force
+cargo install --locked just
+cargo install --locked flutter_rust_bridge_codegen
 ```
 
 test if everything is there (its just a small script that checks if all tools are available)
