@@ -31,13 +31,11 @@ class MuseBleService {
 
   StreamSubscription<List<ScanResult>>? _scanSub;
   final List<StreamSubscription> _charSubs = [];
+  Timer? _batteryTimer;
 
   String _deviceName = 'Muse';
   int _channelIndex = 0;
-
-  // ===================================================================
-  // PUBLIC API
-  // ===================================================================
+  BluetoothCharacteristic? _controlChar;
 
   Future<void> startScan() async {
     if (_isScanning) return;
@@ -73,17 +71,15 @@ class MuseBleService {
     _connectedDevice = device;
     _deviceName = device.platformName;
 
-    print(
-        '🔌 [SERVICE] Starting full connection to ${device.platformName} (${device.remoteId})');
+    print('🔌 [SERVICE] Starting full connection to ${device.platformName}');
 
     try {
       await _connect(device);
-      print(
-          '✅ [SERVICE] Full connection + streaming setup COMPLETED successfully');
+      print('✅ [SERVICE] Full connection + streaming setup COMPLETED');
     } catch (e, st) {
       print('❌ [SERVICE] Connection FAILED: $e');
       print('   Stack: $st');
-      _connectedDevice = null; // important: reset so UI shows list again
+      _connectedDevice = null;
       rethrow;
     }
   }
@@ -92,9 +88,11 @@ class MuseBleService {
     _isScanning = false;
     await FlutterBluePlus.stopScan();
     _scanSub?.cancel();
+    _batteryTimer?.cancel();
   }
 
   void disconnect() {
+    _batteryTimer?.cancel();
     _connectedDevice?.disconnect();
     _connectedDevice = null;
     for (final sub in _charSubs) sub.cancel();
@@ -102,50 +100,40 @@ class MuseBleService {
     stopScan();
   }
 
-  // ===================================================================
-  // PRIVATE HELPERS
-  // ===================================================================
-
   Future<void> _requestPermissions() async {
     if (Platform.isAndroid || Platform.isIOS) {
       print('[PERM] Requesting Bluetooth + Location permissions...');
       await [
         Permission.bluetoothScan,
         Permission.bluetoothConnect,
-        Permission.locationWhenInUse,
+        Permission.locationWhenInUse
       ].request();
     } else {
-      print(
-          '[PERM] Skipping permissions — desktop (${Platform.operatingSystem})');
+      print('[PERM] Skipping permissions — desktop');
     }
   }
 
   Future<void> _connect(BluetoothDevice device) async {
-    print('[CONNECT] 1. Connecting to device (15s timeout)...');
+    print('[CONNECT] 1. Connecting...');
     await device.connect(
-      timeout: const Duration(seconds: 45),
-      license: License.free,
-      autoConnect: false,
-    );
+        timeout: const Duration(seconds: 25),
+        license: License.free,
+        autoConnect: false);
     print('[CONNECT] 2. ✅ Connected');
 
-    print('[CONNECT] 3. Requesting MTU...');
-    if (Platform.isAndroid) {
-      await device.requestMtu(512);
-      print('[CONNECT] 4. MTU requested');
-    } else {
-      print('[CONNECT] 4. Skipping MTU request (Linux/desktop - not needed)');
-    }
-
     print('[CONNECT] 5. Detecting model...');
-    final model = await rust_parser.getMuseModelFromName(name: _deviceName);
-    print('[CONNECT] 6. Model detected: $model');
+    var model = await rust_parser.getMuseModelFromName(name: _deviceName);
+    if (model == rust.MuseModel.unknown) {
+      model = rust.MuseModel.museS;
+      print('[CONNECT] 6. Forcing model to MuseS');
+    } else {
+      print('[CONNECT] 6. Model detected: $model');
+    }
     await rust_parser.initMuseParser(model: model);
     print('[CONNECT] 7. Parser initialized');
 
-    print('[CONNECT] 8. Discovering services...');
     final services = await device.discoverServices();
-    print('[CONNECT] 9. Found ${services.length} services');
+    print('[CONNECT] 8. Found ${services.length} services');
 
     BluetoothCharacteristic? controlChar;
     List<BluetoothCharacteristic> dataChars = [];
@@ -153,31 +141,34 @@ class MuseBleService {
     for (final service in services) {
       final uuid = service.uuid.toString().toLowerCase();
       if (uuid.contains('fe8d') || uuid.contains('273e')) {
-        print('[CONNECT] 10. Muse service found: $uuid');
         for (final char in service.characteristics) {
           final cUuid = char.uuid.toString().toLowerCase();
           if (char.properties.notify || char.properties.indicate) {
             dataChars.add(char);
-            print('[CONNECT] 11. Data characteristic: $cUuid');
+            print('[CONNECT] 11. Data char: $cUuid');
           }
           if (char.properties.write || char.properties.writeWithoutResponse) {
             controlChar = char;
-            print('[CONNECT] 12. Control characteristic: $cUuid');
+            print('[CONNECT] 12. Control char: $cUuid');
           }
         }
       }
     }
 
+    _controlChar = controlChar;
+
     if (controlChar != null) {
-      print('[CONNECT] 13. Sending initialization commands...');
-      await _sendCommand(controlChar, 'h');
-      await _sendCommand(controlChar, 'p1035');
-      await _sendCommand(controlChar, 'dc001');
-      await Future.delayed(const Duration(milliseconds: 400));
-      await _sendCommand(controlChar, 'dc001');
-      print('[CONNECT] 14. Commands sent');
-    } else {
-      print('[CONNECT] WARNING: No control characteristic found!');
+      print(
+          '[CONNECT] 13. Sending exact BrainFlow startup sequence from muse.cpp...');
+
+      await _sendCommand(controlChar, 'h'); // stop
+      await Future.delayed(const Duration(milliseconds: 200));
+      await _sendCommand(controlChar, 'v1');
+      await Future.delayed(const Duration(milliseconds: 200));
+      await _sendCommand(controlChar, 'p21');
+      await Future.delayed(const Duration(milliseconds: 200));
+      await _sendCommand(controlChar, 'd');
+      print('[CONNECT] 14. Startup sequence sent (h → v1 → p21 → d)');
     }
 
     print(
@@ -185,19 +176,19 @@ class MuseBleService {
     _channelIndex = 0;
     for (final char in dataChars) {
       final channelIdx = _channelIndex;
-      await char.setNotifyValue(true);
-      print('[CONNECT] 16. Subscribed to channel $channelIdx');
+      final success = await char.setNotifyValue(true);
+      print('[CONNECT] 16. Subscribed to ch $channelIdx → success: $success');
 
       final sub = char.onValueReceived.listen((value) async {
-        print('[DATA] ← Received ${value.length} bytes on ch $channelIdx');
+        print(
+            '[DATA] ← ch $channelIdx | ${value.length} bytes | hex: ${value.take(20).map((b) => b.toRadixString(16).padLeft(2, '0')).join(' ')}');
         if (value.isNotEmpty) {
           final processed = await rust_parser.parseMusePacket(
-            channel: channelIdx,
-            data: value,
-          );
+              channel: channelIdx, data: value);
           print('[DATA] Parser returned ${processed.length} packets');
           for (final p in processed) {
             _dataController.add(p);
+            print('[DATA] Emitted → battery=${p.battery.toStringAsFixed(0)}%');
           }
         }
       });
@@ -205,15 +196,33 @@ class MuseBleService {
       _channelIndex++;
     }
 
-    print('🎉 [CONNECT] SUCCESS — $_deviceName is now streaming!');
+    print('[CONNECT] 17. Waiting 8 seconds for Muse to start streaming...');
+    await Future.delayed(const Duration(seconds: 8));
+
+    _batteryTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+      if (_controlChar != null) {
+        print('[BATTERY] Sending status command "s"...');
+        await _sendCommand(_controlChar!, 's');
+      }
+    });
+
+    print(
+        '🎉 [CONNECT] SUCCESS — MuseS-6235 should now be streaming live data!');
   }
 
   Future<void> _sendCommand(BluetoothCharacteristic char, String cmd) async {
     try {
-      await char.write(utf8.encode(cmd), withoutResponse: true);
-      await Future.delayed(const Duration(milliseconds: 50));
+      final len = cmd.length;
+      final formatted = List<int>.filled(len + 2, 0);
+      formatted[0] = len + 1;
+      for (var i = 0; i < len; i++) {
+        formatted[i + 1] = cmd.codeUnitAt(i);
+      }
+      formatted[len + 1] = 10;
+      await char.write(formatted, withoutResponse: true);
+      await Future.delayed(const Duration(milliseconds: 80));
     } catch (e) {
-      print('[COMMAND] Failed to send "$cmd": $e');
+      print('[COMMAND] Failed "$cmd": $e');
     }
   }
 }
