@@ -67,40 +67,53 @@ Requirements (Linux/Win):
  - flutter 
  
 Additionally for Android: 
- - Java JDK (17 or 21) 
+ - Java JDK (tested with v21) 
  - Android SDK + Command Line Tools (this is easiest through Android Studio). 
+ - Android NDK (tested with v28.2.13676358)
+ - set the ANDROID_HOME and ANDROID_NDK_HOME and ANDROID_HOME enviorment variables !!
 
 After that, clone the project and install 2 more Rust programms you need to run this:
 ```bash
 git clone https://github.com/windwerfer/fl_muse_brainflow_MVP.git
 
-cargo install --locked just
 cargo install --locked flutter_rust_bridge_codegen
 ```
 
-test if everything is there (its just a small script that checks if all tools are available)
+(optional) for android arm builds 
+```
+rustup target add aarch64-linux-android armv7-linux-androideabi
+```
+
+
+test if everything is there (its just a small script that checks if all tools are available). 
+(you need flutter/dart to be installed before you can run this)
 ```bash
-just doctor
+dart tools/build.dart doctor
 ```
 
 first run
 ```bash
 # for android:
-just acc
+dart tools/build.dart  acc
 
 # for linux:
-just lcc
+dart tools/build.dart  lcc
+
+# for Windows:
+dart tools/build.dart  wcc
 ```
 
 commands to rebuild/run normally
 ```bash
-just a          # normal run  for Android
-just ac         # clean + Android
-just acc        # super-clean + Android   ← most used when something is broken
+dart tools/build.dart  a          # normal run  for Android
+dart tools/build.dart  ac         # clean + Android
+dart tools/build.dart  acc        # super-clean + Android   ← most used when something is broken
 
-just l          # normal run  for Linux
-just lc
-just lcc
+dart tools/build.dart  l          # normal run  for Linux
+dart tools/build.dart  lc
+dart tools/build.dart  lcc
 
-just f          # regenerate bindings only (included in acc & lcc)
+dart tools/build.dart  w          # normal run  for Linux
+dart tools/build.dart  wc
+dart tools/build.dart  wcc
 ```

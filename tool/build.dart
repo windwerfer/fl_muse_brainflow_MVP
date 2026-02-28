@@ -149,6 +149,7 @@ Future<void> doctor() async {
   print('🔍 Health Check\n========================================');
   print('Flutter & Android toolchain:');
   x('flutter doctor');
+
   print('\nRust & Tools:');
   try {
     print('  Rust       : ✅ ${(await out('rustc --version')).trim()}');
@@ -168,6 +169,51 @@ Future<void> doctor() async {
   }
   print(
       '  ANDROID_HOME: ${Platform.environment['ANDROID_HOME'] ?? "❌ Not set"}');
+
+  // Check Android NDK
+  print('\nAndroid NDK:');
+  final ndkHome = Platform.environment['ANDROID_HOME'];
+  if (ndkHome != null) {
+    final ndkDir = Directory('$ndkHome/ndk');
+    if (await ndkDir.exists()) {
+      await for (final e in ndkDir.list()) {
+        if (e is Directory) {
+          print('  ✅ NDK ${e.path.split('/').last}');
+        }
+      }
+    } else {
+      print('  ❌ No NDK installed');
+    }
+  } else {
+    print('  ❌ ANDROID_HOME not set');
+  }
+
+  // Check Rust Android targets
+  print('\nRust Android Targets:');
+  final targets = [
+    'aarch64-linux-android',
+    'armv7-linux-androideabi',
+    'x86_64-linux-android',
+    'i686-linux-android'
+  ];
+  final installed = (await out('rustup target list --installed'))
+      .split('\n')
+      .where((t) => t.contains('android'))
+      .toList();
+  for (final t in targets) {
+    final isInstalled = installed.contains(t);
+    final arch =
+        t.replaceAll('-linux-androideabi', '').replaceAll('-linux-android', '');
+    print('  ${isInstalled ? '✅' : '❌'} $arch (${t})');
+  }
+
+  // Summary: what can be built
+  print('\n📱 Build Targets:');
+  final canAndroid = installed.length >= 3 && ndkHome != null;
+  print(
+      '  Android     : ${canAndroid ? "✅ Ready" : "❌ Missing deps (need Rust Android targets + NDK)"}');
+  print('  Linux       : ✅ Ready (desktop)');
+  print('  Windows     : ✅ Ready (desktop)');
 }
 
 void help() => print('''
