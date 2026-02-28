@@ -30,6 +30,9 @@ class MuseBleService {
   final List<StreamSubscription> _charSubs = [];
   Timer? _batteryTimer;
 
+  // Track last seen timestamps for Linux (removeIfGone not supported on Linux)
+  final Map<String, DateTime> _deviceLastSeen = {};
+
   String _deviceName = 'Muse';
   int _channelIndex = 0;
   BluetoothCharacteristic? _controlChar;
@@ -42,11 +45,35 @@ class MuseBleService {
     await FlutterBluePlus.stopScan();
     _scanSub?.cancel();
 
+    // For Linux: use manual device tracking since removeIfGone isn't supported
+    // For Android/iOS: use built-in removeIfGone feature
+    final bool isMobile = Platform.isAndroid || Platform.isIOS;
+
     _scanSub = FlutterBluePlus.onScanResults.listen((results) {
-      final museDevices = results
-          .where((r) => r.device.platformName.toLowerCase().contains('muse'))
-          .map((r) => r.device)
-          .toList();
+      final now = DateTime.now();
+
+      // Linux: manually track device last seen times
+      if (!isMobile) {
+        // Update timestamps for all seen devices
+        for (final r in results) {
+          _deviceLastSeen[r.device.remoteId.str] = now;
+        }
+        // Remove devices not seen in 30 seconds
+        _deviceLastSeen
+            .removeWhere((id, time) => now.difference(time).inSeconds > 30);
+      }
+
+      // Filter to Muse devices, optionally also filter by last seen on Linux
+      var museResults = results
+          .where((r) => r.device.platformName.toLowerCase().contains('muse'));
+
+      // Linux: only include devices we've seen recently
+      if (!isMobile) {
+        museResults = museResults
+            .where((r) => _deviceLastSeen.containsKey(r.device.remoteId.str));
+      }
+
+      final museDevices = museResults.map((r) => r.device).toList();
 
       _museDevices.clear();
       _museDevices.addAll(museDevices);
@@ -54,10 +81,13 @@ class MuseBleService {
     });
 
     print('[SCAN] Starting continuous scan on ${Platform.operatingSystem}...');
+
+    // Build scan arguments based on platform
+    // - Android/iOS: use removeIfGone (built-in)
+    // - Linux: skip removeIfGone (not supported), we do manual filtering above
     await FlutterBluePlus.startScan(
-      timeout: null,
-      removeIfGone: const Duration(seconds: 30),
       continuousUpdates: true,
+      removeIfGone: isMobile ? const Duration(seconds: 15) : null,
       androidScanMode: AndroidScanMode.lowLatency,
     );
   }
@@ -84,6 +114,8 @@ class MuseBleService {
     await FlutterBluePlus.stopScan();
     _scanSub?.cancel();
     _batteryTimer?.cancel();
+    // Clear device tracking on Linux
+    _deviceLastSeen.clear();
   }
 
   void disconnect() {
