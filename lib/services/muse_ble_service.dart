@@ -26,9 +26,6 @@ class MuseBleService {
   BluetoothDevice? _connectedDevice;
   BluetoothDevice? get connectedDevice => _connectedDevice;
 
-  bool _isScanning = false;
-  bool get isScanning => _isScanning;
-
   StreamSubscription<List<ScanResult>>? _scanSub;
   final List<StreamSubscription> _charSubs = [];
   Timer? _batteryTimer;
@@ -38,8 +35,7 @@ class MuseBleService {
   BluetoothCharacteristic? _controlChar;
 
   Future<void> startScan() async {
-    if (_isScanning) return;
-    _isScanning = true;
+    if (FlutterBluePlus.isScanningNow) return;
 
     await _requestPermissions();
 
@@ -85,7 +81,6 @@ class MuseBleService {
   }
 
   Future<void> stopScan() async {
-    _isScanning = false;
     await FlutterBluePlus.stopScan();
     _scanSub?.cancel();
     _batteryTimer?.cancel();
