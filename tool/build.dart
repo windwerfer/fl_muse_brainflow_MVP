@@ -6,14 +6,27 @@ import 'dart:io';
 void main(List<String> args) => _run(args.isEmpty ? ['help'] : args);
 
 // Simple helper: "flutter run -d android" -> runs it and streams output
-Future<void> x(String c, {String? cwd}) async {
-  final p = c.split(' ');
-  final exe = p.first;
-  final args = p.skip(1).toList();
-  final proc = await Process.start(exe, args, workingDirectory: cwd);
-  proc.stdout.transform(const SystemEncoding().decoder).listen(stdout.write);
-  proc.stderr.transform(const SystemEncoding().decoder).listen(stderr.write);
-  await proc.exitCode;
+Future<void> x(String command, {String? cwd}) async {
+  final parts = command.split(' ');
+  final executable = parts.first;
+  final arguments = parts.skip(1).toList();
+
+  final process = await Process.start(
+    executable,
+    arguments,
+    workingDirectory: cwd,
+    // These three lines are the magic:
+    mode: ProcessStartMode
+        .inheritStdio, // ← key line (new in Dart 2.19+ / Flutter recent)
+    // or (older Dart compatibility):
+    // runInShell: true,   // sometimes helps on Windows
+  );
+
+  // Just wait for it to finish – no need to read/write anything
+  final exitCode = await process.exitCode;
+  if (exitCode != 0) {
+    throw Exception('Command failed with exit code $exitCode: $command');
+  }
 }
 
 // Capture output
@@ -223,7 +236,7 @@ Usage: dart run tool/build.dart <cmd>
 
 Commands:
   a/ac/acc       android (clean/super-clean)
-  l/lc/lcc       linux   (clean/super-clean)  
+  l/lc/lcc       linux   (clean/super-clean)
   w/wc/wcc       windows (clean/super-clean)
   clean          flutter + cargo clean
   super-clean    remove all generated
