@@ -1,14 +1,38 @@
 use anyhow::{Context, Result};
 use brainflow::board_shim::{get_eeg_channels, BoardShim};
 use brainflow::brainflow_input_params::BrainFlowInputParamsBuilder;
-use brainflow::data_filter::{self, Band};
 use brainflow::brainflow_model_params::BrainFlowModelParamsBuilder;
-use brainflow::{BoardIds, BrainFlowClassifiers, BrainFlowMetrics, BrainFlowPresets, WindowOperations};
+use brainflow::data_filter::{self, Band};
+use brainflow::{
+    BoardIds, BrainFlowClassifiers, BrainFlowMetrics, BrainFlowPresets, WindowOperations,
+};
 use flutter_rust_bridge::frb;
 use log::info;
 use std::sync::Mutex;
 
-// Static Mutex to hold the BoardShim instance (shared across calls)
+#[frb(init)]
+pub fn init_app() {
+    // Put the once-logic directly here (no need for separate function)
+    #[cfg(target_os = "android")]
+    {
+        android_logger::init_once(
+            android_logger::Config::default()
+                .with_max_level(log::LevelFilter::Info) // or Trace/Debug/Warn etc.
+                .with_tag("Rust"), // or your app name
+        );
+    }
+
+    #[cfg(not(target_os = "android"))]
+    {
+        env_logger::init(); // or env_logger::Builder if you want custom config
+    }
+
+    // Optional: test that it works
+    info!("Rust logger initialized successfully");
+
+    // You can add more one-time setup here later (e.g. config loading, DB connect, etc.)
+}
+
 static BOARD: Mutex<Option<BoardShim>> = Mutex::new(None);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -139,12 +163,6 @@ pub fn test_output() -> String {
     "Test output from Rust".to_string()
 }
 
-// Initialize logger
-pub fn init_logger() {
-    let _ = env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
-        .try_init();
-}
-
 #[frb]
 pub fn calculate_signal_quality(data: Vec<f64>, sampling_rate: usize) -> f64 {
     let data_len = data.len();
@@ -154,7 +172,7 @@ pub fn calculate_signal_quality(data: Vec<f64>, sampling_rate: usize) -> f64 {
 
     let mut data = data;
     let gain = 1;
-    
+
     match data_filter::get_railed_percentage(&mut data, data_len, gain) {
         Ok(railed) => {
             let quality = (100.0 - railed * 100.0).max(0.0).min(100.0);
@@ -252,19 +270,34 @@ pub fn calculate_band_powers(eeg_data: Vec<f64>, sampling_rate: usize) -> Option
     }
 
     let mut data = eeg_data;
-    
+
     let window = WindowOperations::Hamming;
-    
+
     match data_filter::get_psd(&mut data, sampling_rate, window) {
         Ok(psd) => {
             let bands = vec![
-                Band { freq_start: 1.0, freq_stop: 4.0 },
-                Band { freq_start: 4.0, freq_stop: 8.0 },
-                Band { freq_start: 8.0, freq_stop: 13.0 },
-                Band { freq_start: 13.0, freq_stop: 30.0 },
-                Band { freq_start: 30.0, freq_stop: 45.0 },
+                Band {
+                    freq_start: 1.0,
+                    freq_stop: 4.0,
+                },
+                Band {
+                    freq_start: 4.0,
+                    freq_stop: 8.0,
+                },
+                Band {
+                    freq_start: 8.0,
+                    freq_stop: 13.0,
+                },
+                Band {
+                    freq_start: 13.0,
+                    freq_stop: 30.0,
+                },
+                Band {
+                    freq_start: 30.0,
+                    freq_stop: 45.0,
+                },
             ];
-            
+
             let mut powers = Vec::new();
             let mut psd = psd;
             for band in bands {
@@ -274,7 +307,7 @@ pub fn calculate_band_powers(eeg_data: Vec<f64>, sampling_rate: usize) -> Option
                     powers.push(0.0);
                 }
             }
-            
+
             Some(BandPowers {
                 delta: powers.get(0).copied().unwrap_or(0.0),
                 theta: powers.get(1).copied().unwrap_or(0.0),

@@ -4,6 +4,7 @@ use crate::muse_types::{
     MUSE_GYRO_SCALE_FACTOR,
 };
 use flutter_rust_bridge::frb;
+use log::info;
 use std::sync::Mutex;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -68,6 +69,11 @@ pub fn init_muse_parser(model: MuseModel) {
 
 #[frb]
 pub fn parse_muse_packet(channel: i32, data: Vec<u8>) -> Vec<MuseProcessedData> {
+    info!(
+        "[RUST] parse_muse_packet called, channel={}, data_len={}",
+        channel,
+        data.len()
+    );
     let mut results = Vec::new();
 
     {
@@ -79,6 +85,8 @@ pub fn parse_muse_packet(channel: i32, data: Vec<u8>) -> Vec<MuseProcessedData> 
 
     let mut state = MUSE_STATE.lock().unwrap();
     let muse_state = state.as_mut().unwrap();
+
+    println!("[RUST] eeg[0] called, channel={}", channel);
 
     if data.len() != 20 {
         return results;

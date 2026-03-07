@@ -6,7 +6,7 @@ mod android_jni;
 
 #[cfg(target_os = "android")]
 pub use android_jni::{
-    JNI_OnLoad, Java_com_windwerfer_fl_1muse_1brainflow_1mvp_MainActivity_initBrainFlow,
+    JNI_OnLoad, Java_com_windwerfer_fl_1muse_1mvp_M1brainflow_ainActivity_initBrainFlow,
 };
 
 // Muse S specific modules (app logic, not BrainFlow)
