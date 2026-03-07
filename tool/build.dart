@@ -32,8 +32,11 @@ Future<void> x(String command, {String? cwd}) async {
 // re-building the rust code
 Future<void> buildRust({String mode = 'debug'}) async {
   print('🦀 Building Rust library ($mode)...');
-  final target = mode == 'release' ? '--release' : '';
-  await x('cargo build $target', cwd: 'rust');
+  if (mode == 'release') {
+    await x('cargo build --release', cwd: 'rust');
+  } else {
+    await x('cargo build', cwd: 'rust');
+  }
 }
 
 // rebuilding the android version of the rust code
@@ -254,12 +257,14 @@ Future<void> doctor() async {
   ];
   final installed = (await out(
     'rustup target list --installed',
-  )).split('\n').where((t) => t.contains('android')).toList();
+  ))
+      .split('\n')
+      .where((t) => t.contains('android'))
+      .toList();
   for (final t in targets) {
     final isInstalled = installed.contains(t);
-    final arch = t
-        .replaceAll('-linux-androideabi', '')
-        .replaceAll('-linux-android', '');
+    final arch =
+        t.replaceAll('-linux-androideabi', '').replaceAll('-linux-android', '');
     print('  ${isInstalled ? '✅' : '❌'} $arch (${t})');
   }
 
