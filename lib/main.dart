@@ -13,7 +13,7 @@ Future<void> main() async {
   await RustLib.init(); // or RustLibFlMuseBrainflowMvp if you renamed it
 
   // Optional but nice for BLE on desktop
-  FlutterBluePlus.setLogLevel(LogLevel.verbose);
+  FlutterBluePlus.setLogLevel(LogLevel.warning);
 
   runApp(const MyApp());
 }
