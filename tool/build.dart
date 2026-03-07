@@ -188,7 +188,7 @@ Future<void> _run(List<String> args) async {
 Future<void> clean() async {
   print('🧼 Running clean...');
   x('flutter clean');
-  x('cargo clean -p rust_lib_fl_muse_brainflow_mvp', cwd: 'rust');
+  x('cargo clean', cwd: 'rust');
 }
 
 Future<void> superClean() async {

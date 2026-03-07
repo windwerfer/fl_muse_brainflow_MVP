@@ -13,13 +13,22 @@ class MuseChartScreen extends StatefulWidget {
 
 class _MuseChartScreenState extends State<MuseChartScreen> {
   final _service = MuseBleService.instance;
-  final List<rust.MuseProcessedData> _history = [];
   late StreamSubscription<rust.MuseProcessedData> _sub;
   late StreamSubscription<List<BluetoothDevice>> _devicesSub;
 
   final _scrollController = ScrollController();
   String _selectedSensor = 'TP9';
   double _battery = -1;
+  int _signalQuality = 0;
+
+  // <<< CHANGED: Rolling buffer for EEG channel data
+  final List<double> _eegHistory = [];
+  static const int _maxPoints = 512; // ~2 seconds at 256 Hz — buttery smooth
+
+  // For non-EEG sensors: small rolling buffer (last ~1 second)
+  final List<double> _otherSensorHistory = [];
+  static const int _maxOtherPoints = 64; // ~1 second at lower sampling rates
+  // >>>
 
   static const List<String> _eegChannels = [
     'TP9',
@@ -49,17 +58,80 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
     'Gyro_Z'
   ];
 
+  // <<< CHANGED: Properly handle all 12 samples per EEG packet + other sensors
   void _onData(rust.MuseProcessedData data) {
-    if (mounted) {
-      setState(() {
-        _history.add(data);
-        if (_history.length > 256) {
-          _history.removeAt(0);
+    if (!mounted) return;
+
+    setState(() {
+      // Handle EEG packets - accumulate ALL 12 samples for rolling buffer
+      if (data.packetTypes.contains(rust.MusePacketType.eeg) &&
+          data.eeg.isNotEmpty) {
+        final int chIdx = _eegChannels.indexOf(_selectedSensor);
+        if (chIdx >= 0 && chIdx < data.eeg.length) {
+          final List<double> newSamples = data.eeg[chIdx]; // 12 samples!
+
+          for (final sample in newSamples) {
+            _eegHistory.add(sample);
+          }
+
+          // Keep only the last N points (rolling window)
+          if (_eegHistory.length > _maxPoints) {
+            _eegHistory.removeRange(0, _eegHistory.length - _maxPoints);
+          }
         }
-        _battery = data.battery;
-      });
-    }
+      }
+
+      // Handle other sensors (PPG, Accel, Gyro, etc.) - take latest value
+      if (_selectedSensor == 'SpO2' && data.spo2 != null) {
+        _otherSensorHistory.add(data.spo2!);
+      } else if (_selectedSensor == 'Signal') {
+        _otherSensorHistory.add(data.signalQuality);
+      } else if (_selectedSensor == 'Mindfulness' && data.mindfulness != null) {
+        _otherSensorHistory.add(data.mindfulness!);
+      } else if (_selectedSensor == 'Restfulness' && data.restfulness != null) {
+        _otherSensorHistory.add(data.restfulness!);
+      } else if (_selectedSensor == 'Alpha' && data.alpha != null) {
+        _otherSensorHistory.add(data.alpha!);
+      } else if (_selectedSensor == 'Beta' && data.beta != null) {
+        _otherSensorHistory.add(data.beta!);
+      } else if (_selectedSensor == 'Gamma' && data.gamma != null) {
+        _otherSensorHistory.add(data.gamma!);
+      } else if (_selectedSensor == 'Delta' && data.delta != null) {
+        _otherSensorHistory.add(data.delta!);
+      } else if (_selectedSensor == 'Theta' && data.theta != null) {
+        _otherSensorHistory.add(data.theta!);
+      } else if (_selectedSensor.startsWith('Accel')) {
+        final idx = int.tryParse(_selectedSensor.split('_')[1]) ?? 0;
+        if (idx < data.accel.length) {
+          _otherSensorHistory.add(data.accel[idx]);
+        }
+      } else if (_selectedSensor.startsWith('Gyro')) {
+        final idx = int.tryParse(_selectedSensor.split('_')[1]) ?? 0;
+        if (idx < data.gyro.length) {
+          _otherSensorHistory.add(data.gyro[idx]);
+        }
+      } else if (_selectedSensor.startsWith('PPG')) {
+        if (_selectedSensor == 'PPG_IR' && data.ppgIr.isNotEmpty) {
+          _otherSensorHistory.add(data.ppgIr.last);
+        } else if (_selectedSensor == 'PPG_RED' && data.ppgRed.isNotEmpty) {
+          _otherSensorHistory.add(data.ppgRed.last);
+        } else if (_selectedSensor == 'PPG_NIR' && data.ppgNir.isNotEmpty) {
+          _otherSensorHistory.add(data.ppgNir.last);
+        }
+      }
+
+      // Keep non-EEG history bounded
+      if (_otherSensorHistory.length > _maxOtherPoints) {
+        _otherSensorHistory.removeRange(
+            0, _otherSensorHistory.length - _maxOtherPoints);
+      }
+
+      // Still update battery/SpO2/status from any packet type
+      if (data.battery > 0) _battery = data.battery;
+      _signalQuality = data.signalQuality.toInt();
+    });
   }
+  // >>>
 
   @override
   void initState() {
@@ -75,7 +147,7 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
     await _service.connectToDevice(device);
     if (mounted) {
       setState(() {
-        _history.clear();
+        _eegHistory.clear();
       });
     }
   }
@@ -88,53 +160,26 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
     return sensors;
   }
 
-  List<double> _getSensorData() {
-    return _history.map((data) {
-      if (_selectedSensor == 'SpO2') {
-        return data.spo2 ?? 0;
-      } else if (_selectedSensor == 'Signal') {
-        return data.signalQuality;
-      } else if (_selectedSensor == 'Mindfulness') {
-        return data.mindfulness ?? 0;
-      } else if (_selectedSensor == 'Restfulness') {
-        return data.restfulness ?? 0;
-      } else if (_selectedSensor == 'Alpha') {
-        return data.alpha ?? 0;
-      } else if (_selectedSensor == 'Beta') {
-        return data.beta ?? 0;
-      } else if (_selectedSensor == 'Gamma') {
-        return data.gamma ?? 0;
-      } else if (_selectedSensor == 'Delta') {
-        return data.delta ?? 0;
-      } else if (_selectedSensor == 'Theta') {
-        return data.theta ?? 0;
-      } else if (_selectedSensor.startsWith('Accel')) {
-        final idx = int.tryParse(_selectedSensor.split('_')[1]) ?? 0;
-        return data.accel[idx];
-      } else if (_selectedSensor.startsWith('Gyro')) {
-        final idx = int.tryParse(_selectedSensor.split('_')[1]) ?? 0;
-        return data.gyro[idx];
-      } else if (_selectedSensor.startsWith('PPG')) {
-        final idx = _selectedSensor == 'PPG_IR'
-            ? 0
-            : (_selectedSensor == 'PPG_RED' ? 1 : 2);
-        if (idx < data.ppgIr.length && data.ppgIr.isNotEmpty) {
-          return idx == 0
-              ? data.ppgIr.last
-              : (idx == 1 ? data.ppgRed.last : data.ppgNir.last);
-        }
-        return 0.0;
-      } else {
-        final chIdx = _eegChannels.indexOf(_selectedSensor);
-        if (chIdx >= 0 &&
-            chIdx < data.eeg.length &&
-            data.eeg[chIdx].isNotEmpty) {
-          return data.eeg[chIdx].last;
-        }
-        return 0.0;
+  // <<< CHANGED: Build chart spots from rolling history
+  List<FlSpot> _buildChartSpots() {
+    final List<FlSpot> spots = [];
+
+    // Check if selected sensor is an EEG channel
+    if (_eegChannels.contains(_selectedSensor)) {
+      // Use EEG rolling buffer (12 samples per packet)
+      for (int i = 0; i < _eegHistory.length; i++) {
+        spots.add(FlSpot(i.toDouble(), _eegHistory[i]));
       }
-    }).toList();
+    } else {
+      // Use other sensor history
+      for (int i = 0; i < _otherSensorHistory.length; i++) {
+        spots.add(FlSpot(i.toDouble(), _otherSensorHistory[i]));
+      }
+    }
+
+    return spots;
   }
+  // >>>
 
   @override
   Widget build(BuildContext context) {
@@ -236,11 +281,7 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
                   : 100,
           lineBarsData: [
             LineChartBarData(
-              spots: _getSensorData()
-                  .asMap()
-                  .entries
-                  .map((e) => FlSpot(e.key.toDouble(), e.value))
-                  .toList(),
+              spots: _buildChartSpots(),
               color: Colors.cyan,
               isCurved: true,
               barWidth: 2,
@@ -261,6 +302,9 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          Text('Signal: $_signalQuality',
+              style: const TextStyle(color: Colors.grey)),
+          const SizedBox(width: 16),
           Text('Battery: ${_battery >= 0 ? '${_battery.toInt()}%' : '--%'}',
               style: TextStyle(
                   color: _battery >= 0
