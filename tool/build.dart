@@ -29,11 +29,45 @@ Future<void> x(String command, {String? cwd}) async {
   }
 }
 
+// re-building the rust code
+Future<void> buildRust({String mode = 'debug'}) async {
+  print('🦀 Building Rust library ($mode)...');
+  final target = mode == 'release' ? '--release' : '';
+  await x('cargo build $target', cwd: 'rust');
+}
+
+// rebuilding the android version of the rust code
+Future<void> buildRustAndroid({String profile = 'debug'}) async {
+  print('🦀 Building Rust for Android ($profile)...');
+  final profileFlag = profile == 'release' ? '--release' : '';
+  // Common ABIs; adjust if you only need some (saves time)
+  final abis = [
+    'arm64-v8a',
+    'armeabi-v7a',
+    'x86_64',
+  ]; // drop armeabi-v7a if not needed
+  for (final abi in abis) {
+    await x(
+      'cargo ndk -t $abi $profileFlag -o ../android/app/src/main/jniLibs build',
+      cwd: 'rust',
+    );
+  }
+  print('Rust Android libs built and copied to jniLibs.');
+}
+
+Future<void> gradleClean() async {
+  print('🧹 Gradle clean...');
+  await x('./gradlew clean --quiet', cwd: 'android');
+}
+
 // Capture output
 Future<String> out(String c, {String? cwd}) async {
   final p = c.split(' ');
-  final r =
-      await Process.run(p.first, p.skip(1).toList(), workingDirectory: cwd);
+  final r = await Process.run(
+    p.first,
+    p.skip(1).toList(),
+    workingDirectory: cwd,
+  );
   return r.stdout.toString();
 }
 
@@ -63,29 +97,35 @@ Future<void> _run(List<String> args) async {
     // Shortcuts
     case 'a':
     case 'android':
+      await buildRustAndroid();
       x('flutter run -d android');
       break;
     case 'ac':
     case 'android-clean':
       await clean();
+      await buildRustAndroid();
       x('flutter pub get');
       x('flutter run -d android');
       break;
     case 'acc':
     case 'android-super-clean':
       await superClean();
+      await gradleClean();
       x('flutter_rust_bridge_codegen generate');
+      await buildRustAndroid();
       x('flutter pub get');
       x('flutter run -d android');
       break;
 
     case 'l':
     case 'linux':
+      await buildRust();
       x('flutter run -d linux');
       break;
     case 'lc':
     case 'linux-clean':
       await clean();
+      await buildRust();
       x('flutter pub get');
       x('flutter run -d linux');
       break;
@@ -93,6 +133,7 @@ Future<void> _run(List<String> args) async {
     case 'linux-super-clean':
       await superClean();
       x('flutter_rust_bridge_codegen generate');
+      await buildRust();
       x('flutter pub get');
       x('flutter run -d linux');
       break;
@@ -171,7 +212,8 @@ Future<void> doctor() async {
   }
   try {
     print(
-        '  FRB Codegen: ✅ ${(await out('flutter_rust_bridge_codegen --version')).trim()}');
+      '  FRB Codegen: ✅ ${(await out('flutter_rust_bridge_codegen --version')).trim()}',
+    );
   } catch (_) {
     print('  FRB Codegen: ❌');
   }
@@ -181,7 +223,8 @@ Future<void> doctor() async {
     print('  Java JDK   : ❌');
   }
   print(
-      '  ANDROID_HOME: ${Platform.environment['ANDROID_HOME'] ?? "❌ Not set"}');
+    '  ANDROID_HOME: ${Platform.environment['ANDROID_HOME'] ?? "❌ Not set"}',
+  );
 
   // Check Android NDK
   print('\nAndroid NDK:');
@@ -207,16 +250,16 @@ Future<void> doctor() async {
     'aarch64-linux-android',
     'armv7-linux-androideabi',
     'x86_64-linux-android',
-    'i686-linux-android'
+    'i686-linux-android',
   ];
-  final installed = (await out('rustup target list --installed'))
-      .split('\n')
-      .where((t) => t.contains('android'))
-      .toList();
+  final installed = (await out(
+    'rustup target list --installed',
+  )).split('\n').where((t) => t.contains('android')).toList();
   for (final t in targets) {
     final isInstalled = installed.contains(t);
-    final arch =
-        t.replaceAll('-linux-androideabi', '').replaceAll('-linux-android', '');
+    final arch = t
+        .replaceAll('-linux-androideabi', '')
+        .replaceAll('-linux-android', '');
     print('  ${isInstalled ? '✅' : '❌'} $arch (${t})');
   }
 
@@ -224,7 +267,8 @@ Future<void> doctor() async {
   print('\n📱 Build Targets:');
   final canAndroid = installed.length >= 3 && ndkHome != null;
   print(
-      '  Android     : ${canAndroid ? "✅ Ready" : "❌ Missing deps (need Rust Android targets + NDK)"}');
+    '  Android     : ${canAndroid ? "✅ Ready" : "❌ Missing deps (need Rust Android targets + NDK)"}',
+  );
   print('  Linux       : ✅ Ready (desktop)');
   print('  Windows     : ✅ Ready (desktop)');
 }
