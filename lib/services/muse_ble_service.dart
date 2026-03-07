@@ -226,8 +226,8 @@ class MuseBleService {
       print('[CONNECT] 16. Subscribed to ch $channelIdx → success: $success');
 
       final sub = char.onValueReceived.listen((value) async {
-        print(
-            '[DATA] ← ch $channelIdx | ${value.length} bytes | hex: ${value.take(20).map((b) => b.toRadixString(16).padLeft(2, '0')).join(' ')}');
+        // print('[DATA] ← ch $channelIdx | ${value.length} bytes | hex: ${value.take(20).map((b) => b.toRadixString(16).padLeft(2, '0')).join(' ')}');
+
         if (value.isNotEmpty) {
           final processed = await rust_parser.parseMusePacket(
               channel: channelIdx, data: value);
