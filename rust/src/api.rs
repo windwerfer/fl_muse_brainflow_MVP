@@ -24,7 +24,8 @@ pub fn init_app() {
 
     #[cfg(not(target_os = "android"))]
     {
-        env_logger::init(); // or env_logger::Builder if you want custom config
+        env_logger::Builder::from_env(env_logger::Env::default().filter_or("RUST_LOG", "info"))
+            .init();
     }
 
     // Optional: test that it works
