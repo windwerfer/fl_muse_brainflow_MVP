@@ -26,37 +26,25 @@ Future<String> verifyBrainflowVersion() =>
 
 Future<String> testOutput() => RustLib.instance.api.crateApiTestOutput();
 
-Future<double> calculateSignalQuality({
-  required List<double> data,
-  required BigInt samplingRate,
-}) => RustLib.instance.api.crateApiCalculateSignalQuality(
-  data: data,
-  samplingRate: samplingRate,
-);
+Future<double> calculateSignalQuality(
+        {required List<double> data, required BigInt samplingRate}) =>
+    RustLib.instance.api
+        .crateApiCalculateSignalQuality(data: data, samplingRate: samplingRate);
 
-Future<double?> predictMindfulness({
-  required List<double> eegData,
-  required BigInt samplingRate,
-}) => RustLib.instance.api.crateApiPredictMindfulness(
-  eegData: eegData,
-  samplingRate: samplingRate,
-);
+Future<double?> predictMindfulness(
+        {required List<double> eegData, required BigInt samplingRate}) =>
+    RustLib.instance.api.crateApiPredictMindfulness(
+        eegData: eegData, samplingRate: samplingRate);
 
-Future<double?> predictRestfulness({
-  required List<double> eegData,
-  required BigInt samplingRate,
-}) => RustLib.instance.api.crateApiPredictRestfulness(
-  eegData: eegData,
-  samplingRate: samplingRate,
-);
+Future<double?> predictRestfulness(
+        {required List<double> eegData, required BigInt samplingRate}) =>
+    RustLib.instance.api.crateApiPredictRestfulness(
+        eegData: eegData, samplingRate: samplingRate);
 
-Future<BandPowers?> calculateBandPowers({
-  required List<double> eegData,
-  required BigInt samplingRate,
-}) => RustLib.instance.api.crateApiCalculateBandPowers(
-  eegData: eegData,
-  samplingRate: samplingRate,
-);
+Future<BandPowers?> calculateBandPowers(
+        {required List<double> eegData, required BigInt samplingRate}) =>
+    RustLib.instance.api.crateApiCalculateBandPowers(
+        eegData: eegData, samplingRate: samplingRate);
 
 class BandPowers {
   final double delta;
@@ -93,13 +81,22 @@ class BandPowers {
           gamma == other.gamma;
 }
 
-enum ConnectionStatus { disconnected, connecting, connected, error }
+enum ConnectionStatus {
+  disconnected,
+  connecting,
+  connected,
+  error,
+  ;
+}
 
 class EegData {
   final Uint64List channels;
   final List<Float64List> data;
 
-  const EegData({required this.channels, required this.data});
+  const EegData({
+    required this.channels,
+    required this.data,
+  });
 
   @override
   int get hashCode => channels.hashCode ^ data.hashCode;

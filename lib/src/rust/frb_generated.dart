@@ -38,8 +38,12 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 
   /// Initialize flutter_rust_bridge in mock mode.
   /// No libraries for FFI are loaded.
-  static void initMock({required RustLibApi api}) {
-    instance.initMockImpl(api: api);
+  static void initMock({
+    required RustLibApi api,
+  }) {
+    instance.initMockImpl(
+      api: api,
+    );
   }
 
   /// Dispose flutter_rust_bridge
@@ -73,34 +77,28 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
-        stem: 'rust_lib_fl_muse_brainflow_mvp',
-        ioDirectory: 'rust/target/release/',
-        webPrefix: 'pkg/',
-      );
+    stem: 'rust_lib_fl_muse_brainflow_mvp',
+    ioDirectory: 'rust/target/release/',
+    webPrefix: 'pkg/',
+  );
 }
 
 abstract class RustLibApi extends BaseApi {
-  Future<BandPowers?> crateApiCalculateBandPowers({
-    required List<double> eegData,
-    required BigInt samplingRate,
-  });
+  Future<BandPowers?> crateApiCalculateBandPowers(
+      {required List<double> eegData, required BigInt samplingRate});
 
-  Future<double> crateApiCalculateSignalQuality({
-    required List<double> data,
-    required BigInt samplingRate,
-  });
+  Future<double> crateApiCalculateSignalQuality(
+      {required List<double> data, required BigInt samplingRate});
 
   Future<String> crateApiConnectToMuse({String? macAddress});
 
   Future<String> crateApiDisconnectMuse();
 
-  Future<double> crateMuseTypesEegResolutionOffset({
-    required EegResolution that,
-  });
+  Future<double> crateMuseTypesEegResolutionOffset(
+      {required EegResolution that});
 
-  Future<double> crateMuseTypesEegResolutionScaleFactor({
-    required EegResolution that,
-  });
+  Future<double> crateMuseTypesEegResolutionScaleFactor(
+      {required EegResolution that});
 
   Future<ConnectionStatus> crateApiGetConnectionStatus();
 
@@ -118,34 +116,25 @@ abstract class RustLibApi extends BaseApi {
 
   Future<bool> crateMuseTypesMuseModelHasPpg({required MuseModel that});
 
-  Future<BigInt> crateMuseTypesMuseModelPpgChannelCount({
-    required MuseModel that,
-  });
+  Future<BigInt> crateMuseTypesMuseModelPpgChannelCount(
+      {required MuseModel that});
 
-  Future<EegResolution> crateMuseTypesMuseModelResolution({
-    required MuseModel that,
-  });
+  Future<EegResolution> crateMuseTypesMuseModelResolution(
+      {required MuseModel that});
 
   Future<MuseProcessedData> crateMuseTypesMuseProcessedDataDefault();
 
-  Future<List<MuseProcessedData>> crateMuseParserParseAndProcessMusePackets({
-    required List<Uint8List> rawPackets,
-  });
+  Future<List<MuseProcessedData>> crateMuseParserParseAndProcessMusePackets(
+      {required List<Uint8List> rawPackets});
 
-  Future<List<MuseProcessedData>> crateMuseParserParseMusePacket({
-    required int channel,
-    required List<int> data,
-  });
+  Future<List<MuseProcessedData>> crateMuseParserParseMusePacket(
+      {required int channel, required List<int> data});
 
-  Future<double?> crateApiPredictMindfulness({
-    required List<double> eegData,
-    required BigInt samplingRate,
-  });
+  Future<double?> crateApiPredictMindfulness(
+      {required List<double> eegData, required BigInt samplingRate});
 
-  Future<double?> crateApiPredictRestfulness({
-    required List<double> eegData,
-    required BigInt samplingRate,
-  });
+  Future<double?> crateApiPredictRestfulness(
+      {required List<double> eegData, required BigInt samplingRate});
 
   Future<Uint8List> crateMuseParserSendMuseCommand({required String command});
 
@@ -163,32 +152,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Future<BandPowers?> crateApiCalculateBandPowers({
-    required List<double> eegData,
-    required BigInt samplingRate,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_list_prim_f_64_loose(eegData, serializer);
-          sse_encode_usize(samplingRate, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 1,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_opt_box_autoadd_band_powers,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiCalculateBandPowersConstMeta,
-        argValues: [eegData, samplingRate],
-        apiImpl: this,
+  Future<BandPowers?> crateApiCalculateBandPowers(
+      {required List<double> eegData, required BigInt samplingRate}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_prim_f_64_loose(eegData, serializer);
+        sse_encode_usize(samplingRate, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 1, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_opt_box_autoadd_band_powers,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateApiCalculateBandPowersConstMeta,
+      argValues: [eegData, samplingRate],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateApiCalculateBandPowersConstMeta =>
@@ -198,32 +179,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<double> crateApiCalculateSignalQuality({
-    required List<double> data,
-    required BigInt samplingRate,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_list_prim_f_64_loose(data, serializer);
-          sse_encode_usize(samplingRate, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 2,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_f_64,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiCalculateSignalQualityConstMeta,
-        argValues: [data, samplingRate],
-        apiImpl: this,
+  Future<double> crateApiCalculateSignalQuality(
+      {required List<double> data, required BigInt samplingRate}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_prim_f_64_loose(data, serializer);
+        sse_encode_usize(samplingRate, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 2, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_f_64,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateApiCalculateSignalQualityConstMeta,
+      argValues: [data, samplingRate],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateApiCalculateSignalQualityConstMeta =>
@@ -234,86 +207,69 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<String> crateApiConnectToMuse({String? macAddress}) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_opt_String(macAddress, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 3,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_String,
-          decodeErrorData: sse_decode_AnyhowException,
-        ),
-        constMeta: kCrateApiConnectToMuseConstMeta,
-        argValues: [macAddress],
-        apiImpl: this,
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_opt_String(macAddress, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 3, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
       ),
-    );
+      constMeta: kCrateApiConnectToMuseConstMeta,
+      argValues: [macAddress],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateApiConnectToMuseConstMeta => const TaskConstMeta(
-    debugName: "connect_to_muse",
-    argNames: ["macAddress"],
-  );
+        debugName: "connect_to_muse",
+        argNames: ["macAddress"],
+      );
 
   @override
   Future<String> crateApiDisconnectMuse() {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 4,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_String,
-          decodeErrorData: sse_decode_AnyhowException,
-        ),
-        constMeta: kCrateApiDisconnectMuseConstMeta,
-        argValues: [],
-        apiImpl: this,
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 4, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
       ),
-    );
+      constMeta: kCrateApiDisconnectMuseConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
   }
 
-  TaskConstMeta get kCrateApiDisconnectMuseConstMeta =>
-      const TaskConstMeta(debugName: "disconnect_muse", argNames: []);
+  TaskConstMeta get kCrateApiDisconnectMuseConstMeta => const TaskConstMeta(
+        debugName: "disconnect_muse",
+        argNames: [],
+      );
 
   @override
-  Future<double> crateMuseTypesEegResolutionOffset({
-    required EegResolution that,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_eeg_resolution(that, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 5,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_f_64,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseTypesEegResolutionOffsetConstMeta,
-        argValues: [that],
-        apiImpl: this,
+  Future<double> crateMuseTypesEegResolutionOffset(
+      {required EegResolution that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_eeg_resolution(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 5, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_f_64,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseTypesEegResolutionOffsetConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseTypesEegResolutionOffsetConstMeta =>
@@ -323,30 +279,23 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<double> crateMuseTypesEegResolutionScaleFactor({
-    required EegResolution that,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_eeg_resolution(that, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 6,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_f_64,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseTypesEegResolutionScaleFactorConstMeta,
-        argValues: [that],
-        apiImpl: this,
+  Future<double> crateMuseTypesEegResolutionScaleFactor(
+      {required EegResolution that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_eeg_resolution(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 6, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_f_64,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseTypesEegResolutionScaleFactorConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseTypesEegResolutionScaleFactorConstMeta =>
@@ -357,86 +306,70 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<ConnectionStatus> crateApiGetConnectionStatus() {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 7,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_connection_status,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiGetConnectionStatusConstMeta,
-        argValues: [],
-        apiImpl: this,
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 7, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_connection_status,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateApiGetConnectionStatusConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateApiGetConnectionStatusConstMeta =>
-      const TaskConstMeta(debugName: "get_connection_status", argNames: []);
+      const TaskConstMeta(
+        debugName: "get_connection_status",
+        argNames: [],
+      );
 
   @override
   Future<EegData> crateApiGetLatestData({required int numSamples}) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_i_32(numSamples, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 8,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_eeg_data,
-          decodeErrorData: sse_decode_AnyhowException,
-        ),
-        constMeta: kCrateApiGetLatestDataConstMeta,
-        argValues: [numSamples],
-        apiImpl: this,
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_i_32(numSamples, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 8, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_eeg_data,
+        decodeErrorData: sse_decode_AnyhowException,
       ),
-    );
+      constMeta: kCrateApiGetLatestDataConstMeta,
+      argValues: [numSamples],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateApiGetLatestDataConstMeta => const TaskConstMeta(
-    debugName: "get_latest_data",
-    argNames: ["numSamples"],
-  );
+        debugName: "get_latest_data",
+        argNames: ["numSamples"],
+      );
 
   @override
-  Future<MuseModel> crateMuseParserGetMuseModelFromName({
-    required String name,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_String(name, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 9,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_muse_model,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseParserGetMuseModelFromNameConstMeta,
-        argValues: [name],
-        apiImpl: this,
+  Future<MuseModel> crateMuseParserGetMuseModelFromName(
+      {required String name}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(name, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 9, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_muse_model,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseParserGetMuseModelFromNameConstMeta,
+      argValues: [name],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseParserGetMuseModelFromNameConstMeta =>
@@ -447,84 +380,70 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<void> crateApiInitApp() {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 10,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_unit,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiInitAppConstMeta,
-        argValues: [],
-        apiImpl: this,
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 10, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_unit,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateApiInitAppConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
   }
 
-  TaskConstMeta get kCrateApiInitAppConstMeta =>
-      const TaskConstMeta(debugName: "init_app", argNames: []);
+  TaskConstMeta get kCrateApiInitAppConstMeta => const TaskConstMeta(
+        debugName: "init_app",
+        argNames: [],
+      );
 
   @override
   Future<void> crateMuseParserInitMuseParser({required MuseModel model}) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_muse_model(model, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 11,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_unit,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseParserInitMuseParserConstMeta,
-        argValues: [model],
-        apiImpl: this,
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_muse_model(model, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 11, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_unit,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseParserInitMuseParserConstMeta,
+      argValues: [model],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseParserInitMuseParserConstMeta =>
-      const TaskConstMeta(debugName: "init_muse_parser", argNames: ["model"]);
+      const TaskConstMeta(
+        debugName: "init_muse_parser",
+        argNames: ["model"],
+      );
 
   @override
-  Future<BigInt> crateMuseTypesMuseModelChannelCount({
-    required MuseModel that,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_muse_model(that, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 12,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_usize,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseTypesMuseModelChannelCountConstMeta,
-        argValues: [that],
-        apiImpl: this,
+  Future<BigInt> crateMuseTypesMuseModelChannelCount(
+      {required MuseModel that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_muse_model(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 12, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_usize,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseTypesMuseModelChannelCountConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseTypesMuseModelChannelCountConstMeta =>
@@ -535,27 +454,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<bool> crateMuseTypesMuseModelHasFnirs({required MuseModel that}) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_muse_model(that, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 13,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_bool,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseTypesMuseModelHasFnirsConstMeta,
-        argValues: [that],
-        apiImpl: this,
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_muse_model(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 13, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_bool,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseTypesMuseModelHasFnirsConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseTypesMuseModelHasFnirsConstMeta =>
@@ -566,57 +479,47 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<bool> crateMuseTypesMuseModelHasPpg({required MuseModel that}) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_muse_model(that, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 14,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_bool,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseTypesMuseModelHasPpgConstMeta,
-        argValues: [that],
-        apiImpl: this,
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_muse_model(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 14, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_bool,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseTypesMuseModelHasPpgConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseTypesMuseModelHasPpgConstMeta =>
-      const TaskConstMeta(debugName: "muse_model_has_ppg", argNames: ["that"]);
+      const TaskConstMeta(
+        debugName: "muse_model_has_ppg",
+        argNames: ["that"],
+      );
 
   @override
-  Future<BigInt> crateMuseTypesMuseModelPpgChannelCount({
-    required MuseModel that,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_muse_model(that, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 15,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_usize,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseTypesMuseModelPpgChannelCountConstMeta,
-        argValues: [that],
-        apiImpl: this,
+  Future<BigInt> crateMuseTypesMuseModelPpgChannelCount(
+      {required MuseModel that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_muse_model(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 15, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_usize,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseTypesMuseModelPpgChannelCountConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseTypesMuseModelPpgChannelCountConstMeta =>
@@ -626,30 +529,23 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<EegResolution> crateMuseTypesMuseModelResolution({
-    required MuseModel that,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_muse_model(that, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 16,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_eeg_resolution,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseTypesMuseModelResolutionConstMeta,
-        argValues: [that],
-        apiImpl: this,
+  Future<EegResolution> crateMuseTypesMuseModelResolution(
+      {required MuseModel that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_muse_model(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 16, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_eeg_resolution,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseTypesMuseModelResolutionConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseTypesMuseModelResolutionConstMeta =>
@@ -660,26 +556,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<MuseProcessedData> crateMuseTypesMuseProcessedDataDefault() {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 17,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_muse_processed_data,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseTypesMuseProcessedDataDefaultConstMeta,
-        argValues: [],
-        apiImpl: this,
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 17, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_muse_processed_data,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseTypesMuseProcessedDataDefaultConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseTypesMuseProcessedDataDefaultConstMeta =>
@@ -689,30 +579,23 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<List<MuseProcessedData>> crateMuseParserParseAndProcessMusePackets({
-    required List<Uint8List> rawPackets,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_list_list_prim_u_8_strict(rawPackets, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 18,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_list_muse_processed_data,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseParserParseAndProcessMusePacketsConstMeta,
-        argValues: [rawPackets],
-        apiImpl: this,
+  Future<List<MuseProcessedData>> crateMuseParserParseAndProcessMusePackets(
+      {required List<Uint8List> rawPackets}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_list_prim_u_8_strict(rawPackets, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 18, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_list_muse_processed_data,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseParserParseAndProcessMusePacketsConstMeta,
+      argValues: [rawPackets],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseParserParseAndProcessMusePacketsConstMeta =>
@@ -722,32 +605,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<List<MuseProcessedData>> crateMuseParserParseMusePacket({
-    required int channel,
-    required List<int> data,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_i_32(channel, serializer);
-          sse_encode_list_prim_u_8_loose(data, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 19,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_list_muse_processed_data,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseParserParseMusePacketConstMeta,
-        argValues: [channel, data],
-        apiImpl: this,
+  Future<List<MuseProcessedData>> crateMuseParserParseMusePacket(
+      {required int channel, required List<int> data}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_i_32(channel, serializer);
+        sse_encode_list_prim_u_8_loose(data, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 19, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_list_muse_processed_data,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseParserParseMusePacketConstMeta,
+      argValues: [channel, data],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseParserParseMusePacketConstMeta =>
@@ -757,96 +632,74 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<double?> crateApiPredictMindfulness({
-    required List<double> eegData,
-    required BigInt samplingRate,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_list_prim_f_64_loose(eegData, serializer);
-          sse_encode_usize(samplingRate, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 20,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_opt_box_autoadd_f_64,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiPredictMindfulnessConstMeta,
-        argValues: [eegData, samplingRate],
-        apiImpl: this,
+  Future<double?> crateApiPredictMindfulness(
+      {required List<double> eegData, required BigInt samplingRate}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_prim_f_64_loose(eegData, serializer);
+        sse_encode_usize(samplingRate, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 20, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_opt_box_autoadd_f_64,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateApiPredictMindfulnessConstMeta,
+      argValues: [eegData, samplingRate],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateApiPredictMindfulnessConstMeta => const TaskConstMeta(
-    debugName: "predict_mindfulness",
-    argNames: ["eegData", "samplingRate"],
-  );
+        debugName: "predict_mindfulness",
+        argNames: ["eegData", "samplingRate"],
+      );
 
   @override
-  Future<double?> crateApiPredictRestfulness({
-    required List<double> eegData,
-    required BigInt samplingRate,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_list_prim_f_64_loose(eegData, serializer);
-          sse_encode_usize(samplingRate, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 21,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_opt_box_autoadd_f_64,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiPredictRestfulnessConstMeta,
-        argValues: [eegData, samplingRate],
-        apiImpl: this,
+  Future<double?> crateApiPredictRestfulness(
+      {required List<double> eegData, required BigInt samplingRate}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_prim_f_64_loose(eegData, serializer);
+        sse_encode_usize(samplingRate, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 21, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_opt_box_autoadd_f_64,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateApiPredictRestfulnessConstMeta,
+      argValues: [eegData, samplingRate],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateApiPredictRestfulnessConstMeta => const TaskConstMeta(
-    debugName: "predict_restfulness",
-    argNames: ["eegData", "samplingRate"],
-  );
+        debugName: "predict_restfulness",
+        argNames: ["eegData", "samplingRate"],
+      );
 
   @override
   Future<Uint8List> crateMuseParserSendMuseCommand({required String command}) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_String(command, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 22,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_list_prim_u_8_strict,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateMuseParserSendMuseCommandConstMeta,
-        argValues: [command],
-        apiImpl: this,
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(command, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 22, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_list_prim_u_8_strict,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateMuseParserSendMuseCommandConstMeta,
+      argValues: [command],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateMuseParserSendMuseCommandConstMeta =>
@@ -857,57 +710,50 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<String> crateApiTestOutput() {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 23,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_String,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiTestOutputConstMeta,
-        argValues: [],
-        apiImpl: this,
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 23, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: null,
       ),
-    );
+      constMeta: kCrateApiTestOutputConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
   }
 
-  TaskConstMeta get kCrateApiTestOutputConstMeta =>
-      const TaskConstMeta(debugName: "test_output", argNames: []);
+  TaskConstMeta get kCrateApiTestOutputConstMeta => const TaskConstMeta(
+        debugName: "test_output",
+        argNames: [],
+      );
 
   @override
   Future<String> crateApiVerifyBrainflowVersion() {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 24,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_String,
-          decodeErrorData: sse_decode_AnyhowException,
-        ),
-        constMeta: kCrateApiVerifyBrainflowVersionConstMeta,
-        argValues: [],
-        apiImpl: this,
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 24, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
       ),
-    );
+      constMeta: kCrateApiVerifyBrainflowVersionConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
   }
 
   TaskConstMeta get kCrateApiVerifyBrainflowVersionConstMeta =>
-      const TaskConstMeta(debugName: "verify_brainflow_version", argNames: []);
+      const TaskConstMeta(
+        debugName: "verify_brainflow_version",
+        argNames: [],
+      );
 
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
@@ -1154,12 +1000,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_beta = sse_decode_f_64(deserializer);
     var var_gamma = sse_decode_f_64(deserializer);
     return BandPowers(
-      delta: var_delta,
-      theta: var_theta,
-      alpha: var_alpha,
-      beta: var_beta,
-      gamma: var_gamma,
-    );
+        delta: var_delta,
+        theta: var_theta,
+        alpha: var_alpha,
+        beta: var_beta,
+        gamma: var_gamma);
   }
 
   @protected
@@ -1223,8 +1068,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   List<Float64List> sse_decode_list_list_prim_f_64_strict(
-    SseDeserializer deserializer,
-  ) {
+      SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     var len_ = sse_decode_i_32(deserializer);
@@ -1237,8 +1081,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   List<Uint8List> sse_decode_list_list_prim_u_8_strict(
-    SseDeserializer deserializer,
-  ) {
+      SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     var len_ = sse_decode_i_32(deserializer);
@@ -1251,8 +1094,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   List<MusePacketType> sse_decode_list_muse_packet_type(
-    SseDeserializer deserializer,
-  ) {
+      SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     var len_ = sse_decode_i_32(deserializer);
@@ -1265,8 +1107,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   List<MuseProcessedData> sse_decode_list_muse_processed_data(
-    SseDeserializer deserializer,
-  ) {
+      SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     var len_ = sse_decode_i_32(deserializer);
@@ -1328,8 +1169,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   MuseProcessedData sse_decode_muse_processed_data(
-    SseDeserializer deserializer,
-  ) {
+      SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_eeg = sse_decode_list_list_prim_f_64_strict(deserializer);
     var var_ppgIr = sse_decode_list_prim_f_64_strict(deserializer);
@@ -1353,28 +1193,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_delta = sse_decode_opt_box_autoadd_f_64(deserializer);
     var var_theta = sse_decode_opt_box_autoadd_f_64(deserializer);
     return MuseProcessedData(
-      eeg: var_eeg,
-      ppgIr: var_ppgIr,
-      ppgRed: var_ppgRed,
-      ppgNir: var_ppgNir,
-      spo2: var_spo2,
-      fnirsHbo2: var_fnirsHbo2,
-      fnirsHbr: var_fnirsHbr,
-      fnirsTsi: var_fnirsTsi,
-      accel: var_accel,
-      gyro: var_gyro,
-      timestamp: var_timestamp,
-      battery: var_battery,
-      packetTypes: var_packetTypes,
-      signalQuality: var_signalQuality,
-      mindfulness: var_mindfulness,
-      restfulness: var_restfulness,
-      alpha: var_alpha,
-      beta: var_beta,
-      gamma: var_gamma,
-      delta: var_delta,
-      theta: var_theta,
-    );
+        eeg: var_eeg,
+        ppgIr: var_ppgIr,
+        ppgRed: var_ppgRed,
+        ppgNir: var_ppgNir,
+        spo2: var_spo2,
+        fnirsHbo2: var_fnirsHbo2,
+        fnirsHbr: var_fnirsHbr,
+        fnirsTsi: var_fnirsTsi,
+        accel: var_accel,
+        gyro: var_gyro,
+        timestamp: var_timestamp,
+        battery: var_battery,
+        packetTypes: var_packetTypes,
+        signalQuality: var_signalQuality,
+        mindfulness: var_mindfulness,
+        restfulness: var_restfulness,
+        alpha: var_alpha,
+        beta: var_beta,
+        gamma: var_gamma,
+        delta: var_delta,
+        theta: var_theta);
   }
 
   @protected
@@ -1390,8 +1229,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   BandPowers? sse_decode_opt_box_autoadd_band_powers(
-    SseDeserializer deserializer,
-  ) {
+      SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     if (sse_decode_bool(deserializer)) {
@@ -1431,9 +1269,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_AnyhowException(
-    AnyhowException self,
-    SseSerializer serializer,
-  ) {
+      AnyhowException self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.message, serializer);
   }
@@ -1462,9 +1298,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_box_autoadd_band_powers(
-    BandPowers self,
-    SseSerializer serializer,
-  ) {
+      BandPowers self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_band_powers(self, serializer);
   }
@@ -1477,9 +1311,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_connection_status(
-    ConnectionStatus self,
-    SseSerializer serializer,
-  ) {
+      ConnectionStatus self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
   }
@@ -1517,9 +1349,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_list_prim_f_64_strict(
-    List<Float64List> self,
-    SseSerializer serializer,
-  ) {
+      List<Float64List> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
@@ -1529,9 +1359,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_list_prim_u_8_strict(
-    List<Uint8List> self,
-    SseSerializer serializer,
-  ) {
+      List<Uint8List> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
@@ -1541,9 +1369,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_muse_packet_type(
-    List<MusePacketType> self,
-    SseSerializer serializer,
-  ) {
+      List<MusePacketType> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
@@ -1553,9 +1379,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_muse_processed_data(
-    List<MuseProcessedData> self,
-    SseSerializer serializer,
-  ) {
+      List<MuseProcessedData> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
@@ -1565,21 +1389,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_prim_f_64_loose(
-    List<double> self,
-    SseSerializer serializer,
-  ) {
+      List<double> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putFloat64List(
-      self is Float64List ? self : Float64List.fromList(self),
-    );
+        self is Float64List ? self : Float64List.fromList(self));
   }
 
   @protected
   void sse_encode_list_prim_f_64_strict(
-    Float64List self,
-    SseSerializer serializer,
-  ) {
+      Float64List self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putFloat64List(self);
@@ -1587,21 +1406,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_prim_u_8_loose(
-    List<int> self,
-    SseSerializer serializer,
-  ) {
+      List<int> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
-    serializer.buffer.putUint8List(
-      self is Uint8List ? self : Uint8List.fromList(self),
-    );
+    serializer.buffer
+        .putUint8List(self is Uint8List ? self : Uint8List.fromList(self));
   }
 
   @protected
   void sse_encode_list_prim_u_8_strict(
-    Uint8List self,
-    SseSerializer serializer,
-  ) {
+      Uint8List self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
@@ -1609,9 +1423,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_prim_usize_strict(
-    Uint64List self,
-    SseSerializer serializer,
-  ) {
+      Uint64List self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint64List(self);
@@ -1625,18 +1437,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_muse_packet_type(
-    MusePacketType self,
-    SseSerializer serializer,
-  ) {
+      MusePacketType self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
   }
 
   @protected
   void sse_encode_muse_processed_data(
-    MuseProcessedData self,
-    SseSerializer serializer,
-  ) {
+      MuseProcessedData self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_list_prim_f_64_strict(self.eeg, serializer);
     sse_encode_list_prim_f_64_strict(self.ppgIr, serializer);
@@ -1673,9 +1481,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_opt_box_autoadd_band_powers(
-    BandPowers? self,
-    SseSerializer serializer,
-  ) {
+      BandPowers? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     sse_encode_bool(self != null, serializer);
