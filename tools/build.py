@@ -56,7 +56,7 @@ def rm(path):
 def clean():
     print("🧼 Clean...")
     run(["flutter", "clean"])
-    run(["cargo", "clean"], cwd=RUST_DIR)
+    run(["cargo", "clean", "-p", "rust_lib_fl_muse_brainflow_mvp"], cwd=RUST_DIR)
 
 
 def super_clean():
@@ -68,7 +68,8 @@ def super_clean():
     # .flutter-plugins* usually safe to skip or rm if exists
     for p in PROJECT_ROOT.glob(".flutter-plugins*"):
         rm(p)
-    clean()
+    run(["flutter", "clean"])
+    run(["cargo", "clean"], cwd=RUST_DIR)
 
 
 # ────────────────────────────────────────────────
@@ -151,7 +152,7 @@ COMMANDS = {
     "lc": lambda: (
         clean(),
         run(["flutter", "pub", "get"]),
-        run(["flutter", "run", "-d", "android"]),
+        run(["flutter", "run", "-d", "linux"]),
     ),
     "lcc": lambda: (
         super_clean(),
