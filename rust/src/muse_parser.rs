@@ -21,6 +21,7 @@ struct MuseState {
     ppg_buffer: Vec<Vec<f64>>,
     received_eeg_channels: Vec<bool>,
     last_timestamp: f64,
+    last_fifth_chan_timestamp: f64,
     package_count: u16,
     initialized: bool,
     battery: f64,
@@ -39,6 +40,7 @@ impl MuseState {
             ppg_buffer: vec![Vec::new(); MAX_PPG_CHANNELS],
             received_eeg_channels: vec![false; MAX_EEG_CHANNELS],
             last_timestamp: 0.0,
+            last_fifth_chan_timestamp: -1.0,
             package_count: 0,
             initialized: true,
             battery: -1.0,
@@ -139,6 +141,11 @@ fn parse_eeg_channel(
     let package_num = ((data[0] as u16) << 8) | (data[1] as u16);
     state.package_count = package_num;
 
+    // Track whether the optional 5th channel (RightAux) is actively streaming
+    if channel == 4 {
+        state.last_fifth_chan_timestamp = get_timestamp();
+    }
+
     let resolution = state.model.resolution();
     let samples = parse_eeg_samples(&data[2..], resolution);
     state.eeg_buffers[channel].extend(samples);
@@ -151,9 +158,15 @@ fn parse_eeg_channel(
         .filter(|&&x| x)
         .count();
 
-    let required = if channel_count == 4 { 4 } else { channel_count };
+    let current_time = get_timestamp();
+    // Match C++ logic: flush when all channels arrive, OR when all-but-one arrive
+    // and the 5th channel hasn't been seen for >1 second (disabled by default with p21 preset)
+    let all_arrived = active_channels >= channel_count;
+    let aux_timed_out = active_channels >= channel_count - 1
+        && (state.last_fifth_chan_timestamp < 0.0
+            || current_time - state.last_fifth_chan_timestamp > 1.0);
 
-    if active_channels >= required {
+    if all_arrived || aux_timed_out {
         let eeg: Vec<Vec<f64>> = state
             .eeg_buffers
             .iter()
