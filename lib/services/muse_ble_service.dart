@@ -186,20 +186,21 @@ class MuseBleService {
       if (uuid.contains('fe8d') || uuid.contains('273e')) {
         for (final char in service.characteristics) {
           final cUuid = char.uuid.toString().toLowerCase();
-          // Extract the short UUID prefix (first 8 chars of full UUID)
           final shortUuid = cUuid.length >= 8 ? cUuid.substring(0, 8) : cUuid;
-          if (char.properties.notify || char.properties.indicate) {
-            final chIdx = uuidToChannel[shortUuid];
-            if (chIdx != null) {
-              channelChars[chIdx] = char;
-              print('[CONNECT] 11. Data char: $cUuid → channel $chIdx');
-            } else {
-              print('[CONNECT] 11. Data char (unknown UUID, ignored): $cUuid');
-            }
-          }
-          if (char.properties.write || char.properties.writeWithoutResponse) {
+
+          // Match by UUID directly — like muse.cpp, don't filter on property flags.
+          // On Linux/BlueZ some chars (e.g. TP9) don't advertise notify but still work.
+          final chIdx = uuidToChannel[shortUuid];
+          if (chIdx != null) {
+            channelChars[chIdx] = char;
+            print('[CONNECT] 11. Data char: $cUuid → channel $chIdx '
+                '(notify=${char.properties.notify}, indicate=${char.properties.indicate})');
+          } else if (char.properties.write || char.properties.writeWithoutResponse) {
             controlChar = char;
             print('[CONNECT] 12. Control char: $cUuid');
+          } else {
+            print('[CONNECT] 11. Char (ignored): $cUuid '
+                'props: notify=${char.properties.notify} write=${char.properties.write}');
           }
         }
       }

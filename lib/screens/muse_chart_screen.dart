@@ -17,7 +17,7 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   late StreamSubscription<List<BluetoothDevice>> _devicesSub;
 
   final _scrollController = ScrollController();
-  String _selectedSensor = 'TP9';
+  String _selectedSensor = 'AF7'; // TP9 (ch0) not present on this device
   double _battery = -1;
   int _signalQuality = 0;
 
@@ -105,16 +105,16 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
         _otherSensorHistory.add(data.delta!);
       } else if (_selectedSensor == 'Theta' && data.theta != null) {
         _otherSensorHistory.add(data.theta!);
-      } else if (_selectedSensor.startsWith('Accel')) {
-        final idx = int.tryParse(_selectedSensor.split('_')[1]) ?? 0;
-        if (idx < data.accel.length) {
-          _otherSensorHistory.add(data.accel[idx]);
-        }
-      } else if (_selectedSensor.startsWith('Gyro')) {
-        final idx = int.tryParse(_selectedSensor.split('_')[1]) ?? 0;
-        if (idx < data.gyro.length) {
-          _otherSensorHistory.add(data.gyro[idx]);
-        }
+      } else if (_selectedSensor.startsWith('Accel') &&
+          data.packetTypes.contains(rust.MusePacketType.accel)) {
+        const axisMap = {'X': 0, 'Y': 1, 'Z': 2};
+        final idx = axisMap[_selectedSensor.split('_')[1]] ?? 0;
+        _otherSensorHistory.add(data.accel[idx]);
+      } else if (_selectedSensor.startsWith('Gyro') &&
+          data.packetTypes.contains(rust.MusePacketType.gyro)) {
+        const axisMap = {'X': 0, 'Y': 1, 'Z': 2};
+        final idx = axisMap[_selectedSensor.split('_')[1]] ?? 0;
+        _otherSensorHistory.add(data.gyro[idx]);
       } else if (_selectedSensor.startsWith('PPG')) {
         if (_selectedSensor == 'PPG_IR' && data.ppgIr.isNotEmpty) {
           _otherSensorHistory.add(data.ppgIr.last);
