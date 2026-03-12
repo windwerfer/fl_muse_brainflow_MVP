@@ -34,7 +34,7 @@ class MuseBleService {
   final Map<String, DateTime> _deviceLastSeen = {};
 
   String _deviceName = 'Muse';
-  int _channelIndex = 0;
+
   BluetoothCharacteristic? _controlChar;
 
   Future<void> startScan() async {
@@ -162,17 +162,40 @@ class MuseBleService {
     final services = await device.discoverServices();
     print('[CONNECT] 8. Found ${services.length} services');
 
+    // Fixed UUID → channel index mapping (matches Rust parser expectations)
+    const uuidToChannel = {
+      '273e0002': 0,  // TP9
+      '273e0003': 1,  // AF7
+      '273e0004': 2,  // AF8
+      '273e0005': 3,  // TP10
+      '273e0006': 4,  // RightAUX
+      '273e0007': 5,  // Accelerometer
+      '273e0008': 6,  // Gyro
+      '273e0009': 7,  // PPG0
+      '273e000a': 8,  // PPG1
+      '273e000b': 9,  // PPG2
+      '273e000c': 10, // Battery (if present)
+    };
+
     BluetoothCharacteristic? controlChar;
-    List<BluetoothCharacteristic> dataChars = [];
+    // Map from channelIdx → characteristic (only known UUIDs get a fixed index)
+    final Map<int, BluetoothCharacteristic> channelChars = {};
 
     for (final service in services) {
       final uuid = service.uuid.toString().toLowerCase();
       if (uuid.contains('fe8d') || uuid.contains('273e')) {
         for (final char in service.characteristics) {
           final cUuid = char.uuid.toString().toLowerCase();
+          // Extract the short UUID prefix (first 8 chars of full UUID)
+          final shortUuid = cUuid.length >= 8 ? cUuid.substring(0, 8) : cUuid;
           if (char.properties.notify || char.properties.indicate) {
-            dataChars.add(char);
-            print('[CONNECT] 11. Data char: $cUuid');
+            final chIdx = uuidToChannel[shortUuid];
+            if (chIdx != null) {
+              channelChars[chIdx] = char;
+              print('[CONNECT] 11. Data char: $cUuid → channel $chIdx');
+            } else {
+              print('[CONNECT] 11. Data char (unknown UUID, ignored): $cUuid');
+            }
           }
           if (char.properties.write || char.properties.writeWithoutResponse) {
             controlChar = char;
@@ -218,28 +241,23 @@ class MuseBleService {
     }
 
     print(
-        '[CONNECT] 15. Subscribing to ${dataChars.length} data characteristics...');
-    _channelIndex = 0;
-    for (final char in dataChars) {
-      final channelIdx = _channelIndex;
+        '[CONNECT] 15. Subscribing to ${channelChars.length} data characteristics...');
+    for (final entry in channelChars.entries) {
+      final channelIdx = entry.key;
+      final char = entry.value;
       final success = await char.setNotifyValue(true);
       print('[CONNECT] 16. Subscribed to ch $channelIdx → success: $success');
 
       final sub = char.onValueReceived.listen((value) async {
-        // print('[DATA] ← ch $channelIdx | ${value.length} bytes | hex: ${value.take(20).map((b) => b.toRadixString(16).padLeft(2, '0')).join(' ')}');
-
         if (value.isNotEmpty) {
           final processed = await rust_parser.parseMusePacket(
               channel: channelIdx, data: value);
-          print('[DATA] Parser returned ${processed.length} packets');
           for (final p in processed) {
             _dataController.add(p);
-            print('[DATA] Emitted → battery=${p.battery.toStringAsFixed(0)}%');
           }
         }
       });
       _charSubs.add(sub);
-      _channelIndex++;
     }
 
     print('[CONNECT] 17. Waiting 8 seconds for Muse to start streaming...');

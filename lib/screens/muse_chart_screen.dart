@@ -62,6 +62,8 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   void _onData(rust.MuseProcessedData data) {
     if (!mounted) return;
 
+    print('[DART] _onData: packetTypes=${data.packetTypes}, eeg.len=${data.eeg.length}');
+
     setState(() {
       // Handle EEG packets - accumulate ALL 12 samples for rolling buffer
       if (data.packetTypes.contains(rust.MusePacketType.eeg) &&
@@ -69,6 +71,9 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
         final int chIdx = _eegChannels.indexOf(_selectedSensor);
         if (chIdx >= 0 && chIdx < data.eeg.length) {
           final List<double> newSamples = data.eeg[chIdx]; // 12 samples!
+          if (newSamples.isNotEmpty) {
+            print('[DART] EEG $_selectedSensor ch$chIdx: ${newSamples.length} samples, first=${newSamples.first.toStringAsFixed(2)}');
+          }
 
           for (final sample in newSamples) {
             _eegHistory.add(sample);
@@ -179,6 +184,32 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
 
     return spots;
   }
+
+  /// Returns [min, max] Y bounds for the current data, with a fallback.
+  (double, double) _computeYRange() {
+    final history = _eegChannels.contains(_selectedSensor)
+        ? _eegHistory
+        : _otherSensorHistory;
+
+    if (history.isEmpty) {
+      return _defaultYRange();
+    }
+
+    double lo = history.reduce((a, b) => a < b ? a : b);
+    double hi = history.reduce((a, b) => a > b ? a : b);
+
+    // Add 10% padding and ensure a minimum span of 10
+    final span = (hi - lo).abs().clamp(10.0, double.infinity);
+    final pad = span * 0.1;
+    return (lo - pad, hi + pad);
+  }
+
+  (double, double) _defaultYRange() {
+    if (_selectedSensor == 'SpO2') return (80, 100);
+    if (_selectedSensor.startsWith('Accel') ||
+        _selectedSensor.startsWith('Gyro')) return (-5, 5);
+    return (-200, 200); // wide default for EEG μV
+  }
   // >>>
 
   @override
@@ -261,27 +292,21 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   }
 
   Widget _buildChart() {
+    final spots = _buildChartSpots();
+    final (minY, maxY) = _computeYRange();
+    final maxX = spots.isEmpty ? 256.0 : (spots.length - 1).toDouble();
+
     return Padding(
       padding: const EdgeInsets.all(12),
       child: LineChart(
         LineChartData(
           minX: 0,
-          maxX: 256,
-          minY: _selectedSensor == 'SpO2'
-              ? 80
-              : _selectedSensor.startsWith('Accel') ||
-                      _selectedSensor.startsWith('Gyro')
-                  ? -5
-                  : -100,
-          maxY: _selectedSensor == 'SpO2'
-              ? 100
-              : _selectedSensor.startsWith('Accel') ||
-                      _selectedSensor.startsWith('Gyro')
-                  ? 5
-                  : 100,
+          maxX: maxX,
+          minY: minY,
+          maxY: maxY,
           lineBarsData: [
             LineChartBarData(
-              spots: _buildChartSpots(),
+              spots: spots,
               color: Colors.cyan,
               isCurved: true,
               barWidth: 2,

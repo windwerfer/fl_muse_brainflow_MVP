@@ -10,18 +10,13 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 static MUSE_STATE: Mutex<Option<MuseState>> = Mutex::new(None);
 
-const MAX_EEG_CHANNELS: usize = 7;
 const MAX_PPG_CHANNELS: usize = 3;
 
 struct MuseState {
     model: MuseModel,
-    eeg_buffers: Vec<Vec<f64>>,
     accel_buffer: [f64; 3],
     gyro_buffer: [f64; 3],
     ppg_buffer: Vec<Vec<f64>>,
-    received_eeg_channels: Vec<bool>,
-    last_timestamp: f64,
-    last_fifth_chan_timestamp: f64,
     package_count: u16,
     initialized: bool,
     battery: f64,
@@ -29,18 +24,11 @@ struct MuseState {
 
 impl MuseState {
     fn new(model: MuseModel) -> Self {
-        let channel_count = model.channel_count();
-        let ppg_count = model.ppg_channel_count();
-
         Self {
             model,
-            eeg_buffers: vec![Vec::new(); MAX_EEG_CHANNELS],
             accel_buffer: [0.0; 3],
             gyro_buffer: [0.0; 3],
             ppg_buffer: vec![Vec::new(); MAX_PPG_CHANNELS],
-            received_eeg_channels: vec![false; MAX_EEG_CHANNELS],
-            last_timestamp: 0.0,
-            last_fifth_chan_timestamp: -1.0,
             package_count: 0,
             initialized: true,
             battery: -1.0,
@@ -88,7 +76,7 @@ pub fn parse_muse_packet(channel: i32, data: Vec<u8>) -> Vec<MuseProcessedData> 
     let mut state = MUSE_STATE.lock().unwrap();
     let muse_state = state.as_mut().unwrap();
 
-    println!("[RUST] eeg[0] called, channel={}", channel);
+    // println!("[RUST] eeg[0] called, channel={}", channel);
 
     if data.len() != 20 {
         return results;
@@ -141,83 +129,39 @@ fn parse_eeg_channel(
     let package_num = ((data[0] as u16) << 8) | (data[1] as u16);
     state.package_count = package_num;
 
-    // Track whether the optional 5th channel (RightAux) is actively streaming
-    if channel == 4 {
-        state.last_fifth_chan_timestamp = get_timestamp();
-    }
-
     let resolution = state.model.resolution();
     let samples = parse_eeg_samples(&data[2..], resolution);
-    state.eeg_buffers[channel].extend(samples);
-    state.received_eeg_channels[channel] = true;
 
-    let active_channels: usize = state
-        .received_eeg_channels
-        .iter()
-        .take(channel_count)
-        .filter(|&&x| x)
-        .count();
+    // Emit immediately per-channel (like BrainFlow): no cross-channel synchronization.
+    // Build a eeg vec with channel_count slots; only the current channel has data.
+    let mut eeg: Vec<Vec<f64>> = vec![vec![]; channel_count];
+    eeg[channel] = samples;
 
-    let current_time = get_timestamp();
-    // Match C++ logic: flush when all channels arrive, OR when all-but-one arrive
-    // and the 5th channel hasn't been seen for >1 second (disabled by default with p21 preset)
-    let all_arrived = active_channels >= channel_count;
-    let aux_timed_out = active_channels >= channel_count - 1
-        && (state.last_fifth_chan_timestamp < 0.0
-            || current_time - state.last_fifth_chan_timestamp > 1.0);
+    let signal_quality = api::calculate_signal_quality(eeg[channel].clone(), 256);
 
-    if all_arrived || aux_timed_out {
-        let eeg: Vec<Vec<f64>> = state
-            .eeg_buffers
-            .iter()
-            .take(channel_count)
-            .map(|v| v.clone())
-            .collect();
-
-        let all_eeg_flat: Vec<f64> = eeg.iter().flatten().copied().collect();
-
-        let signal_quality = api::calculate_signal_quality(all_eeg_flat.clone(), 256);
-
-        let mindfulness = api::predict_mindfulness(all_eeg_flat.clone(), 256);
-        let restfulness = api::predict_restfulness(all_eeg_flat.clone(), 256);
-
-        let band_powers = api::calculate_band_powers(all_eeg_flat, 256);
-
-        let result = MuseProcessedData {
-            eeg,
-            ppg_ir: vec![],
-            ppg_red: vec![],
-            ppg_nir: vec![],
-            spo2: None,
-            fnirs_hbo2: None,
-            fnirs_hbr: None,
-            fnirs_tsi: None,
-            accel: state.accel_buffer,
-            gyro: state.gyro_buffer,
-            timestamp: get_timestamp(),
-            battery: 0.0,
-            packet_types: vec![MusePacketType::Eeg],
-            signal_quality,
-            mindfulness,
-            restfulness,
-            alpha: band_powers.as_ref().map(|b| b.alpha),
-            beta: band_powers.as_ref().map(|b| b.beta),
-            gamma: band_powers.as_ref().map(|b| b.gamma),
-            delta: band_powers.as_ref().map(|b| b.delta),
-            theta: band_powers.as_ref().map(|b| b.theta),
-        };
-
-        for buf in &mut state.eeg_buffers {
-            buf.clear();
-        }
-        for received in &mut state.received_eeg_channels {
-            *received = false;
-        }
-
-        Some(result)
-    } else {
-        None
-    }
+    Some(MuseProcessedData {
+        eeg,
+        ppg_ir: vec![],
+        ppg_red: vec![],
+        ppg_nir: vec![],
+        spo2: None,
+        fnirs_hbo2: None,
+        fnirs_hbr: None,
+        fnirs_tsi: None,
+        accel: state.accel_buffer,
+        gyro: state.gyro_buffer,
+        timestamp: get_timestamp(),
+        battery: 0.0,
+        packet_types: vec![MusePacketType::Eeg],
+        signal_quality,
+        mindfulness: None,
+        restfulness: None,
+        alpha: None,
+        beta: None,
+        gamma: None,
+        delta: None,
+        theta: None,
+    })
 }
 
 fn parse_eeg_samples(data: &[u8], resolution: EegResolution) -> Vec<f64> {
