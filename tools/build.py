@@ -9,7 +9,8 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from doctor import doctor       # import doctor script
+
+from doctor import doctor  # import doctor script
 
 # ────────────────────────────────────────────────
 #  Constants & Helpers
@@ -60,12 +61,23 @@ def clean():
 
 
 def super_clean():
-    print("🧼 SUPER CLEAN...")
+    print("🧼 Full Clean...")
     rm(PROJECT_ROOT / "lib/src/rust")
     rm(RUST_DIR / "src/frb_generated.rs")
     rm(PROJECT_ROOT / ".dart_tool")
     rm(PROJECT_ROOT / "build")
-    # .flutter-plugins* usually safe to skip or rm if exists
+    for p in PROJECT_ROOT.glob(".flutter-plugins*"):
+        rm(p)
+    run(["flutter", "clean"])
+    run(["cargo", "clean", "-p", "rust_lib_fl_muse_brainflow_mvp"], cwd=RUST_DIR)
+
+
+def full_clean():
+    print("🧼 Full Clean...")
+    rm(PROJECT_ROOT / "lib/src/rust")
+    rm(RUST_DIR / "src/frb_generated.rs")
+    rm(PROJECT_ROOT / ".dart_tool")
+    rm(PROJECT_ROOT / "build")
     for p in PROJECT_ROOT.glob(".flutter-plugins*"):
         rm(p)
     run(["flutter", "clean"])
@@ -109,73 +121,71 @@ def regenerate_frb():
     run(["flutter_rust_bridge_codegen", "generate"])
 
 
+def _run_flutter(device):
+    run(["flutter", "run", "-d", device])
+
+
+def _build_clean_run(clean_fn, build_fn, device):
+    clean_fn()
+    regenerate_frb()
+    build_fn()
+    run(["flutter", "pub", "get"])
+    _run_flutter(device)
+
+
+def _build_and_run(build_fn, device):
+    build_fn()
+    _run_flutter(device)
+
+
+def _clean_build_run(clean_fn, device):
+    clean_fn()
+    run(["flutter", "pub", "get"])
+    _run_flutter(device)
+
 
 def help_text():
     print("""
 Commands:
-  a                  → build & run Android
-  ac                 → clean + Android
-  acc                → super clean + Android
+  a                   → build & run Android
+  ac                  → clean + Android
+  acc                 → clean + regen FRB + Android
+  accc                → full cargo clean + regen FRB + Android
 
-  l                  → build & run Linux
-  lc                 → clean + Linux
-  lcc                → super clean + Linux
+  l                   → build & run Linux
+  lc                  → clean + Linux
+  lcc                 → clean + regen FRB + Linux
+  lccc                → full cargo clean + regen FRB + Linux
 
-  w                  → run Windows
-  wc                 → clean + Windows
-  wcc                → super clean + Windows
+  w                   → run Windows
+  wc                  → clean + Windows
+  wcc                 → clean + regen FRB + Windows
+  wccc                → full cargo clean + regen FRB + Windows
 
-  clean                      → flutter + cargo clean
-  super-clean                → deep clean
-  f                          → regenerate FRB
-  doctor                     → health check
-  help                       → this help
+  clean               → flutter + cargo clean (package)
+  super-clean         → deep clean (full cargo)
+  f                   → regenerate FRB
+  doctor              → health check
+  help                → this help
 """)
 
 
 COMMANDS = {
-    "a": lambda: (build_rust_android(), run(["flutter", "run", "-d", "android"])),
-    "ac": lambda: (
-        clean(),
-        build_rust_android(),
-        run(["flutter", "pub", "get"]),
-        run(["flutter", "run", "-d", "android"]),
-    ),
-    "acc": lambda: (
-        super_clean(),
-        regenerate_frb(),
-        build_rust_android(),
-        run(["flutter", "pub", "get"]),
-        run(["flutter", "run", "-d", "android"]),
-    ),
-    "l": lambda: (build_rust(), run(["flutter", "run", "-d", "linux"])),
-    "lc": lambda: (
-        clean(),
-        run(["flutter", "pub", "get"]),
-        run(["flutter", "run", "-d", "linux"]),
-    ),
-    "lcc": lambda: (
-        super_clean(),
-        regenerate_frb(),
-        build_rust(),
-        run(["flutter", "pub", "get"]),
-        run(["flutter", "run", "-d", "linux"]),
-    ),
-    "w": lambda: run(["flutter", "run", "-d", "windows"]),
-    "wc": lambda: (
-        clean(),
-        run(["flutter", "pub", "get"]),
-        run(["flutter", "run", "-d", "windows"]),
-    ),
-    "wcc": lambda: (
-        super_clean(),
-        regenerate_frb(),
-        build_rust(),
-        run(["flutter", "pub", "get"]),
-        run(["flutter", "run", "-d", "windows"]),
-    ),
+    "a": lambda: _build_and_run(build_rust_android, "android"),
+    "ac": lambda: _clean_build_run(clean, "android"),
+    "acc": lambda: _build_clean_run(super_clean, build_rust_android, "android"),
+    "accc": lambda: _build_clean_run(full_clean, build_rust_android, "android"),
+    "l": lambda: _build_and_run(build_rust, "linux"),
+    "lc": lambda: _clean_build_run(clean, "linux"),
+    "lcc": lambda: _build_clean_run(super_clean, build_rust, "linux"),
+    "lccc": lambda: _build_clean_run(full_clean, build_rust, "linux"),
+    "w": lambda: _run_flutter("windows"),
+    "wc": lambda: _clean_build_run(clean, "windows"),
+    "wcc": lambda: _build_clean_run(super_clean, build_rust, "windows"),
+    "wccc": lambda: _build_clean_run(full_clean, build_rust, "windows"),
     "clean": clean,
     "super-clean": super_clean,
+    "full_clean": full_clean,
     "f": regenerate_frb,
     "doctor": doctor,
     "help": help_text,
