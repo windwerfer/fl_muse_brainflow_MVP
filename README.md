@@ -19,9 +19,10 @@ current state:
                  tested     implemented   reimplemented from       Android     Linux    Win
 Muse 2016                        x           (brainflow)
 Muse 2                           x           (brainflow)
-Muse S                           x           (brainflow)
-Muse S Athena                    x           (amuse)
+Muse S                           x           (brainflow)                          *
+Muse S Athena                                (amuse)
 
+* = connects to muse and displays eeg on graph
 
 # Goal?
 
@@ -65,6 +66,7 @@ Requirements (Linux/Win):
  - git 
  - rust [https://rustup.rs/] 
  - flutter 
+ - python (only for build script)
  
 Additionally for Android: 
  - Java JDK (tested with v21) 
@@ -86,34 +88,37 @@ rustup target add aarch64-linux-android armv7-linux-androideabi
 
 
 test if everything is there (its just a small script that checks if all tools are available). 
-(you need flutter/dart to be installed before you can run this)
+(you need python3 installed to run the build scripts)
 ```bash
-dart tools/build.dart doctor
+python3 tools/build.py doctor
 ```
 
 first run
 ```bash
 # for android:
-dart tools/build.dart  acc
+python3 tools/build.py  acc
 
 # for linux:
-dart tools/build.dart  lcc
+python3 tools/build.py  lcc
 
 # for Windows:
-dart tools/build.dart  wcc
+python3 tools/build.py  wcc
 ```
 
 commands to rebuild/run normally
 ```bash
-dart tools/build.dart  a          # normal run  for Android
-dart tools/build.dart  ac         # clean + Android
-dart tools/build.dart  acc        # super-clean + Android   ← most used when something is broken
+python3 tools/build.py  a          # normal run  for Android
+python3 tools/build.py  ac         # clean + Android
+python3 tools/build.py  acc        # super-clean + Android   ← most used when something is broken
+python3 tools/build.py  accc       # full clean (rebuilds all rust libs) - takes long and is very rarely needed
 
-dart tools/build.dart  l          # normal run  for Linux
-dart tools/build.dart  lc
-dart tools/build.dart  lcc
+python3 tools/build.py  l          # normal run  for Linux
+python3 tools/build.py  lc
+python3 tools/build.py  lcc
+python3 tools/build.py  lccc
 
-dart tools/build.dart  w          # normal run  for Linux
-dart tools/build.dart  wc
-dart tools/build.dart  wcc
+python3 tools/build.py  w          # normal run  for Linux
+python3 tools/build.py  wc
+python3 tools/build.py  wcc
+python3 tools/build.py  wccc
 ```
