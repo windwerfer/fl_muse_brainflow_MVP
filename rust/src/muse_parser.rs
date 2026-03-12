@@ -59,11 +59,12 @@ pub fn init_muse_parser(model: MuseModel) {
 
 #[frb]
 pub fn parse_muse_packet(channel: i32, data: Vec<u8>) -> Vec<MuseProcessedData> {
-    info!(
-        "[RUST] parse_muse_packet called, channel={}, data_len={}",
-        channel,
-        data.len()
-    );
+    // uncomment to see when packages arrive from muse_ble_service.dart
+    // info!(
+    //     "[RUST] parse_muse_packet called, channel={}, data_len={}",
+    //     channel,
+    //     data.len()
+    // );
     let mut results = Vec::new();
 
     {
