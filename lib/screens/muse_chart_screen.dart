@@ -62,7 +62,7 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   void _onData(rust.MuseProcessedData data) {
     if (!mounted) return;
 
-    print('[DART] _onData: packetTypes=${data.packetTypes}, eeg.len=${data.eeg.length}');
+    // print('[DART] _onData: packetTypes=${data.packetTypes}, eeg.len=${data.eeg.length}');
 
     setState(() {
       // Handle EEG packets - accumulate ALL 12 samples for rolling buffer
@@ -72,7 +72,7 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
         if (chIdx >= 0 && chIdx < data.eeg.length) {
           final List<double> newSamples = data.eeg[chIdx]; // 12 samples!
           if (newSamples.isNotEmpty) {
-            print('[DART] EEG $_selectedSensor ch$chIdx: ${newSamples.length} samples, first=${newSamples.first.toStringAsFixed(2)}');
+            // print('[DART] EEG $_selectedSensor ch$chIdx: ${newSamples.length} samples, first=${newSamples.first.toStringAsFixed(2)}');
           }
 
           for (final sample in newSamples) {
