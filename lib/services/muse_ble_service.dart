@@ -164,17 +164,21 @@ class MuseBleService {
 
     // Fixed UUID → channel index mapping (matches Rust parser expectations)
     const uuidToChannel = {
-      '273e0002': 0,  // TP9
-      '273e0003': 1,  // AF7
-      '273e0004': 2,  // AF8
-      '273e0005': 3,  // TP10
-      '273e0006': 4,  // RightAUX
-      '273e0007': 5,  // Accelerometer
-      '273e0008': 6,  // Gyro
-      '273e0009': 7,  // PPG0
-      '273e000a': 8,  // PPG1
-      '273e000b': 9,  // PPG2
+      '273e0002': 0, // LeftAux
+      '273e0003': 1, // TP9
+      '273e0004': 2, // AF7
+      '273e0005': 3, // AF8
+      '273e0006': 4, // TP10
+      '273e0007': 5, // RightAUX
+      '273e0008': 6, // REFDRL
+      '273e0009': 7, // GYRO
+      '273e000a': 8, // ACCELEROMETER
+      '273e000b': 9, // TELEMETRY
       '273e000c': 10, // Battery (if present)
+      '273e000f': 11, // PPG0
+      '273e0010': 12, // PPG1
+      '273e0011': 13, // PPG2
+      '273e0012': 14, // THERMISTOR
     };
 
     BluetoothCharacteristic? controlChar;
@@ -195,7 +199,8 @@ class MuseBleService {
             channelChars[chIdx] = char;
             print('[CONNECT] 11. Data char: $cUuid → channel $chIdx '
                 '(notify=${char.properties.notify}, indicate=${char.properties.indicate})');
-          } else if (char.properties.write || char.properties.writeWithoutResponse) {
+          } else if (char.properties.write ||
+              char.properties.writeWithoutResponse) {
             controlChar = char;
             print('[CONNECT] 12. Control char: $cUuid');
           } else {
@@ -251,6 +256,9 @@ class MuseBleService {
 
       final sub = char.onValueReceived.listen((value) async {
         if (value.isNotEmpty) {
+          // if (channelIdx == 0) {
+          //   print('[DATA] Channel $channelIdx received ${value.length} bytes');
+          // }
           final processed = await rust_parser.parseMusePacket(
               channel: channelIdx, data: value);
           for (final p in processed) {
