@@ -8,9 +8,9 @@ This is *will be* a minimal flutter implementation for the brainflow lib for Lin
 *******************
 current state:
 - flutter compiles for Linus & Android
-- flutter flutter_blue_plus is wired up (the dart lib that will handle the BLE communication) and displays Muse devices (Bug: Linux at the moment falsely removes them again after 30s)
-- Muse S / 2 / Athena code is reimplemented in Rust (untested, not yet wired together with the BLE stream from flutter_blue_plus)
-- brainflow libs are correctly placed into the build apks and can be accesed for the linux version
+- flutter flutter_blue_plus is wired up (the dart lib that will handle the BLE communication) and displays Muse devices 
+- Muse S / 2 / Athena code is reimplemented in Rust (untested, buggy, testversion)
+- brainflow libs are correctly linked into the android (apk) and linux build 
 *******************
 
 
@@ -22,7 +22,7 @@ Muse 2                           x           (brainflow)
 Muse S                           x           (brainflow)                          *
 Muse S Athena                                (amuse)
 
-* = connects to muse and displays eeg on graph
+* = connects to muse and displays eeg on graph (AF7/8 + TP10, not TP9 though)
 
 # Goal?
 
