@@ -20,7 +20,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 RUST_DIR = PROJECT_ROOT / "rust"
 ANDROID_DIR = PROJECT_ROOT / "android"
 
-ANDROID_ABIS = ["arm64-v8a", "armeabi-v7a", "x86_64"]
+ANDROID_ABIS = ["arm64-v8a", "armeabi-v7a"]  # , "x86_64"]
 
 
 def run(cmd, cwd=None, check=True):
@@ -99,6 +99,7 @@ def build_rust(mode="debug"):
 
 def build_rust_android(profile="debug"):
     print(f"🦀 Rust Android ({profile})...")
+    print("Note: Gradle handles copying - just run 'flutter build apk' or 'flutter run'")
     profile_flag = ["--release"] if profile == "release" else []
     for abi in ANDROID_ABIS:
         run(
@@ -108,8 +109,6 @@ def build_rust_android(profile="debug"):
                 "-t",
                 abi,
                 *profile_flag,
-                "-o",
-                "../android/app/src/main/jniLibs",
                 "build",
             ],
             cwd=RUST_DIR,
@@ -125,8 +124,11 @@ def build_cargo():
     run(["cargo", "build"], cwd=RUST_DIR)
 
 
-def _run_flutter(device):
-    run(["flutter", "run", "-d", device])
+def _run_flutter(device=""):
+    if device == "":
+        run(["flutter", "run"])
+    else:
+        run(["flutter", "run", "-d", device])
 
 
 def _build_clean_run(clean_fn, build_fn, device):
@@ -142,7 +144,7 @@ def _build_and_run(build_fn, device):
     _run_flutter(device)
 
 
-def _clean_build_run(clean_fn, device):
+def _clean_build_run(clean_fn, device=""):
     clean_fn()
     run(["flutter", "pub", "get"])
     _run_flutter(device)
@@ -176,10 +178,10 @@ Commands:
 
 
 COMMANDS = {
-    "a": lambda: _build_and_run(build_rust_android, "android"),
-    "ac": lambda: _clean_build_run(clean, "android"),
-    "acc": lambda: _build_clean_run(super_clean, build_rust_android, "android"),
-    "accc": lambda: _build_clean_run(full_clean, build_rust_android, "android"),
+    "a": lambda: _build_and_run(build_rust_android, ""),
+    "ac": lambda: _clean_build_run(clean, ""),
+    "acc": lambda: _build_clean_run(super_clean, build_rust_android, ""),
+    "accc": lambda: _build_clean_run(full_clean, build_rust_android, ""),
     "l": lambda: _build_and_run(build_rust, "linux"),
     "lc": lambda: _clean_build_run(clean, "linux"),
     "lcc": lambda: _build_clean_run(super_clean, build_rust, "linux"),
