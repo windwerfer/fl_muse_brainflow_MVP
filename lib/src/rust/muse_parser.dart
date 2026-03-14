@@ -14,10 +14,13 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 Future<void> initMuseParser({required MuseModel model}) =>
     RustLib.instance.api.crateMuseParserInitMuseParser(model: model);
 
-Future<List<MuseProcessedData>> parseMusePacket(
-        {required int channel, required List<int> data}) =>
-    RustLib.instance.api
-        .crateMuseParserParseMusePacket(channel: channel, data: data);
+Future<List<MuseProcessedData>> parseMusePacket({
+  required int channel,
+  required List<int> data,
+}) => RustLib.instance.api.crateMuseParserParseMusePacket(
+  channel: channel,
+  data: data,
+);
 
 Future<Uint8List> sendMuseCommand({required String command}) =>
     RustLib.instance.api.crateMuseParserSendMuseCommand(command: command);
@@ -25,7 +28,8 @@ Future<Uint8List> sendMuseCommand({required String command}) =>
 Future<MuseModel> getMuseModelFromName({required String name}) =>
     RustLib.instance.api.crateMuseParserGetMuseModelFromName(name: name);
 
-Future<List<MuseProcessedData>> parseAndProcessMusePackets(
-        {required List<Uint8List> rawPackets}) =>
-    RustLib.instance.api
-        .crateMuseParserParseAndProcessMusePackets(rawPackets: rawPackets);
+Future<List<MuseProcessedData>> parseAndProcessMusePackets({
+  required List<Uint8List> rawPackets,
+}) => RustLib.instance.api.crateMuseParserParseAndProcessMusePackets(
+  rawPackets: rawPackets,
+);
