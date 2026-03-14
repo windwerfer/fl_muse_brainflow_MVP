@@ -2,8 +2,8 @@
 
 This is *will be* a minimal flutter implementation for the brainflow lib for Linux and Android (possibly Windows later, no Mac/iOS because i dont have the hardware). Muse S and Muse 2 will be the only tested devices (since thats what i have). Its goal is to be a base / sample code for cross platform EEG tools (biofeedback / logging ..). 
 
-**this is a work in progress at the moment.. will definatly break**
-**come back next week and it should compile**
+**this is a work in progress at the moment.. **
+
 
 *******************
 current state:
@@ -19,10 +19,10 @@ current state:
                  tested     implemented   reimplemented from       Android     Linux    Win
 Muse 2016                        x           (brainflow)
 Muse 2                           x           (brainflow)
-Muse S                           x           (brainflow)                          *
+Muse S              x            x           (brainflow)              *           *
 Muse S Athena                                (amuse)
 
-* = connects to muse and displays eeg on graph (AF7/8 + TP10, not TP9 though)
+* = connects to muse and displays eeg on graph (AF7/8 + TP9/10)
 
 # Goal?
 
