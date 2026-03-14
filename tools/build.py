@@ -121,6 +121,10 @@ def regenerate_frb():
     run(["flutter_rust_bridge_codegen", "generate"])
 
 
+def build_cargo():
+    run(["cargo", "build"], cwd=RUST_DIR)
+
+
 def _run_flutter(device):
     run(["flutter", "run", "-d", device])
 
@@ -165,6 +169,7 @@ Commands:
   clean               → flutter + cargo clean (package)
   super-clean         → deep clean (full cargo)
   f                   → regenerate FRB
+  c                   → cargo build (see rust build errors)
   doctor              → health check
   help                → this help
 """)
@@ -187,6 +192,7 @@ COMMANDS = {
     "super-clean": super_clean,
     "full_clean": full_clean,
     "f": regenerate_frb,
+    "c": build_cargo,
     "doctor": doctor,
     "help": help_text,
 }

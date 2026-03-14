@@ -1,7 +1,7 @@
-import dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'ackage:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../services/muse_ble_service.dart';
 import '../src/rust/muse_types.dart' as rust;
 
@@ -38,13 +38,13 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
     'TP10',
     'RightAUX',
     'REFDRL',
-    'GYRO'
-    'ACCELEROMETER'
-    'TELEMETRY'
-    'Battery'
-    'PPG0'
-    'PPG1'
-    'PPG2'
+    'GYRO',
+    'ACCELEROMETER',
+    'TELEMETRY',
+    'Battery',
+    'PPG0',
+    'PPG1',
+    'PPG2',
     'THERMISTOR'
   ];
   static const List<String> _ppgChannels = ['PPG_IR', 'PPG_RED', 'PPG_NIR'];
