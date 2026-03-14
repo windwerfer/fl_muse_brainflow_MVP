@@ -1,7 +1,7 @@
-import 'dart:async';
+import dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'ackage:flutter_blue_plus/flutter_blue_plus.dart';
 import '../services/muse_ble_service.dart';
 import '../src/rust/muse_types.dart' as rust;
 
@@ -17,7 +17,7 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   late StreamSubscription<List<BluetoothDevice>> _devicesSub;
 
   final _scrollController = ScrollController();
-  String _selectedSensor = 'AF7'; // TP9 (ch0) not present on this device
+  String _selectedSensor = 'TP9';
   double _battery = -1;
   int _signalQuality = 0;
 
@@ -31,13 +31,21 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   // >>>
 
   static const List<String> _eegChannels = [
+    'LeftAUX',
     'TP9',
     'AF7',
     'AF8',
     'TP10',
     'RightAUX',
-    'FPz',
-    'AUX_L'
+    'REFDRL',
+    'GYRO'
+    'ACCELEROMETER'
+    'TELEMETRY'
+    'Battery'
+    'PPG0'
+    'PPG1'
+    'PPG2'
+    'THERMISTOR'
   ];
   static const List<String> _ppgChannels = ['PPG_IR', 'PPG_RED', 'PPG_NIR'];
   static const List<String> _otherSensors = [
