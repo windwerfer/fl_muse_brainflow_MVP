@@ -7,7 +7,7 @@ import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `calculate_std`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `eq`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `clone`, `eq`, `fmt`
 
 Future<String> connectToMuse({String? macAddress}) =>
     RustLib.instance.api.crateApiConnectToMuse(macAddress: macAddress);
@@ -26,37 +26,41 @@ Future<String> verifyBrainflowVersion() =>
 
 Future<String> testOutput() => RustLib.instance.api.crateApiTestOutput();
 
-Future<double> calculateSignalQuality({
-  required List<double> data,
-  required BigInt samplingRate,
-}) => RustLib.instance.api.crateApiCalculateSignalQuality(
-  data: data,
-  samplingRate: samplingRate,
-);
+Future<double> calculateSignalQuality(
+        {required List<double> data, required BigInt samplingRate}) =>
+    RustLib.instance.api
+        .crateApiCalculateSignalQuality(data: data, samplingRate: samplingRate);
 
-Future<double?> predictMindfulness({
-  required List<double> eegData,
-  required BigInt samplingRate,
-}) => RustLib.instance.api.crateApiPredictMindfulness(
-  eegData: eegData,
-  samplingRate: samplingRate,
-);
+Future<double?> predictMindfulnessFromBandPowers(
+        {required BandPowers bandPowers}) =>
+    RustLib.instance.api
+        .crateApiPredictMindfulnessFromBandPowers(bandPowers: bandPowers);
 
-Future<double?> predictRestfulness({
-  required List<double> eegData,
-  required BigInt samplingRate,
-}) => RustLib.instance.api.crateApiPredictRestfulness(
-  eegData: eegData,
-  samplingRate: samplingRate,
-);
+Future<double?> predictRestfulnessFromBandPowers(
+        {required BandPowers bandPowers}) =>
+    RustLib.instance.api
+        .crateApiPredictRestfulnessFromBandPowers(bandPowers: bandPowers);
 
-Future<BandPowers?> calculateBandPowers({
-  required List<double> eegData,
-  required BigInt samplingRate,
-}) => RustLib.instance.api.crateApiCalculateBandPowers(
-  eegData: eegData,
-  samplingRate: samplingRate,
-);
+Future<double> calculateConcentration({required BandPowers bandPowers}) =>
+    RustLib.instance.api.crateApiCalculateConcentration(bandPowers: bandPowers);
+
+Future<double> calculateRelaxation({required BandPowers bandPowers}) =>
+    RustLib.instance.api.crateApiCalculateRelaxation(bandPowers: bandPowers);
+
+Future<double?> predictMindfulness(
+        {required List<double> eegData, required BigInt samplingRate}) =>
+    RustLib.instance.api.crateApiPredictMindfulness(
+        eegData: eegData, samplingRate: samplingRate);
+
+Future<double?> predictRestfulness(
+        {required List<double> eegData, required BigInt samplingRate}) =>
+    RustLib.instance.api.crateApiPredictRestfulness(
+        eegData: eegData, samplingRate: samplingRate);
+
+Future<BandPowers?> calculateBandPowers(
+        {required List<double> eegData, required BigInt samplingRate}) =>
+    RustLib.instance.api.crateApiCalculateBandPowers(
+        eegData: eegData, samplingRate: samplingRate);
 
 class BandPowers {
   final double delta;
@@ -93,13 +97,22 @@ class BandPowers {
           gamma == other.gamma;
 }
 
-enum ConnectionStatus { disconnected, connecting, connected, error }
+enum ConnectionStatus {
+  disconnected,
+  connecting,
+  connected,
+  error,
+  ;
+}
 
 class EegData {
   final Uint64List channels;
   final List<Float64List> data;
 
-  const EegData({required this.channels, required this.data});
+  const EegData({
+    required this.channels,
+    required this.data,
+  });
 
   @override
   int get hashCode => channels.hashCode ^ data.hashCode;

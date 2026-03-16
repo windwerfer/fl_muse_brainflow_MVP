@@ -202,10 +202,20 @@ fn calculate_std(data: &[f64]) -> f64 {
 }
 
 #[frb]
-pub fn predict_mindfulness(eeg_data: Vec<f64>, sampling_rate: usize) -> Option<f64> {
-    if eeg_data.len() < 256 {
-        return None;
-    }
+pub fn predict_mindfulness_from_band_powers(band_powers: BandPowers) -> Option<f64> {
+    info!("[API] predict_mindfulness_from_band_powers called");
+    
+    // Create feature vector from band powers
+    // Format: [delta, theta, alpha, beta, gamma] for each channel
+    // Since we have 1 aggregated value per band, we duplicate for all 4 EEG channels
+    let mut feature_vector = vec![
+        band_powers.delta, band_powers.theta, band_powers.alpha, band_powers.beta, band_powers.gamma,
+        band_powers.delta, band_powers.theta, band_powers.alpha, band_powers.beta, band_powers.gamma,
+        band_powers.delta, band_powers.theta, band_powers.alpha, band_powers.beta, band_powers.gamma,
+        band_powers.delta, band_powers.theta, band_powers.alpha, band_powers.beta, band_powers.gamma,
+    ];
+    
+    info!("[API] Feature vector created: {:?}", feature_vector);
 
     let params = BrainFlowModelParamsBuilder::new()
         .metric(BrainFlowMetrics::Mindfulness)
@@ -214,26 +224,40 @@ pub fn predict_mindfulness(eeg_data: Vec<f64>, sampling_rate: usize) -> Option<f
 
     match brainflow::ml_model::MlModel::new(params) {
         Ok(mut model) => {
+            info!("[API] MlModel created, preparing...");
             if model.prepare().is_ok() {
-                let mut data = eeg_data;
-                if let Ok(result) = model.predict(&mut data) {
+                info!("[API] Model prepared, predicting...");
+                if let Ok(result) = model.predict(&mut feature_vector) {
+                    info!("[API] Prediction result: {:?}", result);
                     if let Some(&score) = result.first() {
                         return Some(score.clamp(0.0, 100.0));
                     }
+                } else {
+                    info!("[API] Prediction failed");
                 }
+            } else {
+                info!("[API] Model prepare failed");
             }
         }
-        Err(_) => {}
+        Err(e) => {
+            info!("[API] MlModel creation failed: {:?}", e);
+        }
     }
     None
 }
 
 #[frb]
-pub fn predict_restfulness(eeg_data: Vec<f64>, sampling_rate: usize) -> Option<f64> {
-    if eeg_data.len() < 256 {
-        return None;
-    }
-
+pub fn predict_restfulness_from_band_powers(band_powers: BandPowers) -> Option<f64> {
+    info!("[API] predict_restfulness_from_band_powers called");
+    
+    // Create feature vector from band powers (same format)
+    let mut feature_vector = vec![
+        band_powers.delta, band_powers.theta, band_powers.alpha, band_powers.beta, band_powers.gamma,
+        band_powers.delta, band_powers.theta, band_powers.alpha, band_powers.beta, band_powers.gamma,
+        band_powers.delta, band_powers.theta, band_powers.alpha, band_powers.beta, band_powers.gamma,
+        band_powers.delta, band_powers.theta, band_powers.alpha, band_powers.beta, band_powers.gamma,
+    ];
+    
     let params = BrainFlowModelParamsBuilder::new()
         .metric(BrainFlowMetrics::Restfulness)
         .classifier(BrainFlowClassifiers::DefaultClassifier)
@@ -241,21 +265,86 @@ pub fn predict_restfulness(eeg_data: Vec<f64>, sampling_rate: usize) -> Option<f
 
     match brainflow::ml_model::MlModel::new(params) {
         Ok(mut model) => {
+            info!("[API] Restfulness MlModel created, preparing...");
             if model.prepare().is_ok() {
-                let mut data = eeg_data;
-                if let Ok(result) = model.predict(&mut data) {
+                info!("[API] Restfulness model prepared, predicting...");
+                if let Ok(result) = model.predict(&mut feature_vector) {
+                    info!("[API] Restfulness prediction result: {:?}", result);
                     if let Some(&score) = result.first() {
                         return Some(score.clamp(0.0, 100.0));
                     }
+                } else {
+                    info!("[API] Restfulness prediction failed");
                 }
+            } else {
+                info!("[API] Restfulness model prepare failed");
             }
         }
-        Err(_) => {}
+        Err(e) => {
+            info!("[API] Restfulness MlModel creation failed: {:?}", e);
+        }
     }
     None
 }
 
+// Band-power-ratio-based concentration metric (no ML model needed)
+// Concentration = Beta / (Alpha + Theta) - higher beta = more focused
+// Returns 0-100 scale
 #[frb]
+pub fn calculate_concentration(band_powers: BandPowers) -> f64 {
+    let alpha = band_powers.alpha;
+    let beta = band_powers.beta;
+    let theta = band_powers.theta;
+    
+    // Avoid division by zero
+    let denominator = alpha + theta;
+    if denominator <= 0.0 {
+        return 50.0; // neutral value
+    }
+    
+    let ratio = beta / denominator;
+    // Scale to 0-100 (ratio of 1.0 = 50%, ratio of 3.0 = 100%)
+    let concentration = (ratio * 33.33).clamp(0.0, 100.0);
+    
+    info!("[API] Concentration: beta={}, alpha={}, theta={}, ratio={}, concentration={}", 
+          beta, alpha, theta, ratio, concentration);
+    concentration
+}
+
+// Band-power-ratio-based relaxation metric
+// Relaxation = Alpha / Beta - higher alpha = more relaxed
+#[frb]
+pub fn calculate_relaxation(band_powers: BandPowers) -> f64 {
+    let alpha = band_powers.alpha;
+    let beta = band_powers.beta;
+    
+    if beta <= 0.0 {
+        return 50.0;
+    }
+    
+    let ratio = alpha / beta;
+    let relaxation = (ratio * 33.33).clamp(0.0, 100.0);
+    
+    info!("[API] Relaxation: alpha={}, beta={}, ratio={}, relaxation={}", 
+          alpha, beta, ratio, relaxation);
+    relaxation
+}
+
+// Keep old signatures for FRB compatibility (deprecated - use from_band_powers versions)
+#[frb]
+pub fn predict_mindfulness(eeg_data: Vec<f64>, sampling_rate: usize) -> Option<f64> {
+    info!("[API] predict_mindfulness called with {} samples (deprecated)", eeg_data.len());
+    None
+}
+
+#[frb]
+pub fn predict_restfulness(eeg_data: Vec<f64>, sampling_rate: usize) -> Option<f64> {
+    info!("[API] predict_restfulness called with {} samples (deprecated)", eeg_data.len());
+    None
+}
+
+#[frb]
+#[derive(Clone)]
 pub struct BandPowers {
     pub delta: f64,
     pub theta: f64,

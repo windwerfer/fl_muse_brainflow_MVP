@@ -105,6 +105,8 @@ pub struct MuseProcessedData {
     pub signal_quality: f64,
     pub mindfulness: Option<f64>,
     pub restfulness: Option<f64>,
+    pub concentration: Option<f64>,
+    pub relaxation: Option<f64>,
     pub alpha: Option<f64>,
     pub beta: Option<f64>,
     pub gamma: Option<f64>,

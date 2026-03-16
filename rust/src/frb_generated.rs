@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -607856742;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 381858450;
 
 // Section: executor
 
@@ -76,6 +76,74 @@ fn wire__crate__api__calculate_band_powers_impl(
                         api_eeg_data,
                         api_sampling_rate,
                     ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__calculate_concentration_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "calculate_concentration",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_band_powers = <crate::api::BandPowers>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::calculate_concentration(api_band_powers))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__calculate_relaxation_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "calculate_relaxation",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_band_powers = <crate::api::BandPowers>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::calculate_relaxation(api_band_powers))?;
                     Ok(output_ok)
                 })())
             }
@@ -745,6 +813,41 @@ fn wire__crate__api__predict_mindfulness_impl(
         },
     )
 }
+fn wire__crate__api__predict_mindfulness_from_band_powers_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "predict_mindfulness_from_band_powers",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_band_powers = <crate::api::BandPowers>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::api::predict_mindfulness_from_band_powers(api_band_powers),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__predict_restfulness_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -776,6 +879,41 @@ fn wire__crate__api__predict_restfulness_impl(
                         api_eeg_data,
                         api_sampling_rate,
                     ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__predict_restfulness_from_band_powers_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "predict_restfulness_from_band_powers",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_band_powers = <crate::api::BandPowers>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::api::predict_restfulness_from_band_powers(api_band_powers),
+                    )?;
                     Ok(output_ok)
                 })())
             }
@@ -1129,6 +1267,8 @@ impl SseDecode for crate::muse_types::MuseProcessedData {
         let mut var_signalQuality = <f64>::sse_decode(deserializer);
         let mut var_mindfulness = <Option<f64>>::sse_decode(deserializer);
         let mut var_restfulness = <Option<f64>>::sse_decode(deserializer);
+        let mut var_concentration = <Option<f64>>::sse_decode(deserializer);
+        let mut var_relaxation = <Option<f64>>::sse_decode(deserializer);
         let mut var_alpha = <Option<f64>>::sse_decode(deserializer);
         let mut var_beta = <Option<f64>>::sse_decode(deserializer);
         let mut var_gamma = <Option<f64>>::sse_decode(deserializer);
@@ -1151,6 +1291,8 @@ impl SseDecode for crate::muse_types::MuseProcessedData {
             signal_quality: var_signalQuality,
             mindfulness: var_mindfulness,
             restfulness: var_restfulness,
+            concentration: var_concentration,
+            relaxation: var_relaxation,
             alpha: var_alpha,
             beta: var_beta,
             gamma: var_gamma,
@@ -1222,61 +1364,75 @@ fn pde_ffi_dispatcher_primary_impl(
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
         1 => wire__crate__api__calculate_band_powers_impl(port, ptr, rust_vec_len, data_len),
-        2 => wire__crate__api__calculate_signal_quality_impl(port, ptr, rust_vec_len, data_len),
-        3 => wire__crate__api__connect_to_muse_impl(port, ptr, rust_vec_len, data_len),
-        4 => wire__crate__api__disconnect_muse_impl(port, ptr, rust_vec_len, data_len),
-        5 => wire__crate__muse_types__eeg_resolution_offset_impl(port, ptr, rust_vec_len, data_len),
-        6 => wire__crate__muse_types__eeg_resolution_scale_factor_impl(
+        2 => wire__crate__api__calculate_concentration_impl(port, ptr, rust_vec_len, data_len),
+        3 => wire__crate__api__calculate_relaxation_impl(port, ptr, rust_vec_len, data_len),
+        4 => wire__crate__api__calculate_signal_quality_impl(port, ptr, rust_vec_len, data_len),
+        5 => wire__crate__api__connect_to_muse_impl(port, ptr, rust_vec_len, data_len),
+        6 => wire__crate__api__disconnect_muse_impl(port, ptr, rust_vec_len, data_len),
+        7 => wire__crate__muse_types__eeg_resolution_offset_impl(port, ptr, rust_vec_len, data_len),
+        8 => wire__crate__muse_types__eeg_resolution_scale_factor_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        7 => wire__crate__api__get_connection_status_impl(port, ptr, rust_vec_len, data_len),
-        8 => wire__crate__api__get_latest_data_impl(port, ptr, rust_vec_len, data_len),
-        9 => wire__crate__muse_parser__get_muse_model_from_name_impl(
+        9 => wire__crate__api__get_connection_status_impl(port, ptr, rust_vec_len, data_len),
+        10 => wire__crate__api__get_latest_data_impl(port, ptr, rust_vec_len, data_len),
+        11 => wire__crate__muse_parser__get_muse_model_from_name_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        10 => wire__crate__api__init_app_impl(port, ptr, rust_vec_len, data_len),
-        11 => wire__crate__muse_parser__init_muse_parser_impl(port, ptr, rust_vec_len, data_len),
-        12 => wire__crate__muse_types__muse_model_channel_count_impl(
+        12 => wire__crate__api__init_app_impl(port, ptr, rust_vec_len, data_len),
+        13 => wire__crate__muse_parser__init_muse_parser_impl(port, ptr, rust_vec_len, data_len),
+        14 => wire__crate__muse_types__muse_model_channel_count_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        13 => wire__crate__muse_types__muse_model_has_fnirs_impl(port, ptr, rust_vec_len, data_len),
-        14 => wire__crate__muse_types__muse_model_has_ppg_impl(port, ptr, rust_vec_len, data_len),
-        15 => wire__crate__muse_types__muse_model_ppg_channel_count_impl(
+        15 => wire__crate__muse_types__muse_model_has_fnirs_impl(port, ptr, rust_vec_len, data_len),
+        16 => wire__crate__muse_types__muse_model_has_ppg_impl(port, ptr, rust_vec_len, data_len),
+        17 => wire__crate__muse_types__muse_model_ppg_channel_count_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        16 => {
+        18 => {
             wire__crate__muse_types__muse_model_resolution_impl(port, ptr, rust_vec_len, data_len)
         }
-        17 => wire__crate__muse_types__muse_processed_data_default_impl(
+        19 => wire__crate__muse_types__muse_processed_data_default_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        18 => wire__crate__muse_parser__parse_and_process_muse_packets_impl(
+        20 => wire__crate__muse_parser__parse_and_process_muse_packets_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        19 => wire__crate__muse_parser__parse_muse_packet_impl(port, ptr, rust_vec_len, data_len),
-        20 => wire__crate__api__predict_mindfulness_impl(port, ptr, rust_vec_len, data_len),
-        21 => wire__crate__api__predict_restfulness_impl(port, ptr, rust_vec_len, data_len),
-        22 => wire__crate__muse_parser__send_muse_command_impl(port, ptr, rust_vec_len, data_len),
-        23 => wire__crate__api__test_output_impl(port, ptr, rust_vec_len, data_len),
-        24 => wire__crate__api__verify_brainflow_version_impl(port, ptr, rust_vec_len, data_len),
+        21 => wire__crate__muse_parser__parse_muse_packet_impl(port, ptr, rust_vec_len, data_len),
+        22 => wire__crate__api__predict_mindfulness_impl(port, ptr, rust_vec_len, data_len),
+        23 => wire__crate__api__predict_mindfulness_from_band_powers_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        24 => wire__crate__api__predict_restfulness_impl(port, ptr, rust_vec_len, data_len),
+        25 => wire__crate__api__predict_restfulness_from_band_powers_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        26 => wire__crate__muse_parser__send_muse_command_impl(port, ptr, rust_vec_len, data_len),
+        27 => wire__crate__api__test_output_impl(port, ptr, rust_vec_len, data_len),
+        28 => wire__crate__api__verify_brainflow_version_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -1441,6 +1597,8 @@ impl flutter_rust_bridge::IntoDart for crate::muse_types::MuseProcessedData {
             self.signal_quality.into_into_dart().into_dart(),
             self.mindfulness.into_into_dart().into_dart(),
             self.restfulness.into_into_dart().into_dart(),
+            self.concentration.into_into_dart().into_dart(),
+            self.relaxation.into_into_dart().into_dart(),
             self.alpha.into_into_dart().into_dart(),
             self.beta.into_into_dart().into_dart(),
             self.gamma.into_into_dart().into_dart(),
@@ -1695,6 +1853,8 @@ impl SseEncode for crate::muse_types::MuseProcessedData {
         <f64>::sse_encode(self.signal_quality, serializer);
         <Option<f64>>::sse_encode(self.mindfulness, serializer);
         <Option<f64>>::sse_encode(self.restfulness, serializer);
+        <Option<f64>>::sse_encode(self.concentration, serializer);
+        <Option<f64>>::sse_encode(self.relaxation, serializer);
         <Option<f64>>::sse_encode(self.alpha, serializer);
         <Option<f64>>::sse_encode(self.beta, serializer);
         <Option<f64>>::sse_encode(self.gamma, serializer);

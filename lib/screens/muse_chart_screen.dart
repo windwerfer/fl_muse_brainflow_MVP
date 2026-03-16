@@ -53,6 +53,8 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
     'Signal',
     'Mindfulness',
     'Restfulness',
+    'Concentration',
+    'Relaxation',
     'Alpha',
     'Beta',
     'Gamma',
@@ -103,6 +105,11 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
         _otherSensorHistory.add(data.mindfulness!);
       } else if (_selectedSensor == 'Restfulness' && data.restfulness != null) {
         _otherSensorHistory.add(data.restfulness!);
+      } else if (_selectedSensor == 'Concentration' &&
+          data.concentration != null) {
+        _otherSensorHistory.add(data.concentration!);
+      } else if (_selectedSensor == 'Relaxation' && data.relaxation != null) {
+        _otherSensorHistory.add(data.relaxation!);
       } else if (_selectedSensor == 'Alpha' && data.alpha != null) {
         _otherSensorHistory.add(data.alpha!);
       } else if (_selectedSensor == 'Beta' && data.beta != null) {
