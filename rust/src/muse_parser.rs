@@ -15,6 +15,7 @@ const MAX_PPG_CHANNELS: usize = 3;
 struct MuseState {
     model: MuseModel,
     eeg_buffers: Vec<Vec<f64>>,
+    eeg_accumulator: Vec<Vec<f64>>, // Rolling buffer for band powers (256+ samples)
     accel_buffer: [f64; 3],
     gyro_buffer: [f64; 3],
     ppg_buffer: Vec<Vec<f64>>,
@@ -29,6 +30,7 @@ impl MuseState {
         Self {
             model,
             eeg_buffers: vec![Vec::new(); channel_count],
+            eeg_accumulator: vec![Vec::new(); channel_count], // Initialize accumulator
             accel_buffer: [0.0; 3],
             gyro_buffer: [0.0; 3],
             ppg_buffer: vec![Vec::new(); MAX_PPG_CHANNELS],
@@ -127,6 +129,10 @@ fn parse_eeg_channel(
 ) -> Option<MuseProcessedData> {
     let channel_count = state.channel_count();
     if channel >= channel_count {
+        info!(
+            "[RUST] Channel {} >= channel_count {}, skipping",
+            channel, channel_count
+        );
         return None;
     }
 
@@ -136,35 +142,99 @@ fn parse_eeg_channel(
     let resolution = state.model.resolution();
     let new_samples = parse_eeg_samples(&data[2..], resolution);
 
-    // Update buffer with the latest batch for this channel
+    info!(
+        "[RUST] Channel {}: got {} new samples, accumulator len before: {}",
+        channel,
+        new_samples.len(),
+        state.eeg_accumulator[channel].len()
+    );
+
+    // Update buffer with the latest batch for this channel (for immediate EEG display)
     state.eeg_buffers[channel] = new_samples.clone();
+
+    // ACCUMULATE samples for band power calculation (rolling window)
+    state.eeg_accumulator[channel].extend_from_slice(&new_samples);
+    // Keep rolling window of 256 samples per channel (1 second at 256Hz)
+    const MAX_ACCUMULATOR: usize = 256;
+    if state.eeg_accumulator[channel].len() > MAX_ACCUMULATOR {
+        let excess = state.eeg_accumulator[channel].len() - MAX_ACCUMULATOR;
+        state.eeg_accumulator[channel].drain(0..excess);
+    }
+
+    info!(
+        "[RUST] Channel {}: accumulator len after: {}",
+        channel,
+        state.eeg_accumulator[channel].len()
+    );
+
+    // Check if ANY channel has enough samples for band power calculation
+    // (not ALL channels - some like LeftAUX may not be streaming by default)
+    let max_accumulator = state
+        .eeg_accumulator
+        .iter()
+        .map(|v| v.len())
+        .max()
+        .unwrap_or(0);
+
+    let channels_with_data: Vec<usize> = state
+        .eeg_accumulator
+        .iter()
+        .enumerate()
+        .filter(|(_, v)| !v.is_empty())
+        .map(|(i, _)| i)
+        .collect();
+
+    info!(
+        "[RUST] Max accumulator: {}, channels with data: {:?}",
+        max_accumulator, channels_with_data
+    );
 
     // Build FULL rectangular eeg vector: latest known samples for EVERY channel
     let mut full_eeg: Vec<Vec<f64>> = Vec::with_capacity(channel_count);
     for i in 0..channel_count {
         if state.eeg_buffers[i].is_empty() {
-            // Channel never received data → fill with zeros (BrainFlow-style: full matrix always)
-            // Alternative: vec![f64::NAN; 12] if you want to signal "invalid"
             full_eeg.push(vec![0.0; new_samples.len()]);
         } else {
-            // Use the most recent batch received for this channel
             full_eeg.push(state.eeg_buffers[i].clone());
         }
     }
 
-    // Optional: flatten for processing (signal quality, band powers, etc.)
-    let all_eeg_flat: Vec<f64> = full_eeg.iter().flatten().copied().collect();
+    // Calculate band powers only when we have enough accumulated samples
+    let (signal_quality, mindfulness, restfulness, band_powers) = if max_accumulator >= 256 {
+        info!(
+            "[RUST] Buffer full ({} samples), calling BrainFlow calculate_band_powers",
+            max_accumulator
+        );
 
-    let signal_quality = api::calculate_signal_quality(all_eeg_flat.clone(), 256);
-    let mindfulness = api::predict_mindfulness(all_eeg_flat.clone(), 256);
-    let restfulness = api::predict_restfulness(all_eeg_flat.clone(), 256);
-    let band_powers = api::calculate_band_powers(all_eeg_flat, 256);
+        let all_eeg_flat: Vec<f64> = state.eeg_accumulator.iter().flatten().copied().collect();
+        info!("[RUST] Flattened EEG size: {}", all_eeg_flat.len());
+
+        let sq = api::calculate_signal_quality(all_eeg_flat.clone(), 256);
+        let mind = api::predict_mindfulness(all_eeg_flat.clone(), 256);
+        let rest = api::predict_restfulness(all_eeg_flat.clone(), 256);
+        let bp = api::calculate_band_powers(all_eeg_flat, 256);
+
+        info!(
+            "[RUST] Band powers result: alpha={:?}, beta={:?}, delta={:?}, theta={:?}",
+            bp.as_ref().map(|b| b.alpha),
+            bp.as_ref().map(|b| b.beta),
+            bp.as_ref().map(|b| b.delta),
+            bp.as_ref().map(|b| b.theta)
+        );
+
+        (sq, mind, rest, bp)
+    } else {
+        // Not enough samples yet - use last known values or defaults
+        let all_eeg_flat: Vec<f64> = full_eeg.iter().flatten().copied().collect();
+        let sq = api::calculate_signal_quality(all_eeg_flat.clone(), 256);
+        (sq, None, None, None)
+    };
 
     // Timestamp with simple drift correction (package_num / sampling rate)
     let timestamp = get_timestamp() - (package_num as f64 / 256.0);
 
     let result = MuseProcessedData {
-        eeg: full_eeg, // now always full rectangular!
+        eeg: full_eeg,
         ppg_ir: vec![],
         ppg_red: vec![],
         ppg_nir: vec![],
@@ -186,9 +256,6 @@ fn parse_eeg_channel(
         delta: band_powers.as_ref().map(|b| b.delta),
         theta: band_powers.as_ref().map(|b| b.theta),
     };
-
-    // Do NOT clear buffers — keep latest for next emission
-    // This ensures full vector even if some channels are slow
 
     Some(result)
 }

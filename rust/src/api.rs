@@ -266,7 +266,10 @@ pub struct BandPowers {
 
 #[frb]
 pub fn calculate_band_powers(eeg_data: Vec<f64>, sampling_rate: usize) -> Option<BandPowers> {
+    info!("[API] calculate_band_powers called with {} samples, sampling_rate {}", eeg_data.len(), sampling_rate);
+    
     if eeg_data.len() < 256 {
+        info!("[API] Not enough samples: {} < 256", eeg_data.len());
         return None;
     }
 
@@ -276,6 +279,7 @@ pub fn calculate_band_powers(eeg_data: Vec<f64>, sampling_rate: usize) -> Option
 
     match data_filter::get_psd(&mut data, sampling_rate, window) {
         Ok(psd) => {
+            info!("[API] PSD calculated successfully");
             let bands = vec![
                 Band {
                     freq_start: 1.0,
