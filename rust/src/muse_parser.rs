@@ -200,7 +200,7 @@ fn parse_eeg_channel(
     }
 
     // Calculate band powers only when we have enough accumulated samples
-    let (sq, mind, rest, concentration, relaxation, band_powers) = if max_accumulator >= 256 {
+    let (sq, concentration, relaxation, band_powers) = if max_accumulator >= 256 {
         info!(
             "[RUST] Buffer full ({} samples), calling BrainFlow calculate_band_powers",
             max_accumulator
@@ -220,17 +220,7 @@ fn parse_eeg_channel(
             bp.as_ref().map(|b| b.theta)
         );
 
-        // Use band powers for ML predictions (may fail if ML model files missing)
-        let mind = bp
-            .as_ref()
-            .map(|bands| api::predict_mindfulness_from_band_powers(bands.clone()))
-            .flatten();
-        let rest = bp
-            .as_ref()
-            .map(|bands| api::predict_restfulness_from_band_powers(bands.clone()))
-            .flatten();
-
-        // Also calculate band-power-ratio based metrics (always available)
+        // Calculate band-power-ratio based metrics (always available)
         let concentration = bp
             .as_ref()
             .map(|bands| api::calculate_concentration(bands.clone()));
@@ -243,12 +233,12 @@ fn parse_eeg_channel(
             concentration, relaxation
         );
 
-        (sq, mind, rest, concentration, relaxation, bp)
+        (sq, concentration, relaxation, bp)
     } else {
         // Not enough samples yet - use last known values or defaults
         let all_eeg_flat: Vec<f64> = full_eeg.iter().flatten().copied().collect();
         let sq = api::calculate_signal_quality(all_eeg_flat.clone(), 256);
-        (sq, None, None, None, None, None)
+        (sq, None, None, None)
     };
 
     // Timestamp with simple drift correction (package_num / sampling rate)
@@ -269,8 +259,6 @@ fn parse_eeg_channel(
         battery: 0.0,
         packet_types: vec![MusePacketType::Eeg],
         signal_quality: sq,
-        mindfulness: mind,
-        restfulness: rest,
         concentration,
         relaxation,
         alpha: band_powers.as_ref().map(|b| b.alpha),
@@ -328,8 +316,6 @@ fn parse_accel_data(state: &mut MuseState, data: &[u8]) -> Option<MuseProcessedD
         battery: 0.0,
         packet_types: vec![MusePacketType::Accel],
         signal_quality: 100.0,
-        mindfulness: None,
-        restfulness: None,
         concentration: None,
         relaxation: None,
         alpha: None,
@@ -366,8 +352,6 @@ fn parse_gyro_data(state: &mut MuseState, data: &[u8]) -> Option<MuseProcessedDa
         battery: 0.0,
         packet_types: vec![MusePacketType::Gyro],
         signal_quality: 100.0,
-        mindfulness: None,
-        restfulness: None,
         concentration: None,
         relaxation: None,
         alpha: None,
@@ -402,8 +386,6 @@ fn parse_battery_data(state: &mut MuseState, data: &[u8]) -> Option<MuseProcesse
         battery: state.battery,
         packet_types: vec![MusePacketType::Battery],
         signal_quality: 100.0,
-        mindfulness: None,
-        restfulness: None,
         concentration: None,
         relaxation: None,
         alpha: None,
@@ -475,8 +457,6 @@ fn parse_ppg_data(state: &mut MuseState, ppg_idx: usize, data: &[u8]) -> Option<
                 vec![MusePacketType::Ppg]
             },
             signal_quality: 100.0,
-            mindfulness: None,
-            restfulness: None,
             concentration: None,
             relaxation: None,
             alpha: None,
@@ -628,8 +608,6 @@ pub fn parse_and_process_muse_packets(raw_packets: Vec<Vec<u8>>) -> Vec<MuseProc
             battery: 0.0,
             packet_types: vec![MusePacketType::Eeg],
             signal_quality: 100.0,
-            mindfulness: None,
-            restfulness: None,
             concentration: None,
             relaxation: None,
             alpha: None,

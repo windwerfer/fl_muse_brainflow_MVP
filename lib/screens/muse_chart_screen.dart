@@ -51,8 +51,6 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
   static const List<String> _otherSensors = [
     'SpO2',
     'Signal',
-    'Mindfulness',
-    'Restfulness',
     'Concentration',
     'Relaxation',
     'Alpha',
@@ -101,10 +99,6 @@ class _MuseChartScreenState extends State<MuseChartScreen> {
         _otherSensorHistory.add(data.spo2!);
       } else if (_selectedSensor == 'Signal') {
         _otherSensorHistory.add(data.signalQuality);
-      } else if (_selectedSensor == 'Mindfulness' && data.mindfulness != null) {
-        _otherSensorHistory.add(data.mindfulness!);
-      } else if (_selectedSensor == 'Restfulness' && data.restfulness != null) {
-        _otherSensorHistory.add(data.restfulness!);
       } else if (_selectedSensor == 'Concentration' &&
           data.concentration != null) {
         _otherSensorHistory.add(data.concentration!);
